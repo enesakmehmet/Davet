@@ -22,8 +22,8 @@ export class LocalStorageProvider implements IStorageProvider {
     fs.writeFileSync(filePath, file.buffer);
 
     // Dosyalar backend (ServeStaticModule) tarafından /uploads altında sunulur.
-    const base = process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`;
-    return `${base}/uploads/${filename}`;
+    const base = (process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`).trim();
+    return `${base.replace(/\/+$/, '')}/uploads/${filename}`;
   }
 
   async deleteFile(fileUrl: string): Promise<boolean> {
