@@ -17,7 +17,8 @@ const MainLayout = () => {
         <div className="header-actions">
           {isLoggedIn ? (
             <>
-              <Link to="/dashboard" style={{ marginRight: 16 }}>Merhaba, {user?.name || 'Panelim'}</Link>
+              <span style={{ marginRight: 16, color: 'var(--color-text-secondary)' }}>Merhaba, {user?.name?.split(' ')[0] || ''}</span>
+              <Link to="/dashboard" className="btn-outline" style={{ marginRight: 12 }}>Panelim</Link>
               <button className="btn-primary" onClick={logout}>Çıkış</button>
             </>
           ) : (
