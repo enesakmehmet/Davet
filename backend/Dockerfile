@@ -1,5 +1,8 @@
 FROM node:18-alpine AS builder
 
+# Prisma'nın ihtiyaç duyduğu OpenSSL (alpine'de eksik)
+RUN apk add --no-cache openssl
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -20,6 +23,9 @@ RUN npm run build
 
 # --- Production image ---
 FROM node:18-alpine
+
+# Prisma runtime için OpenSSL
+RUN apk add --no-cache openssl
 
 WORKDIR /usr/src/app
 
