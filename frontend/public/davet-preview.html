@@ -199,9 +199,10 @@ function fmtDay(d){var dt=new Date(d);if(isNaN(dt))return '';return days()[dt.ge
 /* ============ RENDER ============ */
 function render(cfg){
   cfg = Object.assign({}, DEFAULT, cfg||{});
-  var T = THEMES[cfg.theme] || THEMES.altin;
+  var isCelebKey = /^kutlama/.test(String(cfg.theme||''));
+  var T = THEMES[cfg.theme] || (isCelebKey ? THEMES.kutlamaPop : THEMES.altin);
   var isBday = (T.kind==='birthday');
-  var isCeleb = (T.mode==='celebration');
+  var isCeleb = (T.mode==='celebration') || isCelebKey;
   var couple = isBday ? (cfg.brideName||'') : ((cfg.brideName||'')+' & '+(cfg.groomName||''));
   var ink = T.dark ? '#ece6d6' : '#4a443c';
   var inkSoft = T.dark ? '#b0a78f' : '#7c7264';
@@ -445,7 +446,9 @@ function setupCalendar(cfg, couple){
 function setupFabs(cfg, couple, T){
   document.querySelectorAll('.fab.share').forEach(function(x){x.remove();});
   var sh=el('button','fab share','🔗');sh.style.background=T.accent;sh.style.color=T.dark?'#0b0b0d':'#fff';
-  sh.addEventListener('click',function(){var data={title:couple+' Düğün Davetiyesi',text:couple+' düğününe davetlisiniz!',url:location.href};if(navigator.share){navigator.share(data).catch(function(){});}else{window.open('https://wa.me/?text='+encodeURIComponent(data.text+' '+location.href),'_blank');}});
+  var shTitle = (T.mode==='celebration') ? (couple+' için Doğum Günü Kutlaması') : (T.kind==='birthday' ? (couple+' Doğum Günü Daveti') : (couple+' Düğün Davetiyesi'));
+  var shText = (T.mode==='celebration') ? (couple+' için bir kutlama 🎉 İyi ki doğdun!') : (T.kind==='birthday' ? (couple+' doğum günü partisine davetlisiniz! 🎂') : (couple+' düğününe davetlisiniz!'));
+  sh.addEventListener('click',function(){var data={title:shTitle,text:shText,url:location.href};if(navigator.share){navigator.share(data).catch(function(){});}else{window.open('https://wa.me/?text='+encodeURIComponent(data.text+' '+location.href),'_blank');}});
   document.body.appendChild(sh);
 }
 
