@@ -472,7 +472,7 @@ function startMusic(){
     if(!ms.audio){ms.audio=new Audio();ms.audio.loop=true;ms.audio.preload='auto';ms.audio.setAttribute('playsinline','');}
     if(ms.audio.src!==currentMusicUrl){ ms.audio.src=currentMusicUrl; try{ms.audio.load();}catch(e){} }
     ms.audio.volume=1; ms.audio.muted=false;
-    ms.audio.onerror=function(){ setPlaying(false); alert('Müzik yüklenemedi. Bağlantı geçerli, doğrudan bir .mp3 dosyası mı? (Railway’e yüklenen dosyalar her güncellemede silinebilir; kalıcı bir MP3 bağlantısı kullanın.)'); };
+    ms.audio.onerror=function(){ setPlaying(false); alert('Müzik yüklenemedi. Bağlantı doğrudan bir .mp3 dosyası olmalı (YouTube/Drive/Spotify sayfa linki çalışmaz). En sağlamı: editördeki "Dosya Seç" ile mp3\'ü doğrudan yükleyin.'); };
     var p=ms.audio.play();
     if(p&&p.then){ p.then(function(){ setPlaying(true); }).catch(function(err){ setPlaying(false); alert('Müzik çalınamadı: '+((err&&err.message)||'tarayıcı oynatmayı engelledi')+'. Geçerli bir .mp3 bağlantısı deneyin.'); }); }
     else { setPlaying(true); }

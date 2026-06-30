@@ -23,7 +23,8 @@ export class AssetsService {
       },
     });
     const base = process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`;
-    const url = `${base.replace(/\/$/, '')}/assets/file/${asset.id}`;
+    // Global prefix 'api' ile birlikte gerçek route /api/assets/file/:id'dir.
+    const url = `${base.replace(/\/$/, '')}/api/assets/file/${asset.id}`;
     await this.prisma.asset.update({ where: { id: asset.id }, data: { url } });
     return { id: asset.id, url, type, filename: file.originalname, size: file.size };
   }
