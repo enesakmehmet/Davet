@@ -234,3 +234,18 @@
   font-size: 22px;
   color: var(--color-text-primary);
 }
+
+/* ===== Responsive ===== */
+/* Dokunmatik cihazlarda hover olmadığı için kart üzerindeki "Önizle / Düzenle"
+   katmanı her zaman görünür olmalı, aksi halde butonlara erişilemez. */
+@media (hover: none) {
+  .tc-overlay { opacity: 1; background: rgba(0,0,0,0.32); }
+}
+
+@media (max-width: 560px) {
+  .templates-title { font-size: 32px; }
+  .templates-grid { grid-template-columns: 1fr; gap: 24px; }
+  .templates-toolbar { margin-bottom: 36px; gap: 16px; }
+  .filter-tags { gap: 8px; }
+  .filter-tag { padding: 7px 14px; font-size: 13px; }
+}

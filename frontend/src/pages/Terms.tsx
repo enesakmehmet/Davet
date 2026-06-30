@@ -1,7 +1,7 @@
 const Terms = () => {
   return (
     <div className="container" style={{ paddingTop: '80px', paddingBottom: '80px', maxWidth: '800px' }}>
-      <h1 style={{ fontSize: '48px', marginBottom: '32px' }}>Kullanım Şartları</h1>
+      <h1 className="page-h1" style={{ marginBottom: '32px' }}>Kullanım Şartları</h1>
       <div style={{ color: 'var(--color-text-secondary)', lineHeight: '1.8' }}>
         <p style={{ marginBottom: '24px' }}>
           Davetim hizmetlerini kullanarak aşağıdaki şartları ve koşulları kabul etmiş sayılırsınız. Lütfen hizmetlerimizi kullanmadan önce bu metni dikkatlice okuyun.

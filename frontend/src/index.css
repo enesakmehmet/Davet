@@ -106,3 +106,16 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-md);
 }
+
+/* Basit içerik sayfaları (İletişim, Gizlilik, Şartlar) için ortak responsive yardımcılar */
+.page-h1 { font-size: 48px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; max-width: 1000px; margin: 0 auto; }
+
+@media (max-width: 720px) {
+  .page-h1 { font-size: 32px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+}

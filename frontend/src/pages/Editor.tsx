@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Palette, Heart, MapPin, Mail, Music, Image as ImageIcon,
   Users, BookOpen, Download, Share2, Plus, Trash2, Check, UploadCloud,
-  Video, Sparkles
+  Video, Sparkles, X
 } from 'lucide-react';
 import { invitationService, assetService } from '../services/api';
 import { slugify } from '../utils/format';
@@ -180,6 +180,7 @@ const Editor = () => {
   const [saveError, setSaveError] = useState('');
   const [musicUploading, setMusicUploading] = useState(false);
   const [musicErr, setMusicErr] = useState('');
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false); // mobilde tam ekran önizleme aç/kapa
   const idRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const readyRef = useRef(false);
@@ -527,14 +528,22 @@ const Editor = () => {
           )}
         </section>
 
-        {/* sag: canli onizleme */}
-        <section className="ed-preview">
+        {/* sag: canli onizleme (mobilde "Önizle" ile acilan tam ekran katman) */}
+        <section className={`ed-preview ${mobilePreviewOpen ? 'open' : ''}`}>
+          <button className="ed-preview-close" onClick={() => setMobilePreviewOpen(false)} aria-label="Önizlemeyi kapat">
+            <X size={20} />
+          </button>
           <div className="phone">
             <div className="phone-top" />
             <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260630c" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>
+
+        {/* mobilde: önizlemeyi tam ekran acan yuzen buton */}
+        <button className="ed-preview-fab" onClick={() => setMobilePreviewOpen(true)} aria-label="Önizlemeyi göster">
+          <Sparkles size={16} /> Önizle
+        </button>
       </div>
     </div>
   );

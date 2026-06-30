@@ -227,20 +227,22 @@ const GuestsView = ({ invitations }: any) => {
         {loading ? <div className="db-empty">Yükleniyor…</div> : list.length === 0 ? (
           <div className="db-empty">Bu davete henüz yanıt gelmedi.</div>
         ) : (
-          <table className="db-table">
-            <thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Mesaj</th></tr></thead>
-            <tbody>
-              {list.map((g: any) => (
-                <tr key={g.id}>
-                  <td>{g.name}</td>
-                  <td><span className={`db-tag ${g.status === 'attending' ? 'green' : g.status === 'not_attending' ? 'red' : 'gray'}`}>
-                    {g.status === 'attending' ? 'Katılıyor' : g.status === 'not_attending' ? 'Katılmıyor' : g.status}</span></td>
-                  <td>{g.companionCount ?? 0}</td>
-                  <td className="db-msg">{g.message || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="db-table-wrap">
+            <table className="db-table">
+              <thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Mesaj</th></tr></thead>
+              <tbody>
+                {list.map((g: any) => (
+                  <tr key={g.id}>
+                    <td>{g.name}</td>
+                    <td><span className={`db-tag ${g.status === 'attending' ? 'green' : g.status === 'not_attending' ? 'red' : 'gray'}`}>
+                      {g.status === 'attending' ? 'Katılıyor' : g.status === 'not_attending' ? 'Katılmıyor' : g.status}</span></td>
+                    <td>{g.companionCount ?? 0}</td>
+                    <td className="db-msg">{g.message || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>

@@ -203,7 +203,8 @@
 .db-picker label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); }
 .db-picker select { padding: 9px 12px; border: 1px solid var(--color-border); border-radius: 9px; font-size: 14px; background: #fff; min-width: 240px; }
 
-.db-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.db-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.db-table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 14px; }
 .db-table th, .db-table td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--color-border); }
 .db-table th { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--color-text-secondary); }
 .db-msg { max-width: 260px; color: var(--color-text-secondary); }
@@ -219,4 +220,19 @@
   .sidebar-footer { margin-top: 0; border-top: none; }
   .db-new { margin: 0; }
   .dashboard-main { padding: 20px; }
+}
+
+@media (max-width: 560px) {
+  .dashboard-main { padding: 16px; }
+  .db-title { font-size: 22px; }
+  .content-section { padding: 20px; border-radius: 16px; }
+  .db-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .db-stat { padding: 16px; }
+  .db-stat b { font-size: 26px; }
+  .inv-grid { grid-template-columns: 1fr; }
+  .inv-actions { gap: 8px; }
+  .db-btn { flex: 1 1 auto; justify-content: center; }
+  .db-picker { flex-wrap: wrap; }
+  .db-picker select { min-width: 0; flex: 1 1 100%; }
+  .nav-item span { display: inline; }
 }

@@ -4,13 +4,13 @@ const Contact = () => {
   return (
     <div className="container" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
       <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <h1 style={{ fontSize: '48px', marginBottom: '16px' }}>Bizimle İletişime Geçin</h1>
+        <h1 className="page-h1" style={{ marginBottom: '16px' }}>Bizimle İletişime Geçin</h1>
         <p style={{ color: 'var(--color-text-secondary)' }}>
           Sorularınız, önerileriniz veya destek talepleriniz için buradayız.
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', maxWidth: '1000px', margin: '0 auto' }}>
+      <div className="contact-grid">
         <div>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '24px' }}>Bize Ulaşın</h3>
           
