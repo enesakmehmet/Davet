@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Davet Önizleme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Montserrat',sans-serif;color:#444;overflow-x:hidden;background:#fff}
+  #app{min-height:100vh}
+  section{padding:64px 24px;text-align:center;position:relative}
+  .decor{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+  .decor span{position:absolute;top:-20px;animation:fall linear infinite}
+  @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.8}100%{transform:translateY(106vh) rotate(360deg);opacity:0}}
+  .stars span{position:absolute;background:#fff;border-radius:50%;animation:tw ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.15;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+  #fw{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;z-index:2}
+  .reveal{opacity:0;transform:translateY(26px);animation:rev 1.2s forwards}
+  @keyframes rev{to{opacity:1;transform:none}}
+  .eyebrow{letter-spacing:5px;font-size:12px;text-transform:uppercase;font-weight:600}
+  .names{line-height:1.02;margin:10px 0}
+  .amp{display:block;font-size:.45em;opacity:.85}
+  .ornament{width:200px;margin:14px auto;display:flex;align-items:center;justify-content:center;gap:14px;font-size:15px}
+  .ornament::before,.ornament::after{content:"";height:1px;flex:1}
+  .subtitle{font-family:'Cormorant Garamond',serif;font-size:21px;font-style:italic}
+  .scroll-cue{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;animation:bob 2s infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .fade{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+  .fade.show{opacity:1;transform:none}
+  h2.title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;margin-bottom:6px}
+  .tsub{font-size:12px;letter-spacing:4px;text-transform:uppercase;margin-bottom:26px}
+  .lead{font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1.7;max-width:500px;margin:0 auto;font-style:italic}
+
+  .countdown{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .cd-box{border-radius:14px;padding:16px 6px;min-width:78px}
+  .cd-num{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;line-height:1}
+  .cd-lab{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-top:7px;opacity:.8}
+
+  .cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .card{border-radius:16px;padding:26px 20px;min-width:170px;flex:1;max-width:240px}
+  .card .ico{font-size:26px;margin-bottom:8px}
+  .card h3{font-family:'Cormorant Garamond',serif;font-size:21px;margin-bottom:6px}
+  .card p{font-size:14px;line-height:1.6;opacity:.85}
+
+  .tl{max-width:480px;margin:0 auto;text-align:left;position:relative;padding-left:32px}
+  .tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px}
+  .tl .it{position:relative;margin-bottom:22px}
+  .tl .it::before{content:"";position:absolute;left:-30px;top:4px;width:12px;height:12px;border-radius:50%}
+  .tl .it .w{font-size:11px;letter-spacing:2px;text-transform:uppercase;opacity:.75}
+  .tl .it h4{font-size:19px;margin:1px 0}
+  .tl .it p{font-size:14px;line-height:1.55;opacity:.85}
+
+  .gal{max-width:520px;margin:0 auto;position:relative;border-radius:16px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.16)}
+  .gal .fr{padding-top:64%}
+  .gal .sl{position:absolute;inset:0;opacity:0;transition:opacity .9s;background-size:cover;background-position:center}
+  .gal .sl.on{opacity:1}
+  .dots{display:flex;gap:7px;justify-content:center;margin-top:14px}
+  .dots span{width:9px;height:9px;border-radius:50%;opacity:.4;transition:.3s}
+  .dots span.on{opacity:1;transform:scale(1.25)}
+
+  .fam{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:560px;margin:0 auto}
+  .fam .fc{flex:1;min-width:190px;max-width:260px;border-radius:14px;padding:24px 20px}
+  .fam .fc .s{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.7;margin-bottom:6px}
+  .fam .fc .n{font-size:19px;line-height:1.5}
+
+  .map-frame{margin-top:20px;border-radius:16px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.14)}
+  .map-frame iframe{width:100%;height:300px;border:0;display:block}
+  .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:12px 24px;border-radius:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:pointer;border:1px solid;font-weight:600;transition:.3s}
+
+  .rsvp-card{border-radius:18px;padding:34px 22px;max-width:460px;margin:22px auto 0}
+  .choice{display:flex;gap:10px;margin:6px 0 16px}
+  .choice button{flex:1 1 0;min-width:0;padding:13px 6px;border-radius:12px;border:2px solid;background:transparent;font-family:inherit;font-size:13.5px;line-height:1.2;font-weight:600;cursor:pointer;transition:.25s;text-align:center}
+  .field{text-align:left;margin-bottom:12px}
+  .field label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;opacity:.75;margin-bottom:5px}
+  .field input,.field textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid;font-family:inherit;font-size:15px}
+  .field input:focus,.field textarea:focus{outline:none}
+  .send{width:100%;padding:14px;border:none;border-radius:11px;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+  .thanks{display:none;text-align:center;padding:12px}
+  .thanks.show{display:block;animation:rev .7s forwards}
+  .thanks .ck{font-size:48px}
+  .thanks h3{font-family:'Cormorant Garamond',serif;font-size:26px;margin:6px 0}
+  .wa{display:inline-block;margin-top:10px;padding:10px 22px;background:#25d366;color:#fff;text-decoration:none;border-radius:40px;font-size:13px;font-weight:600}
+
+  footer{padding:44px 18px;text-align:center}
+  footer .fn{line-height:1}
+  footer p{font-size:12px;letter-spacing:2px;margin-top:8px;opacity:.85}
+
+  .fab{position:fixed;right:16px;z-index:9999;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:18px;
+    box-shadow:0 8px 20px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .25s}
+  .fab:hover{transform:scale(1.08)}
+  .fab.music{bottom:16px}.fab.share{bottom:72px}
+  .fab.playing{animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ===== Dar ekran / telefon önizleme uyumu ===== */
+  @media(max-width:560px){
+    section{padding:52px 18px}
+    .names{font-size:clamp(44px,15vw,80px) !important}
+    .countdown{gap:8px}
+    .cd-box{min-width:0;flex:1 1 0;padding:14px 4px}
+    .cd-num{font-size:30px}
+    .cards{gap:12px}
+    .card{min-width:100%;max-width:100%}
+    .fam .fc{min-width:100%;max-width:100%}
+    .rsvp-card{padding:26px 16px}
+    .choice{flex-direction:column;gap:8px}
+    .choice button{width:100%;font-size:14px;padding:14px}
+    .map-frame iframe{height:260px}
+    .btnrow{gap:8px}
+    .btn{padding:11px 18px;font-size:11px}
+    .tl{padding-left:28px}
+    .fab{width:42px;height:42px;font-size:16px;right:12px}
+    .fab.music{bottom:12px}.fab.share{bottom:62px}
+    .gal{max-width:100%}
+  }
+  @media(max-width:380px){
+    .cd-num{font-size:25px}
+    .cd-lab{font-size:9px;letter-spacing:1px}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============ TEMA ÖN AYARLARI ============ */
+var THEMES = {
+  altin:    {label:'Zarif Altın', accent:'#9c7a31', soft:'#e8d6a8', dark:false, bg:'linear-gradient(160deg,#fbf7ef,#f3ead7)', page:'#fbf7ef', nameFont:'Great Vibes', decor:['✦'], decorKind:'rain'},
+  gul:      {label:'Romantik Gül', accent:'#b35a72', soft:'#f6dbe2', dark:false, bg:'radial-gradient(circle at 50% 30%,#fff,#fbe6ec)', page:'#fdf3f5', nameFont:'Parisienne', decor:['🌸','🌷','🌹'], decorKind:'rain'},
+  minimal:  {label:'Modern Minimal', accent:'#1a1a1a', soft:'#d8d8d8', dark:false, bg:'#f7f6f3', page:'#f7f6f3', nameFont:'Cormorant Garamond', decor:[], decorKind:'none'},
+  bohem:    {label:'Bohem Kır', accent:'#5f7050', soft:'#cdbfa6', dark:false, bg:'linear-gradient(170deg,#f6f1e7,#ece3d2)', page:'#f6f1e7', nameFont:'Amatic SC', decor:['🌿','🍃','🌾'], decorKind:'rain'},
+  lacivert: {label:'Lacivert Gece', accent:'#c9a14e', soft:'#e6cf95', dark:true, bg:'radial-gradient(circle at 50% 30%,#1b2c52,#0e1a33)', page:'#0e1a33', nameFont:'Italianno', decor:[], decorKind:'stars'},
+  lavanta:  {label:'Lavanta Bahçe', accent:'#6f54a0', soft:'#e3d6f3', dark:false, bg:'radial-gradient(circle at 50% 30%,#fff,#efe6fa)', page:'#f8f4fd', nameFont:'Sacramento', decor:['🌸','💜','🪻'], decorKind:'rain'},
+  sonbahar: {label:'Sonbahar', accent:'#8a3d1c', soft:'#ecd9bf', dark:false, bg:'linear-gradient(165deg,#f7efe2,#efd9bd)', page:'#f7efe2', nameFont:'Petit Formal Script', decor:['🍁','🍂','🌰'], decorKind:'rain'},
+  deniz:    {label:'Deniz Kıyısı', accent:'#1c7484', soft:'#bfe6ec', dark:false, bg:'linear-gradient(180deg,#bfe6ec,#7fcbd8)', page:'#f3fbfc', nameFont:'Pacifico', decor:['🫧','🐚','⭐'], decorKind:'rain'},
+  tropikal: {label:'Tropikal', accent:'#136443', soft:'#bfe6cf', dark:false, bg:'linear-gradient(160deg,#2aa56c,#1f8a5b)', page:'#f3fbf5', nameFont:'Caveat', decor:['🌺','🌿','🌴'], decorKind:'rain'},
+  havai:    {label:'Gece Havai Fişek', accent:'#cbab53', soft:'#f0d27a', dark:true, bg:'radial-gradient(ellipse at 50% 80%,#141c36,#070912)', page:'#070912', nameFont:'Allura', decor:[], decorKind:'fireworks'},
+  sinematik:{label:'Altın Sinematik', accent:'#c9a14e', soft:'#e7c878', dark:true, bg:'radial-gradient(ellipse at 50% 35%,#1a1726,#0b0b0d)', page:'#0b0b0d', nameFont:'Allura', decor:['✦'], decorKind:'rain'}
+};
+
+/* ============ VARSAYILAN CONFIG ============ */
+var DEFAULT = {
+  theme:'altin', brideName:'Zeynep', groomName:'Ahmet',
+  date:'2026-09-12T18:00', subtitle:'evleniyoruz, sizi de aramızda görmek isteriz',
+  venueName:'Çırağan Sarayı Kempinski', venueCity:'Beşiktaş, İstanbul',
+  mapQuery:'Çırağan Sarayı Kempinski İstanbul',
+  message:'Birbirimize verdiğimiz sözü, bizi sevenlerin huzurunda söylemek istiyoruz. Bu mutlu günümüzde yanımızda olmanız bizim için çok değerli.',
+  greeting:'Mutluluğumuza ortak olun',
+  reception:'Karşılama 17:30',
+  music:true,
+  photos:[
+    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80'
+  ],
+  families:[{side:'Gelin',names:'Sevgi & Kemal Aydın'},{side:'Damat',names:'Nurten & Hasan Yıldız'}],
+  story:[
+    {when:'2019',title:'İlk Tanışma',text:'Ortak bir arkadaşın doğum gününde tanıştık.'},
+    {when:'2022',title:'İlk Seyahat',text:'Birlikte çıktığımız ilk yolculukta birbirimize bağlandık.'},
+    {when:'2025',title:'Teklif',text:'Mum ışığında bir evet ile yollarımızı birleştirdik.'}
+  ],
+  rsvpDeadline:'1 Eylül', phone:'905555555555'
+};
+
+var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,master:null,step:0};
+
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+function months(){return ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];}
+function fmtDate(d){var dt=new Date(d);if(isNaN(dt))return '';return dt.getDate()+' '+months()[dt.getMonth()]+' '+dt.getFullYear();}
+function fmtTime(d){var dt=new Date(d);if(isNaN(dt))return '';return ('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}
+function days(){return ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];}
+function fmtDay(d){var dt=new Date(d);if(isNaN(dt))return '';return days()[dt.getDay()];}
+
+/* ============ RENDER ============ */
+function render(cfg){
+  cfg = Object.assign({}, DEFAULT, cfg||{});
+  var T = THEMES[cfg.theme] || THEMES.altin;
+  var couple = (cfg.brideName||'')+' & '+(cfg.groomName||'');
+  var ink = T.dark ? '#ece6d6' : '#4a443c';
+  var inkSoft = T.dark ? '#b0a78f' : '#7c7264';
+  var surface = T.dark ? 'rgba(255,255,255,.05)' : '#ffffff';
+  var border = T.dark ? 'rgba(255,255,255,.16)' : T.soft;
+
+  if(cdTimer)clearInterval(cdTimer); if(galTimer)clearInterval(galTimer); stopMusic();
+  if(fwRAF){cancelAnimationFrame(fwRAF);fwRAF=null;} if(window.__fwInt){clearInterval(window.__fwInt);window.__fwInt=null;}
+
+  document.body.style.background = T.page;
+  document.body.style.color = ink;
+
+  var app = document.getElementById('app');
+  app.innerHTML='';
+
+  /* dekor */
+  if(T.decorKind==='fireworks'){ var cv=el('canvas');cv.id='fw';app.appendChild(cv); startFireworks(cv); }
+  else if(T.decorKind==='stars'){ var sd=el('div','decor stars');for(var i=0;i<60;i++){var s=el('span');var z=1+Math.random()*2.2;s.style.width=z+'px';s.style.height=z+'px';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDuration=(1.6+Math.random()*3)+'s';s.style.animationDelay=(Math.random()*4)+'s';sd.appendChild(s);}app.appendChild(sd); }
+  else if(T.decorKind==='rain' && T.decor.length){ var dd=el('div','decor');for(var i=0;i<18;i++){var s=el('span');s.textContent=T.decor[i%T.decor.length];s.style.left=Math.random()*100+'%';s.style.fontSize=(10+Math.random()*14)+'px';s.style.color=T.accent;s.style.animationDuration=(7+Math.random()*7)+'s';s.style.animationDelay=(Math.random()*8)+'s';dd.appendChild(s);}app.appendChild(dd); }
+
+  var wrap = el('div'); wrap.style.maxWidth='760px';wrap.style.margin='0 auto';wrap.style.position='relative';wrap.style.zIndex='2';
+  app.appendChild(wrap);
+
+  /* HERO */
+  var hero = el('section','hero'); hero.style.background=T.bg; if(T.dark)hero.style.color='#fff';
+  hero.innerHTML =
+    '<div class="eyebrow reveal" style="color:'+(T.dark?T.soft:T.accent)+'">Aileleriyle birlikte</div>'+
+    '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(56px,13vw,104px);color:'+(T.dark?'#fff':T.accent)+'">'+esc(cfg.brideName)+'<span class="amp" style="color:'+T.soft+'">&</span>'+esc(cfg.groomName)+'</h1>'+
+    '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>❦<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
+    '<p class="subtitle reveal" style="color:'+inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+    '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date)+' · '+fmtDay(cfg.date)+'</div>'+
+    '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">AŞAĞI KAYDIR</div>';
+  wrap.appendChild(hero);
+
+  function sec(bg){var s=el('section','fade');if(bg)s.style.background=bg;return s;}
+  function titleHTML(t,sub){return '<h2 class="title" style="color:'+T.accent+'">'+esc(t)+'</h2><div class="tsub" style="color:'+inkSoft+'">'+esc(sub)+'</div>';}
+
+  /* DAVET */
+  var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,'Hayatımızın en özel günü')+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
+
+  /* HİKAYEMİZ */
+  if(cfg.story && cfg.story.length){
+    var s2=sec(); var h='<div class="tl" style="--c:'+T.accent+'">';
+    cfg.story.forEach(function(it){h+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(it.when)+'</div><h4 style="color:'+T.accent+'">'+esc(it.title)+'</h4><p style="color:'+inkSoft+'">'+esc(it.text)+'</p></div>';});
+    h+='</div>'; s2.innerHTML=titleHTML('Hikayemiz','Nasıl başladı?')+h; wrap.appendChild(s2);
+  }
+
+  /* GERİ SAYIM */
+  var s3=sec(); s3.innerHTML=titleHTML('Büyük Güne Kalan','Geri sayım')+
+    '<div class="countdown">'+['Gün','Saat','Dakika','Saniye'].map(function(l,i){return '<div class="cd-box" style="background:'+surface+';border:1px solid '+border+'"><div class="cd-num" id="cd'+i+'" style="color:'+T.accent+'">00</div><div class="cd-lab" style="color:'+inkSoft+'">'+l+'</div></div>';}).join('')+'</div>';
+  wrap.appendChild(s3);
+
+  /* DETAYLAR */
+  var s4=sec(); s4.innerHTML=titleHTML('Düğün Detayları','Sizi bekliyoruz')+
+    '<div class="cards">'+
+      card('📅','Tarih',fmtDate(cfg.date)+'<br>'+fmtDay(cfg.date))+
+      card('🕖','Saat',fmtTime(cfg.date)+'<br>'+esc(cfg.reception))+
+      card('📍','Mekan',esc(cfg.venueName)+'<br>'+esc(cfg.venueCity))+
+    '</div>';
+  wrap.appendChild(s4);
+  function card(ic,t,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+t+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
+
+  /* GALERİ */
+  if(cfg.photos && cfg.photos.length){
+    var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
+    cfg.photos.forEach(function(u,i){g+='<div class="sl'+(i===0?' on':'')+'" style="background-image:url(\''+u+'\')"></div>';});
+    g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
+    s5.innerHTML=titleHTML('Fotoğraf Galerisi','Birlikte güzel anlar')+g; wrap.appendChild(s5);
+  }
+
+  /* AİLELER */
+  if(cfg.families && cfg.families.length){
+    var s6=sec(); var f='<div class="fam">';
+    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(x.side)+' Ailesi</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
+    f+='</div>'; s6.innerHTML=titleHTML('Ailelerimiz','Mutluluğumuzu paylaşan')+f; wrap.appendChild(s6);
+  }
+
+  /* HARİTA */
+  var s7=sec(); s7.innerHTML=titleHTML('Mekan & Yol Tarifi',cfg.venueName)+
+    '<div class="map-frame" style="border:1px solid '+border+'"><iframe loading="lazy" src="https://www.google.com/maps?q='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'&output=embed"></iframe></div>'+
+    '<div class="btnrow"><a class="btn" target="_blank" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';border-color:'+T.accent+'" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'">🧭 Yol Tarifi</a>'+
+    '<button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">📅 Takvime Ekle</button></div>';
+  wrap.appendChild(s7);
+
+  /* RSVP */
+  var s8=sec(T.dark?'rgba(255,255,255,.02)':'rgba(0,0,0,.015)');
+  s8.innerHTML=titleHTML('Katılım Bildirimi','Lütfen '+esc(cfg.rsvpDeadline)+'\'e kadar bildirin')+
+    '<div class="rsvp-card" style="background:'+surface+';border:1px solid '+border+'">'+
+      '<form id="rf"><div class="choice">'+
+        '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">💛 Katılıyorum</button>'+
+        '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">Katılamıyorum</button></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">Ad Soyad</label><input id="gn" placeholder="Adınız Soyadınız" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field" id="cf"><label style="color:'+inkSoft+'">Kaç kişi?</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">Mesajınız</label><textarea id="gm" rows="2" placeholder="Çifte not..." style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
+        '<button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>Yanıtı Gönder</button></form>'+
+      '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">WhatsApp ile bildir</a></div>'+
+    '</div>';
+  wrap.appendChild(s8);
+
+  /* FOOTER */
+  var ft=el('footer'); ft.style.background=T.dark?'rgba(0,0,0,.3)':T.accent; ft.style.color=T.dark?T.soft:'#fff';
+  ft.innerHTML='<div class="fn" style="font-family:\''+T.nameFont+'\',cursive;font-size:48px">'+esc(couple)+'</div><p>'+fmtDate(cfg.date).toUpperCase()+' — '+esc(cfg.venueCity)+'</p>';
+  wrap.appendChild(ft);
+
+  /* ==== davranışlar ==== */
+  startCountdown(cfg.date);
+  setupReveal();
+  setupGallery();
+  setupRSVP(cfg, couple, T);
+  setupCalendar(cfg, couple);
+  setupFabs(cfg, couple, T);
+  currentMusicUrl = cfg.musicUrl || null;
+  if(cfg.music) ensureMusicBtn(T); else removeMusicBtn();
+}
+
+function startCountdown(date){
+  var target=new Date(date).getTime();
+  function tk(){var diff=target-Date.now();if(isNaN(diff))diff=0;if(diff<0)diff=0;
+    var v=[Math.floor(diff/86400000),Math.floor(diff%86400000/3600000),Math.floor(diff%3600000/60000),Math.floor(diff%60000/1000)];
+    for(var i=0;i<4;i++){var e=document.getElementById('cd'+i);if(e)e.textContent=(v[i]<10?'0'+v[i]:''+v[i]);}}
+  tk(); cdTimer=setInterval(tk,1000);
+}
+function setupReveal(){
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});},{threshold:.12});
+  document.querySelectorAll('.fade').forEach(function(s){obs.observe(s);});
+  /* timeline çizgi/nokta renkleri CSS'teki var(--c) ile gelir */
+}
+function setupGallery(){
+  var gal=document.querySelector('.gal'); if(!gal)return;
+  var sl=gal.querySelectorAll('.sl'), dots=document.querySelectorAll('.dots span'), cur=0;
+  if(sl.length<2)return;
+  galTimer=setInterval(function(){sl[cur].classList.remove('on');dots[cur]&&dots[cur].classList.remove('on');cur=(cur+1)%sl.length;sl[cur].classList.add('on');dots[cur]&&dots[cur].classList.add('on');},3600);
+}
+function setupRSVP(cfg, couple, T){
+  var phone=cfg.phone;
+  var choice=null, btns=document.querySelectorAll('.choice button');
+  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.style.background='transparent';});b.style.background=T.soft;choice=b.getAttribute('data-v');document.getElementById('cf').style.display=choice==='evet'?'block':'none';var sb=document.getElementById('sb');sb.disabled=false;sb.style.opacity='1';});});
+  var rf=document.getElementById('rf'); if(!rf)return;
+  rf.addEventListener('submit',function(e){e.preventDefault();
+    var name=document.getElementById('gn').value.trim()||'Bir misafir';var count=document.getElementById('gc').value||1;var msg=document.getElementById('gm').value.trim();var coming=choice==='evet';
+    /* Kayıtlı davette yanıtı backend'e de yaz */
+    if(cfg.invitationId && cfg.apiBase){
+      try{
+        fetch(cfg.apiBase.replace(/\/$/,'')+'/guests',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ invitationId:cfg.invitationId, name:name,
+            status: coming?'attending':'not_attending',
+            companionCount: coming?parseInt(count,10)||1:0, message:msg })
+        }).catch(function(){});
+      }catch(err){}
+    }
+    rf.style.display='none';
+    document.getElementById('tt').textContent=coming?'Harika, görüşmek üzere!':'Anlayışınız için teşekkürler';
+    document.getElementById('tm').textContent=coming?name+', '+count+' kişilik katılımınız alındı. Sizi aramızda görmek için sabırsızlanıyoruz!':name+', katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.';
+    var waText=encodeURIComponent((coming?'Düğününüze katılıyorum ✅':'Maalesef katılamıyorum ❌')+'\nAd: '+name+(coming?'\nKişi: '+count:'')+(msg?'\nNot: '+msg:'')+'\n— '+couple);
+    document.getElementById('wl').href='https://wa.me/'+phone+'?text='+waText;
+    document.getElementById('th').classList.add('show');});
+}
+function fmtICS(d){return d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';}
+function setupCalendar(cfg, couple){
+  var b=document.getElementById('calBtn'); if(!b)return;
+  b.addEventListener('click',function(){
+    var start=new Date(cfg.date), end=new Date(start.getTime()+5*3600000);
+    var ics='BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:'+fmtICS(start)+'\nDTEND:'+fmtICS(end)+'\nSUMMARY:'+couple+' Düğünü\nLOCATION:'+(cfg.venueName||'')+'\nDESCRIPTION:Düğünümüze davetlisiniz!\nEND:VEVENT\nEND:VCALENDAR';
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='dugun.ics';a.click();});
+}
+function setupFabs(cfg, couple, T){
+  document.querySelectorAll('.fab.share').forEach(function(x){x.remove();});
+  var sh=el('button','fab share','🔗');sh.style.background=T.accent;sh.style.color=T.dark?'#0b0b0d':'#fff';
+  sh.addEventListener('click',function(){var data={title:couple+' Düğün Davetiyesi',text:couple+' düğününe davetlisiniz!',url:location.href};if(navigator.share){navigator.share(data).catch(function(){});}else{window.open('https://wa.me/?text='+encodeURIComponent(data.text+' '+location.href),'_blank');}});
+  document.body.appendChild(sh);
+}
+
+/* ==== Müzik (MP3 varsa MP3, yoksa Web Audio melodi) ==== */
+var musicBtn=null;
+var currentMusicUrl=null;
+function ensureMusicBtn(T){
+  removeMusicBtn();
+  musicBtn=el('button','fab music','🎵');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';
+  musicBtn.addEventListener('click',function(){musicState.playing?stopMusic():startMusic();});
+  document.body.appendChild(musicBtn);
+}
+function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
+var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
+function startMusic(){
+  var ms=musicState;
+  // MP3 varsa onu çal
+  if(currentMusicUrl){
+    if(!ms.audio){ms.audio=new Audio();ms.audio.loop=true;}
+    ms.audio.src=currentMusicUrl;
+    ms.audio.play().catch(function(){});
+    ms.playing=true;if(musicBtn){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}
+    return;
+  }
+  // Aksi halde yumuşak melodi
+  ms.actx=ms.actx||new (window.AudioContext||window.webkitAudioContext)();
+  if(ms.actx.state==='suspended')ms.actx.resume();
+  ms.master=ms.actx.createGain();ms.master.gain.value=0.5;ms.master.connect(ms.actx.destination);
+  function chord(){var t=ms.actx.currentTime, ch=SEQ[ms.step%SEQ.length];ch.forEach(function(f,i){nt(f,t+i*0.16,1.6);});nt(ch[0]/2,t,1.8);ms.step++;}
+  function nt(f,t,d){var o=ms.actx.createOscillator(),g=ms.actx.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ms.master);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.16,t+0.08);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.start(t);o.stop(t+d+0.05);}
+  chord();ms.loop=setInterval(chord,1700);ms.playing=true;if(musicBtn){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}
+}
+function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}ms.playing=false;if(musicBtn){musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}
+
+/* ==== Havai fişek ==== */
+var fwRAF=null;
+function startFireworks(cv){
+  var ctx=cv.getContext('2d'),W,H;function rs(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}rs();window.addEventListener('resize',rs);
+  var colors=['#f0d27a','#ef9bb3','#9bd1ef','#c6a8ef','#fff3c4'],rockets=[],sparks=[];
+  function launch(){rockets.push({x:Math.random()*W,y:H,vy:-(6+Math.random()*3),ty:H*(0.2+Math.random()*0.35),c:colors[Math.floor(Math.random()*colors.length)]});}
+  function boom(x,y,c){var n=44+Math.floor(Math.random()*22);for(var i=0;i<n;i++){var a=Math.PI*2*i/n,sp=1.4+Math.random()*3.2;sparks.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,c:c});}}
+  function fr(){ctx.fillStyle='rgba(7,9,18,0.22)';ctx.fillRect(0,0,W,H);
+    for(var i=rockets.length-1;i>=0;i--){var r=rockets[i];r.y+=r.vy;r.vy+=0.04;ctx.beginPath();ctx.arc(r.x,r.y,2,0,7);ctx.fillStyle=r.c;ctx.fill();if(r.y<=r.ty||r.vy>=0){boom(r.x,r.y,r.c);rockets.splice(i,1);}}
+    for(var j=sparks.length-1;j>=0;j--){var s=sparks[j];s.x+=s.vx;s.y+=s.vy;s.vy+=0.035;s.vx*=0.99;s.life-=0.012;if(s.life<=0){sparks.splice(j,1);continue;}ctx.globalAlpha=Math.max(s.life,0);ctx.beginPath();ctx.arc(s.x,s.y,2,0,7);ctx.fillStyle=s.c;ctx.fill();ctx.globalAlpha=1;}
+    fwRAF=requestAnimationFrame(fr);}
+  if(fwRAF)cancelAnimationFrame(fwRAF); fr(); if(window.__fwInt)clearInterval(window.__fwInt); window.__fwInt=setInterval(launch,900); launch();
+}
+
+/* tl çizgi/nokta renkleri için stil enjekte */
+(function(){var s=document.createElement('style');s.textContent='.tl::before{background:var(--c,#ccc);opacity:.4}.tl .it::before{background:var(--c,#ccc)}';document.head.appendChild(s);})();
+
+/* ============ GİRİŞ ============ */
+window.addEventListener('message',function(e){ if(e.data && e.data.__davet){ render(e.data.cfg); } });
+function parseHash(){try{var m=location.hash.match(/cfg=([^&]+)/);if(m)return JSON.parse(decodeURIComponent(escape(atob(m[1]))));}catch(e){}return null;}
+render(window.__INITIAL_CFG__ || parseHash() || DEFAULT);
+/* editöre hazır olduğunu bildir */
+try{ if(window.parent && window.parent!==window) window.parent.postMessage({__davetReady:true},'*'); }catch(e){}
+</script>
+</body>
+</html>

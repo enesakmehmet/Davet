@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Melike & Sarp — Düğün Davetiyesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Tangerine:wght@400;700&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --gold:#e7c878; --gold-dk:#c9a14e; --gold-deep:#8c6a2a;
+    --bg:#0b0b0d; --bg2:#15131a; --ink:#ece6d6; --ink-soft:#b0a78f; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto;background:var(--bg);box-shadow:0 0 90px rgba(0,0,0,.7)}
+  section{padding:80px 28px;text-align:center;position:relative;border-bottom:1px solid rgba(231,200,120,.1)}
+
+  /* ===== Açılış perdesi (zarf/mühür) ===== */
+  #veil{position:fixed;inset:0;z-index:99999;background:radial-gradient(circle at 50% 45%,#1c1830,#0b0b0d 75%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    animation:veilUp 1.1s 3s forwards}
+  @keyframes veilUp{to{transform:translateY(-100%);visibility:hidden}}
+  .seal{width:120px;height:120px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+    font-family:'Cinzel',serif;font-size:34px;color:var(--gold);position:relative;
+    box-shadow:0 0 40px rgba(231,200,120,.35);animation:sealPulse 1.4s ease-in-out infinite, sealPop .9s .1s both}
+  @keyframes sealPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes sealPulse{0%,100%{box-shadow:0 0 30px rgba(231,200,120,.3)}50%{box-shadow:0 0 60px rgba(231,200,120,.6)}}
+  .seal::before{content:"";position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(231,200,120,.5)}
+  .veil-sub{font-family:'Cinzel',serif;letter-spacing:5px;font-size:12px;color:var(--ink-soft);text-transform:uppercase;
+    animation:fadeIn 1s 1s both}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* ===== Altın parıltı parçacıkları ===== */
+  .glints{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+  .glints span{position:absolute;top:-20px;color:var(--gold);animation:fall linear infinite}
+  @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.7}100%{transform:translateY(106vh) rotate(360deg);opacity:0}}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;z-index:2;
+    background:radial-gradient(ellipse at 50% 35%,#1a1726,#0b0b0d 78%)}
+  .rise{opacity:0;transform:translateY(30px);animation:rise 1.2s 3.4s forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .eyebrow{letter-spacing:7px;font-size:11px;text-transform:uppercase;color:var(--ink-soft);font-weight:400}
+  .names{font-family:'Tangerine',cursive;font-weight:700;font-size:clamp(82px,19vw,168px);line-height:.85;margin:6px 0;
+    background:linear-gradient(100deg,#9c7a31 0%,#f3e2a8 25%,#fff7e0 50%,#f3e2a8 75%,#9c7a31 100%);
+    background-size:250% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:shimmer 5s linear infinite}
+  @keyframes shimmer{to{background-position:250% center}}
+  /* iç içe yüzükler */
+  .rings{margin:6px auto 2px}
+  .rings circle{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:220;stroke-dashoffset:220;
+    animation:draw 2s 3.6s forwards}
+  .rings circle:nth-child(2){animation-delay:3.9s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .subtitle{font-family:'Cinzel',serif;font-size:15px;letter-spacing:3px;color:var(--ink-soft);text-transform:uppercase}
+  .scroll-cue{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:4px;color:var(--gold-dk);
+    animation:bob 2s 4s infinite both}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .fade{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease;position:relative;z-index:2}
+  .fade.show{opacity:1;transform:none}
+  h2.title{font-family:'Cinzel',serif;font-size:30px;font-weight:500;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
+  .title-sub{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:30px}
+  .lead{font-family:'Jost',serif;font-weight:300;font-size:22px;line-height:1.8;max-width:520px;margin:0 auto;color:var(--ink)}
+
+  .countdown{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .cd-box{background:linear-gradient(160deg,rgba(231,200,120,.08),rgba(255,255,255,.02));border:1px solid rgba(231,200,120,.35);
+    border-radius:14px;padding:18px 6px;min-width:84px;backdrop-filter:blur(4px)}
+  .cd-num{font-family:'Cinzel',serif;font-size:44px;font-weight:600;color:var(--gold);line-height:1}
+  .cd-lab{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+
+  .cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .card{background:var(--bg2);border:1px solid rgba(231,200,120,.28);border-radius:16px;padding:30px 24px;min-width:200px;flex:1;max-width:280px;
+    transition:transform .4s,box-shadow .4s}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(231,200,120,.15)}
+  .card .ico{font-size:26px;margin-bottom:10px}
+  .card h3{font-family:'Cinzel',serif;font-size:19px;color:var(--gold);margin-bottom:8px}
+  .card p{font-size:15px;color:var(--ink-soft);line-height:1.6}
+
+  .map-frame{margin-top:24px;border-radius:16px;overflow:hidden;border:1px solid rgba(231,200,120,.35)}
+  .map-frame iframe{width:100%;height:340px;border:0;display:block;filter:grayscale(.3) brightness(.85)}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+    text-decoration:none;cursor:pointer;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'Jost';font-weight:500;transition:.3s}
+  .btn-fill{background:var(--gold);color:#0b0b0d}
+  .btn:hover{background:var(--gold);color:#0b0b0d;transform:translateY(-2px)}
+
+  .rsvp-card{background:var(--bg2);border:1px solid rgba(231,200,120,.3);border-radius:20px;padding:38px 26px;max-width:480px;margin:24px auto 0}
+  .choice{display:flex;gap:12px;margin:8px 0 18px}
+  .choice button{flex:1;padding:15px;border:1px solid rgba(231,200,120,.4);background:transparent;border-radius:12px;font-family:'Jost';font-size:14px;font-weight:500;color:var(--ink-soft);cursor:pointer;transition:.25s}
+  .choice button.yes.active{background:rgba(231,200,120,.18);border-color:var(--gold);color:var(--gold)}
+  .choice button.no.active{background:rgba(201,100,100,.16);border-color:#d98a8a;color:#e7a6a6}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:12px 14px;border:1px solid rgba(231,200,120,.3);border-radius:10px;font-family:'Jost';font-size:15px;color:var(--ink);background:rgba(255,255,255,.03)}
+  .field input::placeholder,.field textarea::placeholder{color:#6f674f}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+  .send{width:100%;padding:15px;background:var(--gold);color:#0b0b0d;border:none;border-radius:12px;font-family:'Jost';font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .send:hover{background:#fff0c4}
+  .send:disabled{opacity:.4;cursor:not-allowed}
+  .thanks{display:none;text-align:center;padding:14px}
+  .thanks.show{display:block;animation:rise .8s forwards}
+  .thanks .check{font-size:46px}
+  .thanks h3{font-family:'Cinzel',serif;font-size:24px;color:var(--gold);margin:8px 0}
+  .thanks p{color:var(--ink-soft);line-height:1.6}
+  .wa{display:inline-block;margin-top:14px;padding:11px 24px;background:#25d366;color:#fff;text-decoration:none;border-radius:40px;font-size:13px;font-weight:600}
+  footer{padding:56px 20px;text-align:center;position:relative;z-index:2}
+  footer .names-sm{font-family:'Tangerine',cursive;font-weight:700;font-size:72px;color:var(--gold);line-height:.9}
+  footer p{font-size:11px;letter-spacing:4px;margin-top:6px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div id="veil"><div class="seal">M&S</div><div class="veil-sub">Davetiyeniz açılıyor…</div></div>
+<div class="glints" id="glints"></div>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow rise">Aileleriyle birlikte</div>
+    <h1 class="names rise">Melike &amp; Sarp</h1>
+    <svg class="rings" width="90" height="50" viewBox="0 0 90 50"><circle cx="36" cy="25" r="16"></circle><circle cx="54" cy="25" r="16"></circle></svg>
+    <p class="subtitle rise">evleniyoruz</p>
+    <div class="eyebrow rise" style="margin-top:22px">19 Eylül 2026 · Cumartesi</div>
+    <div class="scroll-cue">AŞAĞI KAYDIR</div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Sevgiyle Davetlisiniz</h2>
+    <div class="title-sub">Işıltılı bir gece</div>
+    <p class="lead">Hayallerimizi gerçeğe dönüştürdüğümüz bu ışıltılı gecede, en sevdiklerimizle el ele olmak istiyoruz. Mutluluğumuza ortak olun.</p>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Büyük Güne Kalan</h2>
+    <div class="title-sub">Geri sayım</div>
+    <div class="countdown">
+      <div class="cd-box"><div class="cd-num" id="d">00</div><div class="cd-lab">Gün</div></div>
+      <div class="cd-box"><div class="cd-num" id="h">00</div><div class="cd-lab">Saat</div></div>
+      <div class="cd-box"><div class="cd-num" id="m">00</div><div class="cd-lab">Dakika</div></div>
+      <div class="cd-box"><div class="cd-num" id="s">00</div><div class="cd-lab">Saniye</div></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Düğün Detayları</h2>
+    <div class="title-sub">Tarih · Saat · Mekan</div>
+    <div class="cards">
+      <div class="card"><div class="ico">✦</div><h3>Tarih</h3><p>19 Eylül 2026<br>Cumartesi</p></div>
+      <div class="card"><div class="ico">✦</div><h3>Saat</h3><p>Akşam 19:30<br>Kokteyl 19:00</p></div>
+      <div class="card"><div class="ico">✦</div><h3>Mekan</h3><p>Sumahan on the Water<br>Çengelköy, İstanbul</p></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Mekan & Yol Tarifi</h2>
+    <div class="title-sub">Sumahan on the Water</div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://www.google.com/maps?q=Sumahan%20on%20the%20Water%20%C3%87engelk%C3%B6y%20%C4%B0stanbul&output=embed"></iframe>
+    </div>
+    <div class="btnrow">
+      <a class="btn btn-fill" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=Sumahan+on+the+Water+%C3%87engelk%C3%B6y+%C4%B0stanbul">🧭 Yol Tarifi</a>
+    </div>
+  </section>
+
+  <section class="rsvp fade">
+    <h2 class="title">Katılım Bildirimi</h2>
+    <div class="title-sub">Lütfen 5 Eylül'e kadar bildirin</div>
+    <div class="rsvp-card">
+      <form id="rsvpForm">
+        <div class="choice">
+          <button type="button" class="yes" data-v="evet">✦ Katılıyorum</button>
+          <button type="button" class="no" data-v="hayir">Katılamıyorum</button>
+        </div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="guestName" placeholder="Adınız Soyadınız" required></div>
+        <div class="field" id="countField"><label>Kaç kişi katılacaksınız?</label><input type="number" id="guestCount" min="1" value="1"></div>
+        <div class="field"><label>Mesajınız (isteğe bağlı)</label><textarea id="guestMsg" rows="3" placeholder="Çifte iletmek istedikleriniz..."></textarea></div>
+        <button type="submit" class="send" id="sendBtn" disabled>Yanıtı Gönder</button>
+      </form>
+      <div class="thanks" id="thanks">
+        <div class="check">✦</div>
+        <h3 id="thanksTitle">Teşekkür ederiz!</h3>
+        <p id="thanksMsg"></p>
+        <a class="wa" id="waLink" target="_blank">WhatsApp ile de bildir</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="names-sm">Melike &amp; Sarp</div>
+    <p>19 · 09 · 2026 — İSTANBUL</p>
+  </footer>
+</div>
+
+<script>
+  var WEDDING_DATE="2026-09-19T19:30:00+03:00";
+  var COUPLE="Melike & Sarp";
+  var HOST_PHONE="905555555555";
+  var target=new Date(WEDDING_DATE).getTime();
+  function pad(n){return n<10?"0"+n:n;}
+  function tick(){var diff=target-Date.now();if(diff<0)diff=0;
+    document.getElementById('d').textContent=pad(Math.floor(diff/86400000));
+    document.getElementById('h').textContent=pad(Math.floor(diff%86400000/3600000));
+    document.getElementById('m').textContent=pad(Math.floor(diff%3600000/60000));
+    document.getElementById('s').textContent=pad(Math.floor(diff%60000/1000));}
+  tick(); setInterval(tick,1000);
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});},{threshold:.15});
+  document.querySelectorAll('.fade').forEach(function(el){obs.observe(el);});
+  (function(){var c=document.getElementById('glints');for(var i=0;i<26;i++){var s=document.createElement('span');s.textContent="✦";s.style.left=Math.random()*100+"%";s.style.fontSize=(6+Math.random()*12)+"px";s.style.animationDuration=(6+Math.random()*8)+"s";s.style.animationDelay=(Math.random()*8)+"s";c.appendChild(s);}})();
+  var choice=null;var btns=document.querySelectorAll('.choice button');
+  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.classList.remove('active');});b.classList.add('active');choice=b.getAttribute('data-v');document.getElementById('countField').style.display=choice==='evet'?'block':'none';document.getElementById('sendBtn').disabled=false;});});
+  document.getElementById('rsvpForm').addEventListener('submit',function(e){e.preventDefault();
+    var name=document.getElementById('guestName').value.trim()||"Bir misafir";var count=document.getElementById('guestCount').value||1;var msg=document.getElementById('guestMsg').value.trim();var coming=choice==='evet';
+    document.getElementById('rsvpForm').style.display='none';
+    document.getElementById('thanksTitle').textContent=coming?"Harika, görüşmek üzere!":"Anlayışınız için teşekkürler";
+    document.getElementById('thanksMsg').textContent=coming?name+", "+count+" kişilik katılımınız alındı. Işıltılı gecede buluşmak üzere! ✦":name+", katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.";
+    var waText=encodeURIComponent((coming?"Düğününüze katılıyorum ✅":"Maalesef katılamıyorum ❌")+"\nAd: "+name+(coming?"\nKişi: "+count:"")+(msg?"\nNot: "+msg:"")+"\n— "+COUPLE);
+    document.getElementById('waLink').href="https://wa.me/"+HOST_PHONE+"?text="+waText;
+    var t=document.getElementById('thanks');t.classList.add('show');t.scrollIntoView({behavior:'smooth',block:'center'});});
+</script>
+<script>
+window.DAVET={
+  couple:"Melike & Sarp", date:"2026-09-19T19:30:00+03:00",
+  venue:"Sumahan on the Water, Çengelköy, İstanbul", phone:"905555555555",
+  accent:"#c9a14e", accentSoft:"#e7c878", dark:true,
+  families:[{side:"Gelin", names:"Sema & Orhan Yalçın"},{side:"Damat", names:"Gül & Tamer Aydın"}],
+  story:[
+    {when:"2018", title:"İlk Sahne", text:"Bir sinema galasında yan yana koltuklarda."},
+    {when:"2021", title:"Başrol", text:"Hayat filmimizin başrolünü paylaşmaya karar verdik."},
+    {when:"2025", title:"Final Sahnesi", text:"Işıklar altında bir 'evet' ile."}
+  ],
+  photos:[
+    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80"
+  ]
+};
+</script>
+<script src="assets/ortak.js"></script>
+</body>
+</html>

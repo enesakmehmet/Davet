@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  davetiye_backend:
+    container_name: davetiye_backend_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@davetiye_db:5432/davetsistemi?schema=public
+      - REDIS_HOST=davetiye_redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=super_secret_key_123
+    depends_on:
+      davetiye_db:
+        condition: service_healthy
+      davetiye_redis:
+        condition: service_started
+    networks:
+      - davetiye_network
+
+  davetiye_db:
+    container_name: davetiye_postgresql
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: davetsistemi
+    ports:
+      - "5433:5432" # Exposed on 5433 to avoid conflicts
+    volumes:
+      - davetiye_pgdata:/var/lib/postgresql/data
+    networks:
+      - davetiye_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  davetiye_redis:
+    container_name: davetiye_redis_cache
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6380:6379" # Exposed on 6380 to avoid conflicts
+    volumes:
+      - davetiye_redisdata:/data
+    networks:
+      - davetiye_network
+
+networks:
+  davetiye_network:
+    driver: bridge
+
+volumes:
+  davetiye_pgdata:
+  davetiye_redisdata:

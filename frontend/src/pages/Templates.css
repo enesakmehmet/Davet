@@ -1,0 +1,236 @@
+.templates-page {
+  padding-top: 60px;
+  padding-bottom: 100px;
+  background-color: var(--color-bg);
+  min-height: calc(100vh - 80px);
+}
+
+.templates-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.templates-title {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: var(--color-text-primary);
+}
+
+.templates-subtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* TOOLBAR */
+.templates-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--color-border);
+  padding: 12px 20px;
+  border-radius: 30px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s;
+}
+
+.search-box:focus-within {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent-gold);
+}
+
+.search-icon {
+  color: var(--color-text-secondary);
+  margin-right: 12px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.filter-tags {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-tag {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  padding: 8px 20px;
+  border-radius: 20px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.filter-tag:hover {
+  border-color: var(--color-text-primary);
+  color: var(--color-text-primary);
+}
+
+.filter-tag.active {
+  background: var(--color-text-primary);
+  color: white;
+  border-color: var(--color-text-primary);
+}
+
+/* GRID & CARDS */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 40px;
+}
+
+.template-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--color-border-light);
+}
+
+.template-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.tc-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: #f0eee8;
+}
+
+.tc-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.tc-monogram {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  opacity: 0.55;
+  transition: transform 0.7s ease;
+}
+
+.template-card:hover .tc-monogram {
+  transform: scale(1.12);
+}
+
+.template-card:hover .tc-image {
+  transform: scale(1.05);
+}
+
+.tc-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.template-card:hover .tc-overlay {
+  opacity: 1;
+}
+
+.btn-outline-white {
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-outline-white:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.btn-primary-white {
+  background: white;
+  color: var(--color-text-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary-white:hover {
+  background: var(--color-bg);
+  transform: scale(1.05);
+}
+
+.tc-info {
+  padding: 24px;
+}
+
+.tc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tc-category {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-accent-gold);
+  font-weight: 600;
+}
+
+.tc-price {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.tc-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--color-text-primary);
+}

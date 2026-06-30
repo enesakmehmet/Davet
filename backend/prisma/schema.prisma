@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String   @default("user") // "user" | "admin"
+  status       String   @default("active") // "active" | "suspended"
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  templates       Template[]
+  invitations     Invitation[]
+  assets          Asset[]
+  payments        Payment[]
+  subscriptions   Subscription[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  templateReviews TemplateReview[]
+}
+
+// Site geneli sayfa görüntüleme takibi (dahili analytics)
+model PageView {
+  id        String   @id @default(uuid())
+  path      String
+  sessionId String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+}
+
+model TemplateCategory {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  slug      String     @unique
+  templates Template[]
+}
+
+model Template {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  price       Float     @default(0)
+  elements    Json // Canva benzeri editörün JSON yapısı
+  thumbnail   String?
+  isPremium   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   TemplateCategory? @relation(fields: [categoryId], references: [id])
+
+  reviews TemplateReview[]
+  sales   TemplateSale[]
+}
+
+model Invitation {
+  id                  String    @id @default(uuid())
+  title               String
+  slug                String    @unique
+  eventDate           DateTime?
+  config              Json? // Yeni form tabanlı editörün davet ayarları (tema, çift, mekan, müzik, galeri, aile, hikaye, RSVP)
+  isPasswordProtected Boolean   @default(false)
+  passwordHash        String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pages           InvitationPage[]
+  guests          Guest[]
+  analytics       Analytics[]
+  analyticsEvents AnalyticsEvent[]
+  versions        InvitationVersion[]
+}
+
+model InvitationPage {
+  id         String @id @default(uuid())
+  pageNumber Int
+  elements   Json // Canvas component JSON
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@unique([invitationId, pageNumber])
+}
+
+model InvitationVersion {
+  id            String   @id @default(uuid())
+  versionNumber Int
+  editorData    Json
+  createdAt     DateTime @default(now())
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Asset {
+  id        String    @id @default(uuid())
+  url       String
+  type      String // image, audio, video
+  filename  String
+  size      Int
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Guest {
+  id             String   @id @default(uuid())
+  name           String
+  email          String?
+  phone          String?
+  status         String // attending, not_attending, maybe, pending
+  companionCount Int      @default(0)
+  message        String?
+  createdAt      DateTime @default(now())
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  amount        Float
+  currency      String   @default("TRY")
+  status        String // pending, completed, failed
+  provider      String // paytr, iyzico
+  transactionId String?
+  createdAt     DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  templateSales TemplateSale[]
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  plan      String // basic, premium, pro
+  status    String // active, canceled, expired
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Analytics {
+  id          String   @id @default(uuid())
+  views       Int      @default(0)
+  visitors    Int      @default(0)
+  countries   Json? // e.g. {"TR": 150, "US": 5}
+  avgDuration Int      @default(0) // in seconds
+  updatedAt   DateTime @updatedAt
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model AnalyticsEvent {
+  id              String   @id @default(uuid())
+  browser         String?
+  device          String?
+  operatingSystem String?
+  referrer        String?
+  country         String?
+  viewedAt        DateTime @default(now())
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  entityType String
+  entityId   String?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model TemplateReview {
+  id        String   @id @default(uuid())
+  rating    Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TemplateSale {
+  id        String   @id @default(uuid())
+  price     Float
+  createdAt DateTime @default(now())
+
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  paymentId  String
+  payment    Payment  @relation(fields: [paymentId], references: [id])
+}

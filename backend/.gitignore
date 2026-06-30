@@ -1,0 +1,23 @@
+# Bağımlılıklar
+/node_modules
+
+# Derleme çıktısı
+/dist
+
+# Ortam değişkenleri (GİZLİ — repoya eklenmez)
+.env
+.env.*
+!.env.example
+
+# Loglar
+*.log
+npm-debug.log*
+
+# Prisma
+prisma/*.db
+
+# IDE / OS
+.idea
+.vscode/*
+!.vscode/settings.json
+.DS_Store

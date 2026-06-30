@@ -1,0 +1,149 @@
+.dashboard-layout {
+  height: 100vh;
+  display: flex;
+  background-color: var(--color-bg);
+}
+
+.dashboard-sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.nav-item:hover {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+.nav-item.active {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--color-accent-gold);
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 48px;
+  overflow-y: auto;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.content-section {
+  background: white;
+  padding: 32px;
+  border-radius: 24px;
+  border: 1px solid var(--color-border);
+  min-height: 500px;
+}
+
+/* Utilities used in Dashboard */
+.bg-bg { background-color: var(--color-bg); }
+.bg-gold { background-color: var(--color-accent-gold); }
+.text-gold { color: var(--color-accent-gold); }
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-green-600 { color: #16a34a; }
+.font-serif { font-family: var(--font-serif); }
+.font-sans { font-family: var(--font-sans); }
+.font-bold { font-weight: 700; }
+.tracking-widest { letter-spacing: 0.1em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.uppercase { text-transform: uppercase; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.top-0 { top: 0; }
+.right-0 { right: 0; }
+.top-4 { top: 16px; }
+.left-4 { left: 16px; }
+.bottom-0 { bottom: 0; }
+.left-0 { left: 0; }
+.w-2 { width: 8px; }
+.h-2 { height: 8px; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.w-1\/3 { width: 33.333333%; }
+.w-2\/3 { width: 66.666667%; }
+.h-0\.5 { height: 2px; }
+.mt-1 { margin-top: 4px; }
+.mt-4 { margin-top: 16px; }
+.mt-8 { margin-top: 32px; }
+.mt-auto { margin-top: auto; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mb-8 { margin-bottom: 32px; }
+.mb-12 { margin-bottom: 48px; }
+.p-2 { padding: 8px; }
+.p-6 { padding: 24px; }
+.p-8 { padding: 32px; }
+.px-2 { padding-left: 8px; padding-right: 8px; }
+.py-1 { padding-top: 4px; padding-bottom: 4px; }
+.py-3 { padding-top: 12px; padding-bottom: 12px; }
+.py-12 { padding-top: 48px; padding-bottom: 48px; }
+.pb-4 { padding-bottom: 16px; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.gap-8 { gap: 32px; }
+.rounded { border-radius: 4px; }
+.rounded-full { border-radius: 50%; }
+.rounded-2xl { border-radius: 16px; }
+.border { border: 1px solid var(--color-border); }
+.border-b { border-bottom: 1px solid var(--color-border); }
+.border-t { border-top: 1px solid var(--color-border); }
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 14px; }
+.text-xl { font-size: 20px; }
+.text-2xl { font-size: 24px; }
+.text-3xl { font-size: 30px; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.bg-white { background-color: white; }
+.hover\:bg-border:hover { background-color: var(--color-border); }
+.hover\:text-primary:hover { color: var(--color-text-primary); }
+.hover\:underline:hover { text-decoration: underline; }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.transition-colors { transition: background-color 0.2s, color 0.2s; }
+.transition-shadow { transition: box-shadow 0.3s; }
+.transition-transform { transition: transform 0.7s ease; }
+.cursor-pointer { cursor: pointer; }
+.overflow-hidden { overflow: hidden; }
+.object-cover { object-fit: cover; }
+.group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+.group:hover .group-hover\:shadow-md { box-shadow: var(--shadow-md); }

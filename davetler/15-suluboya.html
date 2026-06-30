@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada & Poyraz — Düğün Davetiyesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Mulish:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --teal:#4f9a94; --teal-dk:#357a74; --plum:#9a6a98; --coralw:#e08a86;
+    --bg:#fbf9f4; --bg2:#f2efe6; --ink:#4a5258; --ink-soft:#7a828a; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Mulish',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto;background:var(--bg);box-shadow:0 0 60px rgba(0,0,0,.08);position:relative;z-index:2}
+  section{padding:74px 28px;text-align:center;position:relative}
+
+  /* suluboya lekeleri (arka plan) */
+  .ink{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .ink b{position:absolute;border-radius:50%;filter:blur(28px);opacity:.5;animation:spread 12s ease-in-out infinite}
+  @keyframes spread{0%,100%{transform:scale(.9) translateY(0)}50%{transform:scale(1.15) translateY(-18px)}}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;z-index:2}
+  .bleed{opacity:0;filter:blur(14px);transform:translateY(16px);animation:bleed 1.6s forwards}
+  @keyframes bleed{to{opacity:1;filter:blur(0);transform:none}}
+  .eyebrow{letter-spacing:5px;font-size:12px;text-transform:uppercase;color:var(--teal-dk);font-weight:600}
+  .names{font-family:'Marck Script',cursive;font-size:clamp(64px,15vw,122px);line-height:1;margin:8px 0;
+    background:linear-gradient(120deg,var(--teal-dk),var(--plum) 50%,var(--coralw));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  /* fırça darbesi */
+  .brush{margin:2px auto 0;display:block}
+  .brush path{fill:none;stroke:var(--coralw);stroke-width:7;stroke-linecap:round;stroke-dasharray:340;stroke-dashoffset:340;
+    animation:stroke 1.6s 1s forwards;opacity:.7}
+  @keyframes stroke{to{stroke-dashoffset:0}}
+  .subtitle{font-family:'Cormorant Garamond',serif;font-size:23px;font-style:italic;color:var(--ink-soft);margin-top:8px}
+  .scroll-cue{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;color:var(--teal-dk);animation:bob 2s infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .fade{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease;position:relative;z-index:2}
+  .fade.show{opacity:1;transform:none}
+  h2.title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:var(--teal-dk);margin-bottom:6px}
+  .title-sub{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--plum);margin-bottom:30px}
+  .lead{font-family:'Cormorant Garamond',serif;font-size:24px;line-height:1.7;max-width:520px;margin:0 auto;color:var(--ink);font-style:italic}
+
+  .countdown{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .cd-box{background:rgba(255,255,255,.7);border:1px solid var(--bg2);border-radius:16px;padding:18px 6px;min-width:84px;box-shadow:0 8px 22px rgba(53,122,116,.10);backdrop-filter:blur(3px)}
+  .cd-num{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:500;color:var(--teal-dk);line-height:1}
+  .cd-lab{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+
+  .cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .card{background:rgba(255,255,255,.8);border-radius:18px;padding:30px 24px;min-width:200px;flex:1;max-width:280px;border:1px solid var(--bg2);box-shadow:0 10px 28px rgba(53,122,116,.10);transition:transform .35s}
+  .card:hover{transform:translateY(-6px)}
+  .card .ico{font-size:30px;margin-bottom:10px}
+  .card h3{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--teal-dk);margin-bottom:6px}
+  .card p{font-size:15px;color:var(--ink-soft);line-height:1.6}
+
+  .map-frame{margin-top:24px;border-radius:18px;overflow:hidden;border:1px solid var(--bg2);box-shadow:0 12px 32px rgba(53,122,116,.12)}
+  .map-frame iframe{width:100%;height:340px;border:0;display:block}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:pointer;border:1px solid var(--teal-dk);background:var(--teal-dk);color:#fff;font-family:'Mulish';font-weight:600;transition:.3s}
+  .btn:hover{background:var(--teal);transform:translateY(-2px)}
+
+  .rsvp{background:linear-gradient(180deg,#f2efe6,#ece7da)}
+  .rsvp-card{background:#fff;border-radius:22px;padding:38px 26px;max-width:480px;margin:24px auto 0;border:1px solid var(--bg2);box-shadow:0 16px 40px rgba(53,122,116,.16)}
+  .choice{display:flex;gap:12px;margin:8px 0 18px}
+  .choice button{flex:1;padding:15px;border:2px solid var(--bg2);background:#fff;border-radius:14px;font-family:'Mulish';font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.25s}
+  .choice button.yes.active{background:#e6f1ef;border-color:var(--teal);color:var(--teal-dk)}
+  .choice button.no.active{background:#f7e6e5;border-color:var(--coralw);color:#b5615d}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--bg2);border-radius:12px;font-family:'Mulish';font-size:15px;color:var(--ink);background:var(--bg)}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--teal)}
+  .send{width:100%;padding:15px;background:var(--teal-dk);color:#fff;border:none;border-radius:14px;font-family:'Mulish';font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .send:hover{background:var(--teal)}
+  .send:disabled{opacity:.5;cursor:not-allowed}
+  .thanks{display:none;text-align:center;padding:14px}
+  .thanks.show{display:block;animation:bleed 1s forwards}
+  .thanks .check{font-size:52px}
+  .thanks h3{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--teal-dk);margin:8px 0}
+  .wa{display:inline-block;margin-top:12px;padding:11px 24px;background:#25d366;color:#fff;text-decoration:none;border-radius:40px;font-size:13px;font-weight:600}
+  footer{padding:50px 20px;background:var(--teal-dk);color:#eef6f4;text-align:center}
+  footer .names-sm{font-family:'Marck Script',cursive;font-size:54px;color:#fff}
+  footer p{font-size:13px;letter-spacing:2px;margin-top:4px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="ink" id="ink"></div>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow bleed" style="animation-delay:.2s">Bir fırça darbesiyle başladı</div>
+    <h1 class="names bleed" style="animation-delay:.4s">Ada &amp; Poyraz</h1>
+    <svg class="brush" width="260" height="26" viewBox="0 0 260 26"><path d="M6,16 C60,2 120,26 180,12 C210,5 240,14 254,10"></path></svg>
+    <p class="subtitle bleed" style="animation-delay:.7s">birlikte yeni bir tablo çiziyoruz</p>
+    <div class="eyebrow bleed" style="animation-delay:.9s;margin-top:20px">12 Haziran 2027 · Cumartesi</div>
+    <div class="scroll-cue">AŞAĞI KAYDIR</div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Bizimle Olun</h2>
+    <div class="title-sub">Yumuşak ve içten</div>
+    <p class="lead">Hayatımızın en güzel tablosunu birlikte boyarken, en sevdiğimiz renkleri, yani sizleri de yanımızda görmek isteriz.</p>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Büyük Güne Kalan</h2>
+    <div class="title-sub">Geri sayım</div>
+    <div class="countdown">
+      <div class="cd-box"><div class="cd-num" id="d">00</div><div class="cd-lab">Gün</div></div>
+      <div class="cd-box"><div class="cd-num" id="h">00</div><div class="cd-lab">Saat</div></div>
+      <div class="cd-box"><div class="cd-num" id="m">00</div><div class="cd-lab">Dakika</div></div>
+      <div class="cd-box"><div class="cd-num" id="s">00</div><div class="cd-lab">Saniye</div></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Düğün Detayları</h2>
+    <div class="title-sub">Sizi bekliyoruz</div>
+    <div class="cards">
+      <div class="card"><div class="ico">🎨</div><h3>Tarih</h3><p>12 Haziran 2027<br>Cumartesi</p></div>
+      <div class="card"><div class="ico">🕠</div><h3>Saat</h3><p>Akşam 17:30<br>Karşılama 17:00</p></div>
+      <div class="card"><div class="ico">🏛️</div><h3>Mekan</h3><p>Hidiv Kasrı<br>Beykoz, İstanbul</p></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Mekan & Yol Tarifi</h2>
+    <div class="title-sub">Hidiv Kasrı</div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://www.google.com/maps?q=Hidiv%20Kasr%C4%B1%20Beykoz%20%C4%B0stanbul&output=embed"></iframe>
+    </div>
+    <div class="btnrow">
+      <a class="btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=Hidiv+Kasr%C4%B1+Beykoz+%C4%B0stanbul">🧭 Yol Tarifi</a>
+    </div>
+  </section>
+
+  <section class="rsvp fade">
+    <h2 class="title">Katılım Bildirimi</h2>
+    <div class="title-sub">Lütfen 29 Mayıs'a kadar bildirin</div>
+    <div class="rsvp-card">
+      <form id="rsvpForm">
+        <div class="choice">
+          <button type="button" class="yes" data-v="evet">🎨 Katılıyorum</button>
+          <button type="button" class="no" data-v="hayir">😔 Katılamıyorum</button>
+        </div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="guestName" placeholder="Adınız Soyadınız" required></div>
+        <div class="field" id="countField"><label>Kaç kişi katılacaksınız?</label><input type="number" id="guestCount" min="1" value="1"></div>
+        <div class="field"><label>Mesajınız (isteğe bağlı)</label><textarea id="guestMsg" rows="3" placeholder="Çifte iletmek istedikleriniz..."></textarea></div>
+        <button type="submit" class="send" id="sendBtn" disabled>Yanıtı Gönder</button>
+      </form>
+      <div class="thanks" id="thanks">
+        <div class="check">🎨</div>
+        <h3 id="thanksTitle">Teşekkür ederiz!</h3>
+        <p id="thanksMsg"></p>
+        <a class="wa" id="waLink" target="_blank">WhatsApp ile de bildir</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="names-sm">Ada &amp; Poyraz</div>
+    <p>12 · 06 · 2027 — İSTANBUL</p>
+  </footer>
+</div>
+
+<script>
+  var WEDDING_DATE="2027-06-12T17:30:00+03:00";
+  var COUPLE="Ada & Poyraz";
+  var HOST_PHONE="905555555555";
+  var target=new Date(WEDDING_DATE).getTime();
+  function pad(n){return n<10?"0"+n:n;}
+  function tick(){var diff=target-Date.now();if(diff<0)diff=0;
+    document.getElementById('d').textContent=pad(Math.floor(diff/86400000));
+    document.getElementById('h').textContent=pad(Math.floor(diff%86400000/3600000));
+    document.getElementById('m').textContent=pad(Math.floor(diff%3600000/60000));
+    document.getElementById('s').textContent=pad(Math.floor(diff%60000/1000));}
+  tick(); setInterval(tick,1000);
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});},{threshold:.15});
+  document.querySelectorAll('.fade').forEach(function(el){obs.observe(el);});
+
+  /* suluboya lekeleri oluştur */
+  (function(){
+    var c=document.getElementById('ink');
+    var cols=['#4f9a94','#9a6a98','#e08a86','#7fb0c4','#e6b86a'];
+    for(var i=0;i<7;i++){var b=document.createElement('b');
+      var sz=140+Math.random()*200;
+      b.style.width=sz+'px';b.style.height=sz+'px';
+      b.style.left=(Math.random()*100)+'%';b.style.top=(Math.random()*100)+'%';
+      b.style.background=cols[i%cols.length];
+      b.style.animationDuration=(9+Math.random()*8)+'s';
+      b.style.animationDelay=(Math.random()*6)+'s';
+      c.appendChild(b);}
+  })();
+
+  var choice=null;var btns=document.querySelectorAll('.choice button');
+  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.classList.remove('active');});b.classList.add('active');choice=b.getAttribute('data-v');document.getElementById('countField').style.display=choice==='evet'?'block':'none';document.getElementById('sendBtn').disabled=false;});});
+  document.getElementById('rsvpForm').addEventListener('submit',function(e){e.preventDefault();
+    var name=document.getElementById('guestName').value.trim()||"Bir misafir";var count=document.getElementById('guestCount').value||1;var msg=document.getElementById('guestMsg').value.trim();var coming=choice==='evet';
+    document.getElementById('rsvpForm').style.display='none';
+    document.getElementById('thanksTitle').textContent=coming?"Harika, görüşmek üzere!":"Anlayışınız için teşekkürler";
+    document.getElementById('thanksMsg').textContent=coming?name+", "+count+" kişilik katılımınız alındı. Tablomuzu birlikte tamamlamak üzere! 🎨":name+", katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.";
+    var waText=encodeURIComponent((coming?"Düğününüze katılıyorum ✅":"Maalesef katılamıyorum ❌")+"\nAd: "+name+(coming?"\nKişi: "+count:"")+(msg?"\nNot: "+msg:"")+"\n— "+COUPLE);
+    document.getElementById('waLink').href="https://wa.me/"+HOST_PHONE+"?text="+waText;
+    var t=document.getElementById('thanks');t.classList.add('show');t.scrollIntoView({behavior:'smooth',block:'center'});});
+</script>
+<script>
+window.DAVET={
+  couple:"Ada & Poyraz", date:"2027-06-12T17:30:00+03:00",
+  venue:"Hidiv Kasrı, Beykoz, İstanbul", phone:"905555555555",
+  accent:"#357a74", accentSoft:"#bfe0db", dark:false,
+  families:[{side:"Gelin", names:"Meltem & Kaya Aksoy"},{side:"Damat", names:"Şule & Devrim Toprak"}],
+  story:[
+    {when:"2019", title:"İlk Tuval", text:"Bir resim kursunda yan yana sehpalarda tanıştık."},
+    {when:"2022", title:"Aynı Palet", text:"Hayata aynı renklerle baktığımızı gördük."},
+    {when:"2026", title:"Teklif", text:"Bir sergi açılışında, gizli bir tablonun ardında."}
+  ],
+  photos:[
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=900&q=80"
+  ]
+};
+</script>
+<script src="assets/ortak.js"></script>
+</body>
+</html>

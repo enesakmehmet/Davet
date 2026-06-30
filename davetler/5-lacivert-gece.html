@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naz & Mert — Düğün Davetiyesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Italianno&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0e1a33; --navy2:#16264a; --gold:#c9a14e; --gold-soft:#e6cf95;
+    --ink:#e8e9f0; --ink-soft:#aab0c4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Jost',sans-serif;background:#0e1a33;color:var(--ink);overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto;background:#0e1a33;box-shadow:0 0 80px rgba(0,0,0,.5)}
+  section{padding:78px 28px;text-align:center;position:relative}
+
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+  .stars span{position:absolute;background:#fff;border-radius:50%;animation:tw ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.15;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+  .shoot{position:fixed;top:12%;left:-10%;width:120px;height:1px;background:linear-gradient(90deg,transparent,#fff);z-index:1;opacity:0;animation:shoot 9s linear infinite}
+  @keyframes shoot{0%{transform:translate(0,0) rotate(18deg);opacity:0}3%{opacity:1}12%{transform:translate(120vw,40vh) rotate(18deg);opacity:0}100%{opacity:0}}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;z-index:2;
+        background:radial-gradient(circle at 50% 30%,#1b2c52,#0e1a33 75%)}
+  .reveal{opacity:0;transform:translateY(28px);animation:reveal 1.4s forwards}
+  @keyframes reveal{to{opacity:1;transform:none}}
+  .eyebrow{letter-spacing:6px;font-size:12px;text-transform:uppercase;color:var(--gold-soft);font-weight:400}
+  .names{font-family:'Italianno',cursive;font-size:clamp(72px,16vw,128px);color:var(--gold);line-height:.95;margin:8px 0;text-shadow:0 2px 30px rgba(201,161,78,.35)}
+  .amp{display:block;font-size:.4em;color:var(--gold-soft);margin:-8px 0}
+  .ornament{margin:16px auto;display:flex;align-items:center;justify-content:center;gap:14px;color:var(--gold);font-size:16px;width:220px}
+  .ornament::before,.ornament::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold))}
+  .ornament::after{background:linear-gradient(90deg,var(--gold),transparent)}
+  .subtitle{font-family:'Cinzel',serif;font-size:16px;letter-spacing:2px;color:var(--ink-soft)}
+  .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;color:var(--gold-soft);animation:bob 2s infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .fade{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease;position:relative;z-index:2}
+  .fade.show{opacity:1;transform:none}
+
+  h2.title{font-family:'Cinzel',serif;font-size:30px;font-weight:500;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
+  .title-sub{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:30px}
+  .lead{font-family:'Jost',serif;font-weight:300;font-size:21px;line-height:1.8;max-width:520px;margin:0 auto;color:var(--ink)}
+
+  .countdown{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .cd-box{background:rgba(255,255,255,.04);border:1px solid rgba(201,161,78,.4);border-radius:14px;padding:18px 6px;min-width:84px;backdrop-filter:blur(4px)}
+  .cd-num{font-family:'Cinzel',serif;font-size:42px;font-weight:500;color:var(--gold);line-height:1}
+  .cd-lab{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+
+  .cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .card{background:rgba(255,255,255,.04);border-radius:16px;padding:30px 24px;min-width:200px;flex:1;max-width:280px;border:1px solid rgba(201,161,78,.3)}
+  .card .ico{font-size:28px;margin-bottom:10px}
+  .card h3{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);margin-bottom:8px}
+  .card p{font-size:15px;color:var(--ink-soft);line-height:1.6}
+
+  .map-frame{margin-top:24px;border-radius:16px;overflow:hidden;border:1px solid rgba(201,161,78,.4)}
+  .map-frame iframe{width:100%;height:340px;border:0;display:block;filter:grayscale(.3) brightness(.9)}
+  .map-btn{display:inline-block;margin-top:18px;padding:13px 32px;background:var(--gold);color:#0e1a33;text-decoration:none;border-radius:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;transition:.3s}
+  .map-btn:hover{background:var(--gold-soft);transform:translateY(-2px)}
+
+  .rsvp-card{background:rgba(255,255,255,.05);border:1px solid rgba(201,161,78,.35);border-radius:20px;padding:38px 26px;max-width:480px;margin:24px auto 0}
+  .choice{display:flex;gap:12px;margin:8px 0 18px}
+  .choice button{flex:1;padding:15px;border:1px solid rgba(201,161,78,.4);background:transparent;border-radius:12px;font-family:'Jost';font-size:14px;font-weight:500;color:var(--ink-soft);cursor:pointer;transition:.25s}
+  .choice button.yes.active{background:rgba(201,161,78,.18);border-color:var(--gold);color:var(--gold)}
+  .choice button.no.active{background:rgba(201,100,100,.18);border-color:#d98a8a;color:#e7a6a6}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:12px 14px;border:1px solid rgba(201,161,78,.3);border-radius:10px;font-family:'Jost';font-size:15px;color:var(--ink);background:rgba(255,255,255,.04)}
+  .field input::placeholder,.field textarea::placeholder{color:#6f7790}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--gold)}
+  .send{width:100%;padding:15px;background:var(--gold);color:#0e1a33;border:none;border-radius:12px;font-family:'Jost';font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .send:hover{background:var(--gold-soft)}
+  .send:disabled{opacity:.4;cursor:not-allowed}
+  .thanks{display:none;text-align:center;padding:14px}
+  .thanks.show{display:block;animation:reveal .8s forwards}
+  .thanks .check{font-size:50px}
+  .thanks h3{font-family:'Cinzel',serif;font-size:24px;color:var(--gold);margin:8px 0}
+  .thanks p{color:var(--ink-soft);line-height:1.6}
+  .wa{display:inline-block;margin-top:14px;padding:11px 24px;background:#25d366;color:#fff;text-decoration:none;border-radius:40px;font-size:13px;font-weight:600}
+
+  footer{padding:54px 20px;text-align:center;position:relative;z-index:2;border-top:1px solid rgba(201,161,78,.25)}
+  footer .names-sm{font-family:'Italianno',cursive;font-size:54px;color:var(--gold)}
+  footer p{font-size:12px;letter-spacing:3px;margin-top:6px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="shoot"></div>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow reveal" style="animation-delay:.1s">Yıldızların altında</div>
+    <h1 class="names reveal" style="animation-delay:.3s">Naz<span class="amp">&</span>Mert</h1>
+    <div class="ornament reveal" style="animation-delay:.7s">✦</div>
+    <p class="subtitle reveal" style="animation-delay:.9s">EVLENİYORUZ</p>
+    <div class="eyebrow reveal" style="animation-delay:1.1s;margin-top:24px">9 Mayıs 2027 · Pazar</div>
+    <div class="scroll-cue">AŞAĞI KAYDIR</div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Davetlisiniz</h2>
+    <div class="title-sub">Zarif bir gece</div>
+    <p class="lead">Bir ömürlük yolculuğa, Boğaz'ın ışıltısı ve yıldızların altında başlıyoruz. Bu büyülü geceyi sizinle paylaşmaktan mutluluk duyarız.</p>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Geri Sayım</h2>
+    <div class="title-sub">Büyük geceye kalan</div>
+    <div class="countdown">
+      <div class="cd-box"><div class="cd-num" id="d">00</div><div class="cd-lab">Gün</div></div>
+      <div class="cd-box"><div class="cd-num" id="h">00</div><div class="cd-lab">Saat</div></div>
+      <div class="cd-box"><div class="cd-num" id="m">00</div><div class="cd-lab">Dakika</div></div>
+      <div class="cd-box"><div class="cd-num" id="s">00</div><div class="cd-lab">Saniye</div></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Detaylar</h2>
+    <div class="title-sub">Sizi bekliyoruz</div>
+    <div class="cards">
+      <div class="card"><div class="ico">🌙</div><h3>Tarih</h3><p>9 Mayıs 2027<br>Pazar</p></div>
+      <div class="card"><div class="ico">🕡</div><h3>Saat</h3><p>Akşam 18:30<br>Kokteyl 18:00</p></div>
+      <div class="card"><div class="ico">✨</div><h3>Mekan</h3><p>Les Ottomans<br>Kuruçeşme, İstanbul</p></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Mekan & Yol Tarifi</h2>
+    <div class="title-sub">Les Ottomans</div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://www.google.com/maps?q=Les%20Ottomans%20Kuru%C3%A7e%C5%9Fme%20%C4%B0stanbul&output=embed"></iframe>
+    </div>
+    <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=Les+Ottomans+Kuru%C3%A7e%C5%9Fme+%C4%B0stanbul">Yol Tarifi Al</a>
+  </section>
+
+  <section class="rsvp fade">
+    <h2 class="title">Katılım Bildirimi</h2>
+    <div class="title-sub">Lütfen 25 Nisan'a kadar bildirin</div>
+    <div class="rsvp-card">
+      <form id="rsvpForm">
+        <div class="choice">
+          <button type="button" class="yes" data-v="evet">✨ Katılıyorum</button>
+          <button type="button" class="no" data-v="hayir">🌙 Katılamıyorum</button>
+        </div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="guestName" placeholder="Adınız Soyadınız" required></div>
+        <div class="field" id="countField"><label>Kaç kişi katılacaksınız?</label><input type="number" id="guestCount" min="1" value="1"></div>
+        <div class="field"><label>Mesajınız (isteğe bağlı)</label><textarea id="guestMsg" rows="3" placeholder="Çifte iletmek istedikleriniz..."></textarea></div>
+        <button type="submit" class="send" id="sendBtn" disabled>Yanıtı Gönder</button>
+      </form>
+      <div class="thanks" id="thanks">
+        <div class="check">✨</div>
+        <h3 id="thanksTitle">Teşekkür ederiz!</h3>
+        <p id="thanksMsg"></p>
+        <a class="wa" id="waLink" target="_blank">WhatsApp ile de bildir</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="names-sm">Naz & Mert</div>
+    <p>09 · 05 · 2027 — İSTANBUL</p>
+  </footer>
+</div>
+
+<script>
+  var WEDDING_DATE="2027-05-09T18:30:00+03:00";
+  var COUPLE="Naz & Mert";
+  var HOST_PHONE="905555555555";
+
+  var target=new Date(WEDDING_DATE).getTime();
+  function pad(n){return n<10?"0"+n:n;}
+  function tick(){
+    var diff=target-Date.now(); if(diff<0)diff=0;
+    document.getElementById('d').textContent=pad(Math.floor(diff/86400000));
+    document.getElementById('h').textContent=pad(Math.floor(diff%86400000/3600000));
+    document.getElementById('m').textContent=pad(Math.floor(diff%3600000/60000));
+    document.getElementById('s').textContent=pad(Math.floor(diff%60000/1000));
+  }
+  tick(); setInterval(tick,1000);
+
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});},{threshold:.15});
+  document.querySelectorAll('.fade').forEach(function(el){obs.observe(el);});
+
+  (function(){
+    var c=document.getElementById('stars');
+    for(var i=0;i<70;i++){
+      var s=document.createElement('span');
+      var sz=(1+Math.random()*2.4);
+      s.style.width=sz+"px"; s.style.height=sz+"px";
+      s.style.left=Math.random()*100+"%"; s.style.top=Math.random()*100+"%";
+      s.style.animationDuration=(1.6+Math.random()*3)+"s";
+      s.style.animationDelay=(Math.random()*4)+"s";
+      c.appendChild(s);
+    }
+  })();
+
+  var choice=null;
+  var btns=document.querySelectorAll('.choice button');
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      btns.forEach(function(x){x.classList.remove('active');});
+      b.classList.add('active'); choice=b.getAttribute('data-v');
+      document.getElementById('countField').style.display=choice==='evet'?'block':'none';
+      document.getElementById('sendBtn').disabled=false;
+    });
+  });
+  document.getElementById('rsvpForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('guestName').value.trim()||"Bir misafir";
+    var count=document.getElementById('guestCount').value||1;
+    var msg=document.getElementById('guestMsg').value.trim();
+    var coming=choice==='evet';
+    document.getElementById('rsvpForm').style.display='none';
+    document.getElementById('thanksTitle').textContent=coming?"Harika, görüşmek üzere!":"Anlayışınız için teşekkürler";
+    document.getElementById('thanksMsg').textContent=coming
+      ? name+", "+count+" kişilik katılımınız alındı. Yıldızların altında buluşmak üzere! ✨"
+      : name+", katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.";
+    var waText=encodeURIComponent((coming?"Düğününüze katılıyorum ✅":"Maalesef katılamıyorum ❌")+"\nAd: "+name+(coming?"\nKişi: "+count:"")+(msg?"\nNot: "+msg:"")+"\n— "+COUPLE);
+    document.getElementById('waLink').href="https://wa.me/"+HOST_PHONE+"?text="+waText;
+    var t=document.getElementById('thanks'); t.classList.add('show');
+    t.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+</script>
+<script>
+window.DAVET={
+  couple:"Naz & Mert", date:"2027-05-09T18:30:00+03:00",
+  venue:"Les Ottomans, Kuruçeşme, İstanbul", phone:"905555555555",
+  accent:"#c9a14e", accentSoft:"#e6cf95", dark:true,
+  families:[{side:"Gelin", names:"Şükran & Hakan Koç"},{side:"Damat", names:"Emine & Yusuf Aksoy"}],
+  story:[
+    {when:"2018", title:"Tanışma", text:"Boğaz manzaralı bir davette tanıştık."},
+    {when:"2021", title:"Birliktelik", text:"Yıldızların altında sayısız anı biriktirdik."},
+    {when:"2026 Kış", title:"Teklif", text:"Gece, ışıklar içinde bir teknede."}
+  ],
+  photos:[
+    "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80"
+  ]
+};
+</script>
+<script src="assets/ortak.js"></script>
+</body>
+</html>

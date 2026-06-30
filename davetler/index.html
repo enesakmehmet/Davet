@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Düğün Davetiyeleri — Galeri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Montserrat',sans-serif;background:#14110f;color:#f3ece0;min-height:100vh}
+  .head{text-align:center;padding:70px 20px 40px}
+  .head .vibes{font-family:'Great Vibes',cursive;font-size:clamp(48px,9vw,84px);color:#d4af68;line-height:1}
+  .head h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:3px;text-transform:uppercase;color:#c9bfa9;margin-top:10px}
+  .head p{max-width:560px;margin:16px auto 0;color:#9a917f;font-size:15px;line-height:1.7;font-weight:300}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;max-width:1100px;margin:30px auto 80px;padding:0 24px}
+  .card{display:block;text-decoration:none;border-radius:18px;overflow:hidden;position:relative;height:300px;border:1px solid rgba(212,175,104,.2);transition:transform .35s ease,box-shadow .35s ease}
+  .card:hover{transform:translateY(-6px);box-shadow:0 22px 50px rgba(0,0,0,.5)}
+  .card .inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:26px}
+  .card .num{position:absolute;top:18px;right:22px;font-family:'Cormorant Garamond',serif;font-size:40px;opacity:.35}
+  .card .couple{font-family:'Great Vibes',cursive;font-size:46px;line-height:1;margin-bottom:6px}
+  .card .meta{font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+  .card .theme{display:inline-block;margin-top:10px;font-size:11px;letter-spacing:1px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.14);width:fit-content}
+  .t1{background:linear-gradient(150deg,#9c7a31,#c8a04e)}
+  .t2{background:linear-gradient(150deg,#b35a72,#e29bb0)}
+  .t3{background:linear-gradient(150deg,#2b2b2b,#5a5a5a);color:#fff}
+  .t4{background:linear-gradient(150deg,#5f7050,#c8775a)}
+  .t5{background:linear-gradient(150deg,#0e1a33,#2b447e)}
+  .t6{background:linear-gradient(150deg,#6f54a0,#b79ce0)}
+  .t7{background:linear-gradient(150deg,#8c5733,#cd9b6a)}
+  .t8{background:linear-gradient(150deg,#1c7484,#5fc0cf)}
+  .t9{background:linear-gradient(150deg,#0c0c0e,#6e5a1f);color:#f3e9c8}
+  .t10{background:linear-gradient(150deg,#7a2e2e,#c87a3b)}
+  .t11{background:linear-gradient(150deg,#136443,#2aa56c)}
+  .t12{background:linear-gradient(150deg,#0b0b0d,#c9a14e);color:#f3e9c8}
+  .t13{background:linear-gradient(150deg,#c5556f,#7fb08a)}
+  .t14{background:linear-gradient(150deg,#070912,#cbab53);color:#f3e9c8}
+  .t15{background:linear-gradient(150deg,#357a74,#9a6a98)}
+  .t16{background:linear-gradient(150deg,#3f6488,#cdd9e6)}
+  .t17{background:linear-gradient(150deg,#9a5a30,#c47a4a)}
+  .t18{background:linear-gradient(150deg,#b86b5c,#f6e2dd)}
+  .t19{background:linear-gradient(150deg,#7a1c28,#d8b25a);color:#f3e3d8}
+  .t20{background:linear-gradient(150deg,#140a2a,#b9a0e8);color:#ece8fa}
+  .t21{background:linear-gradient(150deg,#e84d72,#ffc24b)}
+  .note{max-width:760px;margin:0 auto 70px;padding:24px 28px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,104,.2);border-radius:16px;font-size:13px;color:#b3a894;line-height:1.8}
+  .note b{color:#d4af68;font-weight:600}
+  footer{text-align:center;padding:30px;color:#6d6657;font-size:12px;letter-spacing:1px}
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="vibes">Davetiyelerim</div>
+    <h1>Animasyonlu Düğün Davetiyeleri</h1>
+    <p>Birbirinden farklı altı tema. Her davette canlı geri sayım, katılım bildirimi (RSVP) ve harita üzerinde mekan konumu var. Açmak için bir karta dokunun.</p>
+  </div>
+
+  <div class="grid">
+    <a class="card t1" href="1-zarif-altin.html">
+      <div class="num" style="font-family:'Cormorant Garamond',serif">01</div>
+      <div class="inner"><div class="couple">Zeynep & Ahmet</div><div class="meta">12 Eylül 2026 · İstanbul</div><span class="theme">Zarif Altın</span></div>
+    </a>
+    <a class="card t2" href="2-romantik-gul.html">
+      <div class="num">02</div>
+      <div class="inner"><div class="couple">Elif & Burak</div><div class="meta">3 Ekim 2026 · İstanbul</div><span class="theme">Romantik Gül</span></div>
+    </a>
+    <a class="card t3" href="3-modern-minimal.html">
+      <div class="num">03</div>
+      <div class="inner"><div class="couple">Defne & Kaan</div><div class="meta">25 Ekim 2026 · İstanbul</div><span class="theme">Modern Minimal</span></div>
+    </a>
+    <a class="card t4" href="4-bohem-kir.html">
+      <div class="num">04</div>
+      <div class="inner"><div class="couple">Selin & Emre</div><div class="meta">15 Kasım 2026 · İstanbul</div><span class="theme">Bohem Kır</span></div>
+    </a>
+    <a class="card t5" href="5-lacivert-gece.html">
+      <div class="num">05</div>
+      <div class="inner"><div class="couple">Naz & Mert</div><div class="meta">9 Mayıs 2027 · İstanbul</div><span class="theme">Lacivert Gece</span></div>
+    </a>
+    <a class="card t6" href="6-lavanta-bahce.html">
+      <div class="num">06</div>
+      <div class="inner"><div class="couple">İrem & Can</div><div class="meta">6 Haziran 2027 · İstanbul</div><span class="theme">Lavanta Bahçe</span></div>
+    </a>
+    <a class="card t7" href="7-mermer-bakir.html">
+      <div class="num">07</div>
+      <div class="inner"><div class="couple">Bade & Tolga</div><div class="meta">18 Temmuz 2026 · İstanbul</div><span class="theme">Mermer & Bakır</span></div>
+    </a>
+    <a class="card t8" href="8-deniz-kiyisi.html">
+      <div class="num">08</div>
+      <div class="inner"><div class="couple">Ece & Deniz</div><div class="meta">22 Ağustos 2026 · Çeşme</div><span class="theme">Deniz Kıyısı</span></div>
+    </a>
+    <a class="card t9" href="9-art-deco.html">
+      <div class="num">09</div>
+      <div class="inner"><div class="couple">Melis & Arda</div><div class="meta">26 Eylül 2026 · İstanbul</div><span class="theme">Vintage Art Deco</span></div>
+    </a>
+    <a class="card t10" href="10-sonbahar.html">
+      <div class="num">10</div>
+      <div class="inner"><div class="couple">Yağmur & Berk</div><div class="meta">17 Ekim 2026 · İstanbul</div><span class="theme">Sonbahar</span></div>
+    </a>
+    <a class="card t11" href="11-tropikal.html">
+      <div class="num">11</div>
+      <div class="inner"><div class="couple">Sıla & Efe</div><div class="meta">5 Eylül 2026 · Antalya</div><span class="theme">Tropikal</span></div>
+    </a>
+    <a class="card t12" href="12-altin-sinematik.html">
+      <div class="num">12</div>
+      <div class="inner"><div class="couple">Melike & Sarp</div><div class="meta">19 Eylül 2026 · İstanbul</div><span class="theme">Altın Sinematik ✨</span></div>
+    </a>
+    <a class="card t13" href="13-cicek-bahce.html">
+      <div class="num">13</div>
+      <div class="inner"><div class="couple">Pınar & Onur</div><div class="meta">23 Mayıs 2027 · İstanbul</div><span class="theme">Çiçek Bahçe 🦋</span></div>
+    </a>
+    <a class="card t14" href="14-gece-havai-fisek.html">
+      <div class="num">14</div>
+      <div class="inner"><div class="couple">Beren & Kuzey</div><div class="meta">8 Ağustos 2026 · İstanbul</div><span class="theme">Gece Havai Fişek 🎆</span></div>
+    </a>
+    <a class="card t15" href="15-suluboya.html">
+      <div class="num">15</div>
+      <div class="inner"><div class="couple">Ada & Poyraz</div><div class="meta">12 Haziran 2027 · İstanbul</div><span class="theme">Suluboya 🎨</span></div>
+    </a>
+    <a class="card t16" href="16-kis-masali.html">
+      <div class="num">16</div>
+      <div class="inner"><div class="couple">Buse & Kerem</div><div class="meta">19 Aralık 2026 · İstanbul</div><span class="theme">Kış Masalı ❄️</span></div>
+    </a>
+    <a class="card t17" href="17-toskana-bagi.html">
+      <div class="num">17</div>
+      <div class="inner"><div class="couple">Lara & Emir</div><div class="meta">20 Haziran 2027 · Tekirdağ</div><span class="theme">Toskana Bağı 🍇</span></div>
+    </a>
+    <a class="card t18" href="18-rose-gold-glam.html">
+      <div class="num">18</div>
+      <div class="inner"><div class="couple">Derin & Aras</div><div class="meta">10 Ekim 2026 · İstanbul</div><span class="theme">Rose Gold Glam ✨</span></div>
+    </a>
+    <a class="card t19" href="19-kina-gecesi.html">
+      <div class="num">19</div>
+      <div class="inner"><div class="couple">Hümeyra & Yiğit</div><div class="meta">14 Kasım 2026 · İstanbul</div><span class="theme">Kına Gecesi 🪔</span></div>
+    </a>
+    <a class="card t20" href="20-semavi.html">
+      <div class="num">20</div>
+      <div class="inner"><div class="couple">Yıldız & Bora</div><div class="meta">21 Kasım 2026 · İstanbul</div><span class="theme">Semavi 🌙</span></div>
+    </a>
+    <a class="card t21" href="21-konfeti-senlik.html">
+      <div class="num">21</div>
+      <div class="inner"><div class="couple">Eda & Tuna</div><div class="meta">30 Mayıs 2027 · İstanbul</div><span class="theme">Konfeti Şenlik 🎉</span></div>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>Nasıl kişiselleştirilir?</b> Her davet dosyasının en altındaki <code>&lt;script&gt;</code> bölümünde
+    <b>WEDDING_DATE</b> (tarih/saat — geri sayım buna göre çalışır), <b>COUPLE</b> (çift adı) ve
+    <b>HOST_PHONE</b> (RSVP yanıtlarının gideceği WhatsApp numarası, örn. 90555...) değerlerini değiştirin.
+    Mekanı değiştirmek için harita bölümündeki <b>iframe</b> ve "Yol Tarifi" bağlantısındaki mekan adını güncellemeniz yeterli.
+  </div>
+
+  <footer>Bağımsız HTML davetiyeleri — kurulum gerektirmez, çift tıklayıp tarayıcıda açın.</footer>
+</body>
+</html>

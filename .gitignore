@@ -1,0 +1,27 @@
+# Bağımlılıklar
+node_modules/
+
+# Derleme çıktıları
+dist/
+build/
+
+# Ortam değişkenleri (GİZLİ — asla repoya eklenmez)
+.env
+.env.*
+!.env.example
+
+# Admin paneli GitHub'a gönderilmez — yalnızca lokal kullanılır
+admin-panel/
+
+# Yüklenen dosyalar (yerel/geçici)
+backend/uploads/
+
+# Loglar
+*.log
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json

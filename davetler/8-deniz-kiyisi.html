@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ece & Deniz — Düğün Davetiyesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Comfortaa:wght@400;500;600&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --sea:#2a9db0; --sea-dk:#1c7484; --sea-soft:#bfe6ec; --sand:#f4ece0;
+    --bg:#f3fbfc; --bg2:#def3f6; --ink:#2c5560; --ink-soft:#5c8893; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto;background:var(--bg);box-shadow:0 0 60px rgba(0,0,0,.10)}
+  section{padding:72px 28px;text-align:center;position:relative}
+  .bubbles{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+  .bubbles span{position:absolute;bottom:-30px;animation:rise linear infinite}
+  @keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.8}90%{opacity:.6}100%{transform:translateY(-108vh) translateX(30px);opacity:0}}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+        background:linear-gradient(180deg,#bfe6ec 0%,#7fcbd8 60%,#2a9db0 100%);color:#fff;position:relative;overflow:hidden}
+  .hero .wave{position:absolute;bottom:-2px;left:0;width:100%;height:90px}
+  .reveal{opacity:0;transform:translateY(28px);animation:reveal 1.3s forwards}
+  @keyframes reveal{to{opacity:1;transform:none}}
+  .eyebrow{letter-spacing:4px;font-size:13px;text-transform:uppercase;color:#eafaff;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.15)}
+  .names{font-family:'Pacifico',cursive;font-size:clamp(56px,13vw,104px);color:#fff;line-height:1.1;margin:10px 0;text-shadow:0 3px 16px rgba(0,0,0,.18)}
+  .amp{display:block;font-size:.42em;opacity:.9;margin:-6px 0}
+  .ornament{margin:14px auto;font-size:28px}
+  .subtitle{font-family:'Comfortaa',cursive;font-size:18px;color:#f0fbfd}
+  .scroll-cue{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;color:#fff;animation:bob 2s infinite;z-index:3}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .fade{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease}
+  .fade.show{opacity:1;transform:none}
+  h2.title{font-family:'Comfortaa',cursive;font-size:32px;font-weight:600;color:var(--sea-dk);margin-bottom:6px}
+  .title-sub{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:30px}
+  .lead{font-family:'Comfortaa',cursive;font-size:21px;line-height:1.7;max-width:520px;margin:0 auto;color:var(--ink)}
+
+  .timeline{max-width:520px;margin:10px auto 0;text-align:left;position:relative;padding-left:34px}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--sea-soft)}
+  .tl{position:relative;margin-bottom:26px}
+  .tl::before{content:"🐚";position:absolute;left:-34px;top:0;font-size:18px}
+  .tl h4{font-family:'Comfortaa',cursive;font-size:20px;color:var(--sea-dk)}
+  .tl span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft)}
+  .tl p{font-size:15px;color:var(--ink-soft);line-height:1.6;margin-top:4px}
+
+  .countdown{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .cd-box{background:#fff;border:2px solid var(--sea-soft);border-radius:50%;width:96px;height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(28,116,132,.12)}
+  .cd-num{font-family:'Comfortaa',cursive;font-size:34px;font-weight:600;color:var(--sea-dk);line-height:1}
+  .cd-lab{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);margin-top:6px}
+
+  .cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .card{background:#fff;border-radius:18px;padding:30px 24px;min-width:200px;flex:1;max-width:280px;border:1px solid var(--sea-soft);box-shadow:0 10px 28px rgba(28,116,132,.10)}
+  .card .ico{font-size:30px;margin-bottom:10px}
+  .card h3{font-family:'Comfortaa',cursive;font-size:22px;color:var(--sea-dk);margin-bottom:6px}
+  .card p{font-size:15px;color:var(--ink-soft);line-height:1.6}
+
+  .prog{max-width:440px;margin:0 auto;text-align:left}
+  .prow{display:flex;align-items:center;gap:18px;padding:16px 0;border-bottom:1px dashed var(--sea-soft)}
+  .prow:last-child{border-bottom:none}
+  .ptime{font-family:'Comfortaa',cursive;font-size:22px;font-weight:600;color:var(--sea-dk);min-width:78px}
+  .pdesc strong{display:block;font-size:15px;color:var(--ink)}
+  .pdesc small{font-size:13px;color:var(--ink-soft)}
+
+  .map-frame{margin-top:24px;border-radius:18px;overflow:hidden;border:2px solid var(--sea-soft);box-shadow:0 12px 32px rgba(28,116,132,.14)}
+  .map-frame iframe{width:100%;height:340px;border:0;display:block}
+  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:pointer;border:none;transition:.3s;font-family:'Quicksand';font-weight:600}
+  .btn-fill{background:var(--sea-dk);color:#fff}
+  .btn-fill:hover{background:var(--sea);transform:translateY(-2px)}
+  .btn-out{background:transparent;color:var(--sea-dk);border:1px solid var(--sea)}
+  .btn-out:hover{background:var(--sea);color:#fff}
+
+  .rsvp{background:linear-gradient(180deg,#def3f6,#bfe6ec)}
+  .rsvp-card{background:#fff;border-radius:22px;padding:38px 26px;max-width:480px;margin:24px auto 0;box-shadow:0 16px 40px rgba(28,116,132,.16)}
+  .choice{display:flex;gap:12px;margin:8px 0 18px}
+  .choice button{flex:1;padding:15px;border:2px solid var(--sea-soft);background:#fff;border-radius:14px;font-family:'Quicksand';font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:.25s}
+  .choice button.yes.active{background:#e6f6ee;border-color:#4caf7d;color:#2e7d52}
+  .choice button.no.active{background:#fbe9e9;border-color:#c97b7b;color:#a44}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--sea-soft);border-radius:12px;font-family:'Quicksand';font-size:15px;color:var(--ink);background:var(--bg)}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--sea)}
+  .send{width:100%;padding:15px;background:var(--sea-dk);color:#fff;border:none;border-radius:14px;font-family:'Quicksand';font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:.3s}
+  .send:hover{background:var(--sea)}
+  .send:disabled{opacity:.5;cursor:not-allowed}
+  .thanks{display:none;text-align:center;padding:14px}
+  .thanks.show{display:block;animation:reveal .8s forwards}
+  .thanks .check{font-size:52px}
+  .thanks h3{font-family:'Comfortaa',cursive;font-size:26px;color:var(--sea-dk);margin:8px 0}
+  .wa{display:inline-block;margin-top:12px;padding:11px 24px;background:#25d366;color:#fff;text-decoration:none;border-radius:40px;font-size:13px;font-weight:600}
+  footer{padding:50px 20px;background:var(--sea-dk);color:#eafaff;text-align:center}
+  footer .names-sm{font-family:'Pacifico',cursive;font-size:46px;color:#fff}
+  footer p{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:.85}
+  .hashtag{margin-top:12px;font-size:13px;letter-spacing:2px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow reveal" style="animation-delay:.1s">Denizin kıyısında, güneşin altında</div>
+    <h1 class="names reveal" style="animation-delay:.3s">Ece<span class="amp">&</span>Deniz</h1>
+    <div class="ornament reveal" style="animation-delay:.7s">⚓︎</div>
+    <p class="subtitle reveal" style="animation-delay:.9s">sahil düğünümüze davetlisiniz</p>
+    <div class="eyebrow reveal" style="animation-delay:1.1s;margin-top:22px">22 Ağustos 2026 · Cumartesi</div>
+    <div class="scroll-cue">AŞAĞI KAYDIR</div>
+    <svg class="wave" viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,40 C200,90 400,0 600,40 C800,80 1000,10 1200,40 L1200,90 L0,90 Z" fill="#f3fbfc"/></svg>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Bizimle Olun</h2>
+    <div class="title-sub">Dalgaların ritminde</div>
+    <p class="lead">Ayaklarımız kumda, kalbimiz huzurla… Bu yaz, denizin sonsuzluğuna bakarak birbirimize söz veriyoruz. Sizi de bu güzelliğe bekliyoruz.</p>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Hikayemiz</h2>
+    <div class="title-sub">Denizle başladı</div>
+    <div class="timeline">
+      <div class="tl"><span>2020 Yaz</span><h4>Sahilde Tanışma</h4><p>Bir yelken kursunda aynı tekneye denk geldik.</p></div>
+      <div class="tl"><span>2022</span><h4>İlk Tatil</h4><p>Ege'nin koylarını birlikte keşfettik.</p></div>
+      <div class="tl"><span>2025 Yaz</span><h4>Teklif</h4><p>Gün batımında, kumlara yazdığı bir soruyla.</p></div>
+    </div>
+  </section>
+
+  <section class="fade" style="background:linear-gradient(180deg,#f3fbfc,#def3f6)">
+    <h2 class="title">Büyük Güne Kalan</h2>
+    <div class="title-sub">Geri sayım</div>
+    <div class="countdown">
+      <div class="cd-box"><div class="cd-num" id="d">00</div><div class="cd-lab">Gün</div></div>
+      <div class="cd-box"><div class="cd-num" id="h">00</div><div class="cd-lab">Saat</div></div>
+      <div class="cd-box"><div class="cd-num" id="m">00</div><div class="cd-lab">Dakika</div></div>
+      <div class="cd-box"><div class="cd-num" id="s">00</div><div class="cd-lab">Saniye</div></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Düğün Detayları</h2>
+    <div class="title-sub">Sizi bekliyoruz</div>
+    <div class="cards">
+      <div class="card"><div class="ico">🌊</div><h3>Tarih</h3><p>22 Ağustos 2026<br>Cumartesi</p></div>
+      <div class="card"><div class="ico">🌅</div><h3>Saat</h3><p>Akşam 17:00<br>Gün batımı töreni</p></div>
+      <div class="card"><div class="ico">🏖️</div><h3>Mekan</h3><p>Alaçatı Sahili<br>Çeşme, İzmir</p></div>
+    </div>
+  </section>
+
+  <section class="fade" style="background:linear-gradient(180deg,#def3f6,#f3fbfc)">
+    <h2 class="title">Günün Akışı</h2>
+    <div class="title-sub">Sahil programı</div>
+    <div class="prog">
+      <div class="prow"><div class="ptime">17:00</div><div class="pdesc"><strong>Karşılama</strong><small>Serinletici ikramlar</small></div></div>
+      <div class="prow"><div class="ptime">18:00</div><div class="pdesc"><strong>Gün Batımı Töreni</strong><small>Kumsalda nikah</small></div></div>
+      <div class="prow"><div class="ptime">19:30</div><div class="pdesc"><strong>Akşam Yemeği</strong><small>Deniz manzarasında</small></div></div>
+      <div class="prow"><div class="ptime">21:00</div><div class="pdesc"><strong>Plaj Partisi</strong><small>Müzik & dans</small></div></div>
+    </div>
+  </section>
+
+  <section class="fade">
+    <h2 class="title">Mekan & Yol Tarifi</h2>
+    <div class="title-sub">Alaçatı, Çeşme</div>
+    <div class="map-frame">
+      <iframe loading="lazy" src="https://www.google.com/maps?q=Ala%C3%A7at%C4%B1%20%C3%87e%C5%9Fme%20%C4%B0zmir&output=embed"></iframe>
+    </div>
+    <div class="btnrow">
+      <a class="btn btn-fill" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=Ala%C3%A7at%C4%B1+%C3%87e%C5%9Fme+%C4%B0zmir">🧭 Yol Tarifi</a>
+      <button class="btn btn-out" id="calBtn">📅 Takvime Ekle</button>
+      <button class="btn btn-out" id="shareBtn">🔗 Paylaş</button>
+    </div>
+  </section>
+
+  <section class="rsvp fade">
+    <h2 class="title">Katılım Bildirimi</h2>
+    <div class="title-sub">Lütfen 8 Ağustos'a kadar bildirin</div>
+    <div class="rsvp-card">
+      <form id="rsvpForm">
+        <div class="choice">
+          <button type="button" class="yes" data-v="evet">🌊 Katılıyorum</button>
+          <button type="button" class="no" data-v="hayir">😔 Katılamıyorum</button>
+        </div>
+        <div class="field"><label>Ad Soyad</label><input type="text" id="guestName" placeholder="Adınız Soyadınız" required></div>
+        <div class="field" id="countField"><label>Kaç kişi katılacaksınız?</label><input type="number" id="guestCount" min="1" value="1"></div>
+        <div class="field"><label>Mesajınız (isteğe bağlı)</label><textarea id="guestMsg" rows="3" placeholder="Çifte iletmek istedikleriniz..."></textarea></div>
+        <button type="submit" class="send" id="sendBtn" disabled>Yanıtı Gönder</button>
+      </form>
+      <div class="thanks" id="thanks">
+        <div class="check">🌊</div>
+        <h3 id="thanksTitle">Teşekkür ederiz!</h3>
+        <p id="thanksMsg"></p>
+        <a class="wa" id="waLink" target="_blank">WhatsApp ile de bildir</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="names-sm">Ece & Deniz</div>
+    <p>22 · 08 · 2026 — ÇEŞME</p>
+    <div class="hashtag">#EceDenizSahildeEvleniyor</div>
+  </footer>
+</div>
+
+<script>
+  var WEDDING_DATE="2026-08-22T17:00:00+03:00";
+  var COUPLE="Ece & Deniz";
+  var VENUE="Alaçatı, Çeşme, İzmir";
+  var HOST_PHONE="905555555555";
+
+  var target=new Date(WEDDING_DATE).getTime();
+  function pad(n){return n<10?"0"+n:n;}
+  function tick(){var diff=target-Date.now();if(diff<0)diff=0;
+    document.getElementById('d').textContent=pad(Math.floor(diff/86400000));
+    document.getElementById('h').textContent=pad(Math.floor(diff%86400000/3600000));
+    document.getElementById('m').textContent=pad(Math.floor(diff%3600000/60000));
+    document.getElementById('s').textContent=pad(Math.floor(diff%60000/1000));}
+  tick(); setInterval(tick,1000);
+
+  var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('show');});},{threshold:.15});
+  document.querySelectorAll('.fade').forEach(function(el){obs.observe(el);});
+
+  (function(){var c=document.getElementById('bubbles');var em=["🫧","🐚","⭐","🐠"];for(var i=0;i<18;i++){var s=document.createElement('span');s.textContent=em[i%em.length];s.style.left=Math.random()*100+"%";s.style.fontSize=(12+Math.random()*16)+"px";s.style.animationDuration=(8+Math.random()*9)+"s";s.style.animationDelay=(Math.random()*10)+"s";c.appendChild(s);}})();
+
+  function fmtICS(d){return d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';}
+  document.getElementById('calBtn').addEventListener('click',function(){
+    var start=new Date(WEDDING_DATE), end=new Date(start.getTime()+5*3600000);
+    var ics="BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:"+fmtICS(start)+"\nDTEND:"+fmtICS(end)+"\nSUMMARY:"+COUPLE+" Düğünü\nLOCATION:"+VENUE+"\nDESCRIPTION:Sahil düğünümüze davetlisiniz!\nEND:VEVENT\nEND:VCALENDAR";
+    var blob=new Blob([ics],{type:'text/calendar'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dugun.ics';a.click();});
+
+  document.getElementById('shareBtn').addEventListener('click',function(){
+    var data={title:COUPLE+" Düğün Davetiyesi",text:COUPLE+" düğününe davetlisiniz!",url:location.href};
+    if(navigator.share){navigator.share(data).catch(function(){});}else{window.open("https://wa.me/?text="+encodeURIComponent(data.text+" "+location.href),'_blank');}});
+
+  var choice=null;var btns=document.querySelectorAll('.choice button');
+  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.classList.remove('active');});b.classList.add('active');choice=b.getAttribute('data-v');document.getElementById('countField').style.display=choice==='evet'?'block':'none';document.getElementById('sendBtn').disabled=false;});});
+  document.getElementById('rsvpForm').addEventListener('submit',function(e){e.preventDefault();
+    var name=document.getElementById('guestName').value.trim()||"Bir misafir";var count=document.getElementById('guestCount').value||1;var msg=document.getElementById('guestMsg').value.trim();var coming=choice==='evet';
+    document.getElementById('rsvpForm').style.display='none';
+    document.getElementById('thanksTitle').textContent=coming?"Harika, görüşmek üzere!":"Anlayışınız için teşekkürler";
+    document.getElementById('thanksMsg').textContent=coming?name+", "+count+" kişilik katılımınız alındı. Sahilde buluşmak üzere! 🌊":name+", katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.";
+    var waText=encodeURIComponent((coming?"Düğününüze katılıyorum ✅":"Maalesef katılamıyorum ❌")+"\nAd: "+name+(coming?"\nKişi: "+count:"")+(msg?"\nNot: "+msg:"")+"\n— "+COUPLE);
+    document.getElementById('waLink').href="https://wa.me/"+HOST_PHONE+"?text="+waText;
+    var t=document.getElementById('thanks');t.classList.add('show');t.scrollIntoView({behavior:'smooth',block:'center'});});
+</script>
+<script>
+window.DAVET={
+  couple:"Ece & Deniz", date:"2026-08-22T17:00:00+03:00",
+  venue:"Alaçatı, Çeşme, İzmir", phone:"905555555555",
+  accent:"#1c7484", accentSoft:"#bfe6ec", dark:false,
+  families:[{side:"Gelin", names:"Canan & Erol Deniz"},{side:"Damat", names:"Selma & Kadir Yıldırım"}],
+  photos:[
+    "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80"
+  ]
+};
+</script>
+<script src="assets/ortak.js"></script>
+</body>
+</html>
