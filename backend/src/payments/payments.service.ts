@@ -5,7 +5,7 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { MarketplaceService } from '../marketplace/marketplace.service';
 import { MailService } from '../mail/mail.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { generateHash, verifyHash } from '../common/utils/hash.util';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class PaymentsService {
         provider,
         status: 'pending',
         userId: userId,
-        transactionId: `TX-${uuidv4()}`,
+        transactionId: `TX-${randomUUID()}`,
       },
     });
 

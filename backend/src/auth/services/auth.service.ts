@@ -5,7 +5,6 @@ import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshDto } from '../dto/refresh.dto';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
