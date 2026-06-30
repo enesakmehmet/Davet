@@ -46,7 +46,10 @@ export class InvitationsService {
   async findAllByUser(userId: string) {
     return this.prisma.invitation.findMany({
       where: { userId, deletedAt: null },
-      include: { pages: true },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: { select: { guests: true } },
+      },
     });
   }
 

@@ -118,6 +118,18 @@ export const guestListService = {
   },
 };
 
+// İstatistik (görüntülenme/ziyaretçi) — davetiye sahibi için
+export const statsService = {
+  byInvitation: async (invitationId: string) => {
+    const { data } = await api.get(`/analytics/${invitationId}`);
+    return data;
+  },
+  // Public: davet açıldığında görüntülenme kaydı (fire-and-forget)
+  recordView: (invitationId: string) => {
+    api.post('/analytics/view', { invitationId }).catch(() => {});
+  },
+};
+
 // RSVP (Katılım bildirimi) — herkese açık
 export const guestService = {
   // davet RSVP formundaki 'evet'/'hayir' -> backend 'attending'/'not_attending'

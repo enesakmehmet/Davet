@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { invitationService } from '../services/api';
+import { invitationService, statsService } from '../services/api';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 
@@ -18,6 +18,7 @@ const DavetView = () => {
       const merged = { ...(inv.config || {}), invitationId: inv.id, apiBase: API_BASE };
       setCfg(merged);
       setStatus('ready');
+      statsService.recordView(inv.id); // görüntülenme kaydı (fire-and-forget)
     } catch (err: any) {
       if (err?.response?.status === 403) setStatus('password');
       else setStatus('error');
