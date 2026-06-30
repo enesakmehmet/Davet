@@ -153,8 +153,8 @@ var THEMES = {
   balon:    {label:'Renkli Balon', accent:'#e84393', soft:'#ffd6e8', dark:false, bg:'linear-gradient(160deg,#ffffff,#ffeef6)', page:'#fff7fb', nameFont:'Pacifico', decor:['🎈','🎉','🎊','🎁','⭐'], decorKind:'rain', kind:'birthday'},
   konfeti:  {label:'Konfeti Partisi', accent:'#f5c542', soft:'#ffe79e', dark:true, bg:'radial-gradient(ellipse at 50% 75%,#2a1a4a,#120a24)', page:'#120a24', nameFont:'Pacifico', decor:['🎈','🎉','🎊'], decorKind:'fireworks', kind:'birthday'},
   /* ===== KUTLAMA TEMALARI (davet değil, kişiye gönderilen kutlama) ===== */
-  kutlamaPop:  {label:'Renkli Kutlama', accent:'#ff5e8a', soft:'#ffd1e0', dark:false, bg:'linear-gradient(160deg,#fff7fb,#ffe9f2)', page:'#fff7fb', nameFont:'Pacifico', decor:['🎉','🎊','🎈','⭐','🎁','💖'], decorKind:'rain', kind:'birthday', mode:'celebration'},
-  kutlamaGece: {label:'Işıltılı Gece', accent:'#ffd86b', soft:'#ffeaa6', dark:true, bg:'radial-gradient(ellipse at 50% 70%,#241a45,#0f0a22)', page:'#0f0a22', nameFont:'Allura', decor:['🎉','🎊','✨'], decorKind:'fireworks', kind:'birthday', mode:'celebration'}
+  kutlamaPop:  {label:'Renkli Kutlama', accent:'#ff5e8a', soft:'#ffd1e0', dark:false, bg:'linear-gradient(160deg,#fff7fb,#ffe9f2)', page:'#fff7fb', nameFont:'Caveat', decor:['🎉','🎊','🎈','⭐','🎁','💖'], decorKind:'rain', kind:'birthday', mode:'celebration'},
+  kutlamaGece: {label:'Işıltılı Gece', accent:'#ffd86b', soft:'#ffeaa6', dark:true, bg:'radial-gradient(ellipse at 50% 70%,#241a45,#0f0a22)', page:'#0f0a22', nameFont:'Pacifico', decor:['🎉','🎊','✨'], decorKind:'fireworks', kind:'birthday', mode:'celebration'}
 };
 
 /* ============ VARSAYILAN CONFIG ============ */
@@ -457,14 +457,18 @@ function ensureMusicBtn(T){
 }
 function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
 var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
+function setPlaying(on){var ms=musicState;ms.playing=on;if(musicBtn){if(on){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}else{musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}}
 function startMusic(){
   var ms=musicState;
   // MP3 varsa onu çal
   if(currentMusicUrl){
-    if(!ms.audio){ms.audio=new Audio();ms.audio.loop=true;}
-    ms.audio.src=currentMusicUrl;
-    ms.audio.play().catch(function(){});
-    ms.playing=true;if(musicBtn){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}
+    if(!ms.audio){ms.audio=new Audio();ms.audio.loop=true;ms.audio.preload='auto';ms.audio.setAttribute('playsinline','');}
+    if(ms.audio.src!==currentMusicUrl){ ms.audio.src=currentMusicUrl; try{ms.audio.load();}catch(e){} }
+    ms.audio.volume=1; ms.audio.muted=false;
+    ms.audio.onerror=function(){ setPlaying(false); alert('Müzik yüklenemedi. Bağlantı geçerli, doğrudan bir .mp3 dosyası mı? (Railway’e yüklenen dosyalar her güncellemede silinebilir; kalıcı bir MP3 bağlantısı kullanın.)'); };
+    var p=ms.audio.play();
+    if(p&&p.then){ p.then(function(){ setPlaying(true); }).catch(function(err){ setPlaying(false); alert('Müzik çalınamadı: '+((err&&err.message)||'tarayıcı oynatmayı engelledi')+'. Geçerli bir .mp3 bağlantısı deneyin.'); }); }
+    else { setPlaying(true); }
     return;
   }
   // Aksi halde yumuşak melodi
