@@ -30,6 +30,9 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   // ===== Kutlama (kişiye gönderilen, davet değil) =====
   { key: 'kutlamaPop', label: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', cat: 'kutlama' },
   { key: 'kutlamaGece', label: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', cat: 'kutlama' },
+  { key: 'kutlamaPastel', label: 'Pastel Kutlama', c1: '#7aa6b8', c2: '#d8ecf2', cat: 'kutlama' },
+  { key: 'kutlamaAltin', label: 'Altın Zarafet', c1: '#b8923f', c2: '#ecd9a8', cat: 'kutlama' },
+  { key: 'kutlamaCocuk', label: 'Çocuk Partisi', c1: '#ff7a3d', c2: '#ffe0b8', cat: 'kutlama' },
 ];
 
 const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'kutlama').map((t) => t.key);
@@ -47,9 +50,14 @@ const BDAY_CONTENT: Partial<Cfg> = {
   mapQuery: 'Happy Land Eğlence Merkezi İstanbul',
   reception: 'Kapı açılışı 13:30',
   rsvpDeadline: '5 gün önce',
+  photos: [
+    'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80',
+  ],
   families: [
-    { side: 'Anne', names: 'Elif Yılmaz' },
-    { side: 'Baba', names: 'Mert Yılmaz' },
+    { side: 'Annem', names: 'Elif Yılmaz' },
+    { side: 'Babam', names: 'Mert Yılmaz' },
   ],
   story: [
     { when: 'Doğdum', title: 'Dünyaya merhaba', text: 'Ailemizin en mutlu günüydü.' },

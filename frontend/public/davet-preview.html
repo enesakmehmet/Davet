@@ -154,7 +154,10 @@ var THEMES = {
   konfeti:  {label:'Konfeti Partisi', accent:'#f5c542', soft:'#ffe79e', dark:true, bg:'radial-gradient(ellipse at 50% 75%,#2a1a4a,#120a24)', page:'#120a24', nameFont:'Pacifico', decor:['🎈','🎉','🎊'], decorKind:'fireworks', kind:'birthday'},
   /* ===== KUTLAMA TEMALARI (davet değil, kişiye gönderilen kutlama) ===== */
   kutlamaPop:  {label:'Renkli Kutlama', accent:'#ff5e8a', soft:'#ffd1e0', dark:false, bg:'linear-gradient(160deg,#fff7fb,#ffe9f2)', page:'#fff7fb', nameFont:'Caveat', decor:['🎉','🎊','🎈','⭐','🎁','💖'], decorKind:'rain', kind:'birthday', mode:'celebration'},
-  kutlamaGece: {label:'Işıltılı Gece', accent:'#ffd86b', soft:'#ffeaa6', dark:true, bg:'radial-gradient(ellipse at 50% 70%,#241a45,#0f0a22)', page:'#0f0a22', nameFont:'Pacifico', decor:['🎉','🎊','✨'], decorKind:'fireworks', kind:'birthday', mode:'celebration'}
+  kutlamaGece: {label:'Işıltılı Gece', accent:'#ffd86b', soft:'#ffeaa6', dark:true, bg:'radial-gradient(ellipse at 50% 70%,#241a45,#0f0a22)', page:'#0f0a22', nameFont:'Pacifico', decor:['🎉','🎊','✨'], decorKind:'fireworks', kind:'birthday', mode:'celebration'},
+  kutlamaPastel: {label:'Pastel Kutlama', accent:'#7aa6b8', soft:'#d8ecf2', dark:false, bg:'linear-gradient(160deg,#fbfdfe,#eef7fb)', page:'#fbfdfe', nameFont:'Pacifico', decor:['🎈','☁️','⭐','🎀'], decorKind:'rain', kind:'birthday', mode:'celebration'},
+  kutlamaAltin: {label:'Altın Zarafet', accent:'#b8923f', soft:'#ecd9a8', dark:false, bg:'linear-gradient(160deg,#fdfaf2,#f4ead2)', page:'#fdfaf2', nameFont:'Cinzel', decor:['🥂','✨','🎉'], decorKind:'rain', kind:'birthday', mode:'celebration'},
+  kutlamaCocuk: {label:'Çocuk Partisi', accent:'#ff7a3d', soft:'#ffe0b8', dark:false, bg:'linear-gradient(160deg,#fffdf6,#fff0dd)', page:'#fffdf6', nameFont:'Caveat', decor:['🎈','🧸','🎁','🍭','🎠','⭐'], decorKind:'rain', kind:'birthday', mode:'celebration'}
 };
 
 /* ============ VARSAYILAN CONFIG ============ */
@@ -284,7 +287,7 @@ function render(cfg){
   /* AİLELER */
   if(cfg.families && cfg.families.length){
     var s6=sec(); var f='<div class="fam">';
-    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(x.side)+' Ailesi</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
+    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+(isBday?esc(x.side):esc(x.side)+' Ailesi')+'</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
     f+='</div>'; s6.innerHTML=titleHTML(isBday?'Sevdiklerimiz':'Ailelerimiz','Mutluluğumuzu paylaşan')+f; wrap.appendChild(s6);
   }
 

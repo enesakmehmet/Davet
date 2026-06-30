@@ -113,9 +113,21 @@ export class InvitationsService {
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
     if (invitation.userId !== userId) throw new ForbiddenException('Yetkisiz işlem.');
 
-    return this.prisma.invitation.update({ 
+    // Davete bağlı müzik dosyasını DB'den tamamen sil (geride bir şey kalmasın)
+    try {
+      const cfg: any = invitation.config;
+      const url: string | undefined = cfg?.musicUrl;
+      const m = typeof url === 'string' ? url.match(/\/assets\/file\/([0-9a-fA-F-]+)/) : null;
+      if (m) {
+        await this.prisma.asset.deleteMany({ where: { id: m[1], userId } });
+      }
+    } catch {
+      /* müzik silme hatası daveti kaldırmayı engellemesin */
+    }
+
+    return this.prisma.invitation.update({
       where: { id },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
     });
   }
 }

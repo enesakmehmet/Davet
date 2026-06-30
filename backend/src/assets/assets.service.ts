@@ -10,18 +10,29 @@ export class AssetsService {
   ) {}
 
   async create(file: Express.Multer.File, type: string, userId: string) {
-    // 1. Storage provider üzerinden dosyayı yükle
-    const fileUrl = await this.storageService.uploadFile(file);
-
-    // 2. Veritabanına kaydet
-    return this.prisma.asset.create({
+    // Dosya içeriğini DB'de sakla (Railway disk'i kalıcı olmadığı için).
+    const asset = await this.prisma.asset.create({
       data: {
-        url: fileUrl,
-        type: type,
+        url: '',
+        type,
         filename: file.originalname,
         size: file.size,
-        userId: userId,
+        mime: file.mimetype,
+        data: file.buffer,
+        userId,
       },
+    });
+    const base = process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const url = `${base.replace(/\/$/, '')}/assets/file/${asset.id}`;
+    await this.prisma.asset.update({ where: { id: asset.id }, data: { url } });
+    return { id: asset.id, url, type, filename: file.originalname, size: file.size };
+  }
+
+  // Public: dosya içeriğini DB'den getir (davet görüntüleyici çalabilsin)
+  async getFile(id: string) {
+    return this.prisma.asset.findUnique({
+      where: { id },
+      select: { data: true, mime: true, filename: true },
     });
   }
 

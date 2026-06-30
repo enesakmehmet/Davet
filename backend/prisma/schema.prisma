@@ -114,10 +114,12 @@ model InvitationVersion {
 
 model Asset {
   id        String    @id @default(uuid())
-  url       String
+  url       String    @default("")
   type      String // image, audio, video
   filename  String
   size      Int
+  mime      String? // içerik tipi (audio/mpeg vb.)
+  data      Bytes? // dosya içeriği DB'de saklanır (Railway'de kalıcı)
   createdAt DateTime  @default(now())
   deletedAt DateTime?
 
