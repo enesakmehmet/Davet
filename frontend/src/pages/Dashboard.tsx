@@ -25,6 +25,7 @@ const THEME_GRAD: Record<string, string> = {
   tropikal: 'linear-gradient(135deg,#136443,#2aa56c)', havai: 'linear-gradient(135deg,#070912,#cbab53)',
   sinematik: 'linear-gradient(135deg,#0b0b0d,#c9a14e)',
   balon: 'linear-gradient(135deg,#e84393,#ffd6e8)', konfeti: 'linear-gradient(135deg,#120a24,#f5c542)',
+  kutlamaPop: 'linear-gradient(135deg,#ff5e8a,#ffd1e0)', kutlamaGece: 'linear-gradient(135deg,#0f0a22,#ffd86b)',
 };
 const grad = (t?: string) => THEME_GRAD[t || 'altin'] || THEME_GRAD.altin;
 

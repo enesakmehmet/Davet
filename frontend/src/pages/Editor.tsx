@@ -3,14 +3,15 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Palette, Heart, MapPin, Mail, Music, Image as ImageIcon,
-  Users, BookOpen, Download, Share2, Plus, Trash2, Check, UploadCloud
+  Users, BookOpen, Download, Share2, Plus, Trash2, Check, UploadCloud,
+  Video, Sparkles
 } from 'lucide-react';
 import { invitationService, assetService } from '../services/api';
 import { slugify } from '../utils/format';
 import './Editor.css';
 
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar */
-type Cat = 'dugun' | 'dogumgunu';
+type Cat = 'dugun' | 'dogumgunu' | 'kutlama';
 const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[] = [
   { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8', cat: 'dugun' },
   { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2', cat: 'dugun' },
@@ -23,13 +24,18 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf', cat: 'dugun' },
   { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53', cat: 'dugun' },
   { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e', cat: 'dugun' },
-  // ===== Doğum Günü temaları =====
+  // ===== Doğum Günü davetleri =====
   { key: 'balon', label: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', cat: 'dogumgunu' },
   { key: 'konfeti', label: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', cat: 'dogumgunu' },
+  // ===== Kutlama (kişiye gönderilen, davet değil) =====
+  { key: 'kutlamaPop', label: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', cat: 'kutlama' },
+  { key: 'kutlamaGece', label: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', cat: 'kutlama' },
 ];
 
-const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu').map((t) => t.key);
+const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'kutlama').map((t) => t.key);
 const isBirthdayTheme = (key: string) => BIRTHDAY_KEYS.includes(key);
+const CELEB_KEYS = THEMES.filter((t) => t.cat === 'kutlama').map((t) => t.key);
+const isCelebTheme = (key: string) => CELEB_KEYS.includes(key);
 
 /* Doğum günü temasına geçilince (kullanıcı hâlâ düğün varsayılanlarındaysa) uygulanan içerik */
 const BDAY_CONTENT: Partial<Cfg> = {
@@ -52,6 +58,22 @@ const BDAY_CONTENT: Partial<Cfg> = {
   ],
 };
 
+/* Kutlama (kişiye gönderilen) temasına geçilince uygulanan içerik */
+const CELEB_CONTENT: Partial<Cfg> = {
+  brideName: 'Defne', groomName: '7',
+  subtitle: 'bugün senin günün — iyi ki doğdun!',
+  greeting: 'Mutlu Yıllar Sana',
+  message: 'Bu özel günü seninle kutlamak, gülüşünü görmek ve mutluluğuna ortak olmak en güzel hediye. Hayatımıza neşe kattığın için teşekkürler!',
+  photos: [
+    'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80',
+  ],
+  videoUrl: '',
+  fromName: 'Sevgiyle, Annen',
+  wish: 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂🎈',
+};
+
 type Family = { side: string; names: string };
 type Story = { when: string; title: string; text: string };
 
@@ -66,6 +88,8 @@ type Cfg = {
   families: Family[];
   story: Story[];
   rsvpDeadline: string; phone: string;
+  // kutlama modu
+  videoUrl: string; fromName: string; wish: string;
 };
 
 const DEFAULT_CFG: Cfg = {
@@ -95,9 +119,12 @@ const DEFAULT_CFG: Cfg = {
     { when: '2025', title: 'Teklif', text: 'Mum ışığında bir evet ile yollarımızı birleştirdik.' },
   ],
   rsvpDeadline: '1 Eylül', phone: '905555555555',
+  videoUrl: '', fromName: 'Sevgiyle, Annen',
+  wish: 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂',
 };
 
-const SECTIONS = [
+type SectionDef = { id: string; label: string; icon: any };
+const SECTIONS: SectionDef[] = [
   { id: 'theme', label: 'Tema', icon: Palette },
   { id: 'couple', label: 'Çift & Tarih', icon: Heart },
   { id: 'venue', label: 'Mekan & Harita', icon: MapPin },
@@ -106,6 +133,16 @@ const SECTIONS = [
   { id: 'photos', label: 'Fotoğraflar', icon: ImageIcon },
   { id: 'music', label: 'Müzik', icon: Music },
   { id: 'rsvp', label: 'RSVP', icon: Mail },
+];
+
+/* Kutlama modunda farklı bölümler (davet mekanikleri yok) */
+const CELEB_SECTIONS: SectionDef[] = [
+  { id: 'theme', label: 'Tema', icon: Palette },
+  { id: 'couple', label: 'Kişi & Mesaj', icon: Heart },
+  { id: 'photos', label: 'Fotoğraflar', icon: ImageIcon },
+  { id: 'video', label: 'Video', icon: Video },
+  { id: 'music', label: 'Müzik', icon: Music },
+  { id: 'wish', label: 'Dilek & İmza', icon: Sparkles },
 ];
 
 const initialCfg = (): Cfg => {
@@ -117,8 +154,17 @@ const initialCfg = (): Cfg => {
 const Editor = () => {
   const [cfg, setCfg] = useState<Cfg>(initialCfg);
   const [active, setActive] = useState('theme');
-  const isBday = isBirthdayTheme(cfg.theme);
-  const [themeCat, setThemeCat] = useState<Cat>(isBday ? 'dogumgunu' : 'dugun');
+  const isCeleb = isCelebTheme(cfg.theme);
+  const isBday = isBirthdayTheme(cfg.theme) && !isCeleb; // kutlama ayrı kategoride
+  const visibleSections = isCeleb ? CELEB_SECTIONS : SECTIONS;
+  const [themeCat, setThemeCat] = useState<Cat>(
+    isCelebTheme(cfg.theme) ? 'kutlama' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun'
+  );
+  // Aktif bölüm görünür değilse temaya dön (kutlama ↔ davet geçişinde)
+  useEffect(() => {
+    if (!visibleSections.some((s) => s.id === active)) setActive('theme');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCeleb]);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedSlug, setSavedSlug] = useState<string | null>(null);
@@ -149,15 +195,23 @@ const Editor = () => {
 
   const set = (k: keyof Cfg, v: any) => setCfg((c) => ({ ...c, [k]: v }));
 
+  // İçerik hâlâ hazır bir şablonda mı? (kullanıcı metni özelleştirmediyse kategori geçişinde otomatik çevir)
+  const isPreset = (c: Cfg) =>
+    (c.subtitle === DEFAULT_CFG.subtitle && c.greeting === DEFAULT_CFG.greeting) ||
+    (c.subtitle === BDAY_CONTENT.subtitle && c.greeting === BDAY_CONTENT.greeting) ||
+    (c.subtitle === CELEB_CONTENT.subtitle && c.greeting === CELEB_CONTENT.greeting);
+
   // Tema seçimi — kategori değişince içerik hâlâ varsayılandaysa uygun metne çevir
   const pickTheme = (key: string) => {
-    const toBday = isBirthdayTheme(key);
+    const toCeleb = isCelebTheme(key);
+    const toBday = isBirthdayTheme(key) && !toCeleb;
     setCfg((c) => {
       const next: Cfg = { ...c, theme: key };
-      const atWeddingDefaults = c.subtitle === DEFAULT_CFG.subtitle && c.greeting === DEFAULT_CFG.greeting;
-      const atBdayDefaults = c.subtitle === BDAY_CONTENT.subtitle && c.greeting === BDAY_CONTENT.greeting;
-      if (toBday && atWeddingDefaults) Object.assign(next, BDAY_CONTENT);
-      if (!toBday && atBdayDefaults) Object.assign(next, { ...DEFAULT_CFG, theme: key });
+      if (isPreset(c)) {
+        if (toCeleb) Object.assign(next, CELEB_CONTENT);
+        else if (toBday) Object.assign(next, BDAY_CONTENT);
+        else Object.assign(next, { ...DEFAULT_CFG, theme: key });
+      }
       return next;
     });
   };
@@ -202,10 +256,12 @@ const Editor = () => {
   const publish = async () => {
     setSaving(true); setSaveError('');
     try {
-      const title = isBirthdayTheme(cfg.theme)
-        ? `${cfg.brideName} — Doğum Günü Davetiyesi`
-        : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
-      const eventDate = cfg.date ? new Date(cfg.date).toISOString() : undefined;
+      const title = isCelebTheme(cfg.theme)
+        ? `${cfg.brideName} — Doğum Günü Kutlaması`
+        : isBirthdayTheme(cfg.theme)
+          ? `${cfg.brideName} — Doğum Günü Davetiyesi`
+          : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
+      const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? new Date(cfg.date).toISOString() : undefined;
       if (idRef.current) {
         await invitationService.saveInvitation(idRef.current, { title, eventDate, config: cfg });
       } else {
@@ -236,7 +292,7 @@ const Editor = () => {
         <div className="ed-head-l">
           <Link to="/" className="ed-logo">Davetim</Link>
           <span className="ed-divider" />
-          <span className="ed-doc">{isBday ? `${cfg.brideName} — Doğum Günü Davetiyesi` : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`}</span>
+          <span className="ed-doc">{isCeleb ? `${cfg.brideName} — Doğum Günü Kutlaması` : isBday ? `${cfg.brideName} — Doğum Günü Davetiyesi` : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`}</span>
         </div>
         <div className="ed-head-r">
           {saveError && <span className="ed-saveerr">{saveError}</span>}
@@ -258,7 +314,7 @@ const Editor = () => {
       <div className="ed-body">
         {/* sol: bolum menusu */}
         <nav className="ed-nav">
-          {SECTIONS.map((s) => {
+          {visibleSections.map((s) => {
             const Ico = s.icon;
             const label = isBday
               ? (s.id === 'couple' ? 'Kişi & Tarih' : s.id === 'family' ? 'Sevdiklerim' : s.label)
@@ -276,15 +332,23 @@ const Editor = () => {
           {active === 'theme' && (
             <div className="grp">
               <h3>Tema Seçimi</h3>
-              <p className="grp-sub">Önce davet türünü seçin, sonra tarzını. Önizleme anında güncellenir.</p>
+              <p className="grp-sub">Önce türü seçin, sonra tarzını. Önizleme anında güncellenir.</p>
               <div className="cat-tabs">
                 <button className={`cat-tab ${themeCat === 'dugun' ? 'on' : ''}`} onClick={() => setThemeCat('dugun')}>
-                  💍 Düğün Davetleri
+                  💍 Düğün Daveti
                 </button>
                 <button className={`cat-tab ${themeCat === 'dogumgunu' ? 'on' : ''}`} onClick={() => setThemeCat('dogumgunu')}>
-                  🎂 Doğum Günü Davetleri
+                  🎂 Doğum Günü Daveti
+                </button>
+                <button className={`cat-tab ${themeCat === 'kutlama' ? 'on' : ''}`} onClick={() => setThemeCat('kutlama')}>
+                  🎉 Kutlama
                 </button>
               </div>
+              {themeCat === 'kutlama' && (
+                <p className="grp-sub" style={{ marginTop: -8 }}>
+                  Kutlama, davet değildir: kişiye özel hazırlayıp gönderirsiniz. Resim, müzik, video ve dilek içerir; RSVP/harita yoktur.
+                </p>
+              )}
               <div className="theme-grid">
                 {THEMES.filter((t) => t.cat === themeCat).map((t) => (
                   <button key={t.key} className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`} onClick={() => pickTheme(t.key)}>
@@ -298,19 +362,21 @@ const Editor = () => {
 
           {active === 'couple' && (
             <div className="grp">
-              <h3>{isBday ? 'Kişi & Tarih' : 'Çift & Tarih'}</h3>
+              <h3>{isCeleb ? 'Kişi & Mesaj' : isBday ? 'Kişi & Tarih' : 'Çift & Tarih'}</h3>
               <div className="row2">
-                <Field label={isBday ? 'Adı' : 'Gelin Adı'}><input value={cfg.brideName} onChange={(e) => set('brideName', e.target.value)} /></Field>
-                <Field label={isBday ? 'Yaşı (örn: 7)' : 'Damat Adı'}><input value={cfg.groomName} onChange={(e) => set('groomName', e.target.value)} /></Field>
+                <Field label={isCeleb || isBday ? 'Adı' : 'Gelin Adı'}><input value={cfg.brideName} onChange={(e) => set('brideName', e.target.value)} /></Field>
+                <Field label={isCeleb || isBday ? 'Yaşı (örn: 7)' : 'Damat Adı'}><input value={cfg.groomName} onChange={(e) => set('groomName', e.target.value)} /></Field>
               </div>
-              <Field label="Tarih & Saat (geri sayım buna göre çalışır)">
-                <input type="datetime-local" value={cfg.date} onChange={(e) => set('date', e.target.value)} />
-              </Field>
+              {!isCeleb && (
+                <Field label="Tarih & Saat (geri sayım buna göre çalışır)">
+                  <input type="datetime-local" value={cfg.date} onChange={(e) => set('date', e.target.value)} />
+                </Field>
+              )}
               <Field label="Üst yazı (isim altındaki cümle)">
                 <input value={cfg.subtitle} onChange={(e) => set('subtitle', e.target.value)} />
               </Field>
-              <Field label="Davet başlığı"><input value={cfg.greeting} onChange={(e) => set('greeting', e.target.value)} /></Field>
-              <Field label="Davet metni">
+              <Field label={isCeleb ? 'Kutlama başlığı' : 'Davet başlığı'}><input value={cfg.greeting} onChange={(e) => set('greeting', e.target.value)} /></Field>
+              <Field label={isCeleb ? 'Kutlama mesajı' : 'Davet metni'}>
                 <textarea rows={4} value={cfg.message} onChange={(e) => set('message', e.target.value)} />
               </Field>
             </div>
@@ -420,6 +486,33 @@ const Editor = () => {
               <Field label="WhatsApp numarası (ülke kodu ile, + olmadan)">
                 <input value={cfg.phone} onChange={(e) => set('phone', e.target.value)} placeholder="905551112233" />
                 <small className="hint">Misafirlerin "WhatsApp ile bildir" yanıtları bu numaraya gelir.</small>
+              </Field>
+            </div>
+          )}
+
+          {active === 'video' && (
+            <div className="grp">
+              <h3>Sürpriz Video</h3>
+              <p className="grp-sub">Bir YouTube bağlantısı yapıştırın ya da doğrudan bir MP4 video adresi verin. Boş bırakırsanız video bölümü görünmez.</p>
+              <Field label="Video bağlantısı (YouTube veya MP4 URL)">
+                <input value={cfg.videoUrl} onChange={(e) => set('videoUrl', e.target.value)} placeholder="https://youtu.be/... veya https://.../video.mp4" />
+                <small className="hint">Örn: https://www.youtube.com/watch?v=… — otomatik gömülür.</small>
+              </Field>
+              {cfg.videoUrl && (
+                <button className="add-btn" style={{ marginTop: 8 }} onClick={() => set('videoUrl', '')}>Videoyu kaldır</button>
+              )}
+            </div>
+          )}
+
+          {active === 'wish' && (
+            <div className="grp">
+              <h3>Dilek & İmza</h3>
+              <p className="grp-sub">Kutlamanın sonunda görünen içten dilek ve gönderen imzası.</p>
+              <Field label="Dilek mesajı">
+                <textarea rows={4} value={cfg.wish} onChange={(e) => set('wish', e.target.value)} />
+              </Field>
+              <Field label="İmza / Gönderen">
+                <input value={cfg.fromName} onChange={(e) => set('fromName', e.target.value)} placeholder="Sevgiyle, Annen" />
               </Field>
             </div>
           )}
