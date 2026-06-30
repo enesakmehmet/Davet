@@ -193,7 +193,11 @@
 .inv-actions { display: flex; gap: 10px; }
 .db-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--color-accent-gold); background: var(--color-accent-gold); color: #fff; text-decoration: none; cursor: pointer; }
 .db-btn.ghost { background: transparent; color: var(--color-text-primary); border-color: var(--color-border); }
+.db-btn.danger { background: transparent; color: #b3354b; border-color: #f0c3cc; }
+.db-btn.danger:hover { background: #fbe9ec; opacity: 1; }
 .db-btn:hover { opacity: .9; }
+.db-btn:disabled { opacity: .55; cursor: default; }
+.inv-actions { flex-wrap: wrap; }
 
 .db-picker { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .db-picker label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
-  ExternalLink, Eye, MailOpen, Edit3,
+  ExternalLink, Eye, MailOpen, Edit3, Trash2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { invitationService, guestListService, statsService } from '../services/api';
@@ -58,6 +58,20 @@ const Dashboard = () => {
 
   const totalRsvp = invitations.reduce((s, i) => s + (i?._count?.guests || 0), 0);
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const handleDelete = async (inv: any) => {
+    if (!window.confirm(`"${inv.title || 'Davetiye'}" yayından kaldırılsın mı? Bu davetiye bağlantısı artık açılmaz.`)) return;
+    setDeletingId(inv.id);
+    try {
+      await invitationService.deleteInvitation(inv.id);
+      setInvitations((list) => list.filter((x) => x.id !== inv.id));
+    } catch {
+      alert('Kaldırılamadı. Lütfen tekrar deneyin.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       <aside className="dashboard-sidebar">
@@ -103,8 +117,8 @@ const Dashboard = () => {
 
         {!loading && !error && (
           <>
-            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} onGo={setSection} />}
-            {section === 'davetiyeler' && <InvitationsView invitations={invitations} />}
+            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} onGo={setSection} onDelete={handleDelete} deletingId={deletingId} />}
+            {section === 'davetiyeler' && <InvitationsView invitations={invitations} onDelete={handleDelete} deletingId={deletingId} />}
             {section === 'misafirler' && <GuestsView invitations={invitations} />}
             {section === 'istatistikler' && <StatsView invitations={invitations} />}
           </>
@@ -115,7 +129,7 @@ const Dashboard = () => {
 };
 
 /* ---------- PANEL ---------- */
-const PanelView = ({ invitations, totalRsvp, onGo }: any) => (
+const PanelView = ({ invitations, totalRsvp, onGo, onDelete, deletingId }: any) => (
   <>
     <section className="db-cards">
       <Stat lab="Davetiyelerim" val={invitations.length} ico={<Mail size={18} />} />
@@ -131,20 +145,20 @@ const PanelView = ({ invitations, totalRsvp, onGo }: any) => (
       {invitations.length === 0 ? (
         <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
       ) : (
-        <div className="inv-grid">{invitations.slice(0, 4).map((inv: any) => <InvCard key={inv.id} inv={inv} />)}</div>
+        <div className="inv-grid">{invitations.slice(0, 4).map((inv: any) => <InvCard key={inv.id} inv={inv} onDelete={onDelete} deletingId={deletingId} />)}</div>
       )}
     </div>
   </>
 );
 
 /* ---------- DAVETİYELER ---------- */
-const InvitationsView = ({ invitations }: any) => (
+const InvitationsView = ({ invitations, onDelete, deletingId }: any) => (
   invitations.length === 0
     ? <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
-    : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} />)}</div>
+    : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} onDelete={onDelete} deletingId={deletingId} />)}</div>
 );
 
-const InvCard = ({ inv }: any) => {
+const InvCard = ({ inv, onDelete, deletingId }: any) => {
   const photo = inv?.config?.photos?.[0];
   return (
     <div className="inv-card">
@@ -162,6 +176,9 @@ const InvCard = ({ inv }: any) => {
         <div className="inv-actions">
           <a href={`/davet/${inv.slug}`} target="_blank" rel="noreferrer" className="db-btn"><ExternalLink size={15} /> Görüntüle</a>
           <Link to="/editor" className="db-btn ghost"><Edit3 size={15} /> Yeni</Link>
+          <button className="db-btn danger" onClick={() => onDelete?.(inv)} disabled={deletingId === inv.id}>
+            <Trash2 size={15} /> {deletingId === inv.id ? 'Kaldırılıyor…' : 'Yayından Kaldır'}
+          </button>
         </div>
       </div>
     </div>

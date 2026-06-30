@@ -58,6 +58,11 @@ export const invitationService = {
     const response = await api.post(`/invitations/${slug}`, { password });
     return response.data;
   },
+  // Davetiyeyi yayından kaldır / sil
+  deleteInvitation: async (id: string) => {
+    const response = await api.delete(`/invitations/${id}`);
+    return response.data;
+  },
 };
 
 // Varlık yükleme (MP3 müzik vb.) — multipart için ham fetch kullanılır
