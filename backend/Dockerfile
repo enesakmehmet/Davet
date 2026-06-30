@@ -8,7 +8,8 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies and generate prisma client
-RUN npm install
+# --legacy-peer-deps: @nestjs/schedule peer çakışmasını gevşek geçer (NestJS 11 uyumu)
+RUN npm install --legacy-peer-deps
 RUN npx prisma generate
 
 # Bundle app source
