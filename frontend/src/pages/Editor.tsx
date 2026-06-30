@@ -10,19 +10,47 @@ import { slugify } from '../utils/format';
 import './Editor.css';
 
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar */
-const THEMES = [
-  { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8' },
-  { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2' },
-  { key: 'minimal', label: 'Modern Minimal', c1: '#1a1a1a', c2: '#d8d8d8' },
-  { key: 'bohem', label: 'Bohem Kır', c1: '#5f7050', c2: '#cdbfa6' },
-  { key: 'lacivert', label: 'Lacivert Gece', c1: '#0e1a33', c2: '#c9a14e' },
-  { key: 'lavanta', label: 'Lavanta Bahçe', c1: '#6f54a0', c2: '#e3d6f3' },
-  { key: 'sonbahar', label: 'Sonbahar', c1: '#8a3d1c', c2: '#ecd9bf' },
-  { key: 'deniz', label: 'Deniz Kıyısı', c1: '#1c7484', c2: '#bfe6ec' },
-  { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf' },
-  { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53' },
-  { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e' },
+type Cat = 'dugun' | 'dogumgunu';
+const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[] = [
+  { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8', cat: 'dugun' },
+  { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2', cat: 'dugun' },
+  { key: 'minimal', label: 'Modern Minimal', c1: '#1a1a1a', c2: '#d8d8d8', cat: 'dugun' },
+  { key: 'bohem', label: 'Bohem Kır', c1: '#5f7050', c2: '#cdbfa6', cat: 'dugun' },
+  { key: 'lacivert', label: 'Lacivert Gece', c1: '#0e1a33', c2: '#c9a14e', cat: 'dugun' },
+  { key: 'lavanta', label: 'Lavanta Bahçe', c1: '#6f54a0', c2: '#e3d6f3', cat: 'dugun' },
+  { key: 'sonbahar', label: 'Sonbahar', c1: '#8a3d1c', c2: '#ecd9bf', cat: 'dugun' },
+  { key: 'deniz', label: 'Deniz Kıyısı', c1: '#1c7484', c2: '#bfe6ec', cat: 'dugun' },
+  { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf', cat: 'dugun' },
+  { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53', cat: 'dugun' },
+  { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e', cat: 'dugun' },
+  // ===== Doğum Günü temaları =====
+  { key: 'balon', label: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', cat: 'dogumgunu' },
+  { key: 'konfeti', label: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', cat: 'dogumgunu' },
 ];
+
+const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu').map((t) => t.key);
+const isBirthdayTheme = (key: string) => BIRTHDAY_KEYS.includes(key);
+
+/* Doğum günü temasına geçilince (kullanıcı hâlâ düğün varsayılanlarındaysa) uygulanan içerik */
+const BDAY_CONTENT: Partial<Cfg> = {
+  brideName: 'Defne', groomName: '7',
+  subtitle: 'doğum günü partime hepinizi bekliyorum!',
+  greeting: 'Kutlamaya davetlisin',
+  message: 'En sevdiğim insanlarla doğum günümü kutlamak istiyorum. Gelip eğlenceye, pasta ve sürprizlere ortak olursan çok mutlu olurum!',
+  venueName: 'Happy Land Eğlence Merkezi', venueCity: 'Kadıköy, İstanbul',
+  mapQuery: 'Happy Land Eğlence Merkezi İstanbul',
+  reception: 'Kapı açılışı 13:30',
+  rsvpDeadline: '5 gün önce',
+  families: [
+    { side: 'Anne', names: 'Elif Yılmaz' },
+    { side: 'Baba', names: 'Mert Yılmaz' },
+  ],
+  story: [
+    { when: 'Doğdum', title: 'Dünyaya merhaba', text: 'Ailemizin en mutlu günüydü.' },
+    { when: 'İlk adım', title: 'Yürümeye başladım', text: 'Artık durdurmak imkânsızdı!' },
+    { when: 'Bugün', title: 'Yaş günü zamanı', text: 'Hep birlikte kutlayalım istiyorum.' },
+  ],
+};
 
 type Family = { side: string; names: string };
 type Story = { when: string; title: string; text: string };
@@ -89,6 +117,8 @@ const initialCfg = (): Cfg => {
 const Editor = () => {
   const [cfg, setCfg] = useState<Cfg>(initialCfg);
   const [active, setActive] = useState('theme');
+  const isBday = isBirthdayTheme(cfg.theme);
+  const [themeCat, setThemeCat] = useState<Cat>(isBday ? 'dogumgunu' : 'dugun');
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedSlug, setSavedSlug] = useState<string | null>(null);
@@ -118,6 +148,19 @@ const Editor = () => {
   useEffect(() => { if (readyRef.current) post(); /* eslint-disable-next-line */ }, [cfg]);
 
   const set = (k: keyof Cfg, v: any) => setCfg((c) => ({ ...c, [k]: v }));
+
+  // Tema seçimi — kategori değişince içerik hâlâ varsayılandaysa uygun metne çevir
+  const pickTheme = (key: string) => {
+    const toBday = isBirthdayTheme(key);
+    setCfg((c) => {
+      const next: Cfg = { ...c, theme: key };
+      const atWeddingDefaults = c.subtitle === DEFAULT_CFG.subtitle && c.greeting === DEFAULT_CFG.greeting;
+      const atBdayDefaults = c.subtitle === BDAY_CONTENT.subtitle && c.greeting === BDAY_CONTENT.greeting;
+      if (toBday && atWeddingDefaults) Object.assign(next, BDAY_CONTENT);
+      if (!toBday && atBdayDefaults) Object.assign(next, { ...DEFAULT_CFG, theme: key });
+      return next;
+    });
+  };
 
   const onMusicFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -159,7 +202,9 @@ const Editor = () => {
   const publish = async () => {
     setSaving(true); setSaveError('');
     try {
-      const title = `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
+      const title = isBirthdayTheme(cfg.theme)
+        ? `${cfg.brideName} — Doğum Günü Davetiyesi`
+        : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
       const eventDate = cfg.date ? new Date(cfg.date).toISOString() : undefined;
       if (idRef.current) {
         await invitationService.saveInvitation(idRef.current, { title, eventDate, config: cfg });
@@ -191,7 +236,7 @@ const Editor = () => {
         <div className="ed-head-l">
           <Link to="/" className="ed-logo">Davetim</Link>
           <span className="ed-divider" />
-          <span className="ed-doc">{cfg.brideName} & {cfg.groomName} — Düğün Davetiyesi</span>
+          <span className="ed-doc">{isBday ? `${cfg.brideName} — Doğum Günü Davetiyesi` : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`}</span>
         </div>
         <div className="ed-head-r">
           {saveError && <span className="ed-saveerr">{saveError}</span>}
@@ -215,9 +260,12 @@ const Editor = () => {
         <nav className="ed-nav">
           {SECTIONS.map((s) => {
             const Ico = s.icon;
+            const label = isBday
+              ? (s.id === 'couple' ? 'Kişi & Tarih' : s.id === 'family' ? 'Sevdiklerim' : s.label)
+              : s.label;
             return (
               <button key={s.id} className={`ed-nav-item ${active === s.id ? 'on' : ''}`} onClick={() => setActive(s.id)}>
-                <Ico size={18} /> <span>{s.label}</span>
+                <Ico size={18} /> <span>{label}</span>
               </button>
             );
           })}
@@ -228,10 +276,18 @@ const Editor = () => {
           {active === 'theme' && (
             <div className="grp">
               <h3>Tema Seçimi</h3>
-              <p className="grp-sub">Davetinizin tarzını seçin. Önizleme anında güncellenir.</p>
+              <p className="grp-sub">Önce davet türünü seçin, sonra tarzını. Önizleme anında güncellenir.</p>
+              <div className="cat-tabs">
+                <button className={`cat-tab ${themeCat === 'dugun' ? 'on' : ''}`} onClick={() => setThemeCat('dugun')}>
+                  💍 Düğün Davetleri
+                </button>
+                <button className={`cat-tab ${themeCat === 'dogumgunu' ? 'on' : ''}`} onClick={() => setThemeCat('dogumgunu')}>
+                  🎂 Doğum Günü Davetleri
+                </button>
+              </div>
               <div className="theme-grid">
-                {THEMES.map((t) => (
-                  <button key={t.key} className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`} onClick={() => set('theme', t.key)}>
+                {THEMES.filter((t) => t.cat === themeCat).map((t) => (
+                  <button key={t.key} className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`} onClick={() => pickTheme(t.key)}>
                     <span className="swatch" style={{ background: `linear-gradient(135deg, ${t.c1}, ${t.c2})` }} />
                     <span className="theme-name">{t.label}</span>
                   </button>
@@ -242,10 +298,10 @@ const Editor = () => {
 
           {active === 'couple' && (
             <div className="grp">
-              <h3>Çift & Tarih</h3>
+              <h3>{isBday ? 'Kişi & Tarih' : 'Çift & Tarih'}</h3>
               <div className="row2">
-                <Field label="Gelin Adı"><input value={cfg.brideName} onChange={(e) => set('brideName', e.target.value)} /></Field>
-                <Field label="Damat Adı"><input value={cfg.groomName} onChange={(e) => set('groomName', e.target.value)} /></Field>
+                <Field label={isBday ? 'Adı' : 'Gelin Adı'}><input value={cfg.brideName} onChange={(e) => set('brideName', e.target.value)} /></Field>
+                <Field label={isBday ? 'Yaşı (örn: 7)' : 'Damat Adı'}><input value={cfg.groomName} onChange={(e) => set('groomName', e.target.value)} /></Field>
               </div>
               <Field label="Tarih & Saat (geri sayım buna göre çalışır)">
                 <input type="datetime-local" value={cfg.date} onChange={(e) => set('date', e.target.value)} />

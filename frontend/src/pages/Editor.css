@@ -43,6 +43,13 @@
 .hint{display:block;margin-top:6px;font-size:12px;color:#9a9a9a;line-height:1.4}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
+/* Kategori sekmeleri (Düğün / Doğum Günü) */
+.cat-tabs{display:flex;gap:10px;margin-bottom:18px}
+.cat-tab{flex:1;padding:12px 14px;border:1.5px solid var(--color-border,#eae8e1);border-radius:12px;
+  background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;color:#6a6a6a;transition:.2s}
+.cat-tab:hover{border-color:#c9a14e}
+.cat-tab.on{border-color:#1a1a1a;background:#1a1a1a;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.1)}
+
 /* Tema kartları */
 .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .theme-card{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--color-border,#eae8e1);border-radius:12px;

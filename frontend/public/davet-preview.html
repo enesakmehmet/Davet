@@ -143,7 +143,10 @@ var THEMES = {
   deniz:    {label:'Deniz Kıyısı', accent:'#1c7484', soft:'#bfe6ec', dark:false, bg:'linear-gradient(180deg,#bfe6ec,#7fcbd8)', page:'#f3fbfc', nameFont:'Pacifico', decor:['🫧','🐚','⭐'], decorKind:'rain'},
   tropikal: {label:'Tropikal', accent:'#136443', soft:'#bfe6cf', dark:false, bg:'linear-gradient(160deg,#2aa56c,#1f8a5b)', page:'#f3fbf5', nameFont:'Caveat', decor:['🌺','🌿','🌴'], decorKind:'rain'},
   havai:    {label:'Gece Havai Fişek', accent:'#cbab53', soft:'#f0d27a', dark:true, bg:'radial-gradient(ellipse at 50% 80%,#141c36,#070912)', page:'#070912', nameFont:'Allura', decor:[], decorKind:'fireworks'},
-  sinematik:{label:'Altın Sinematik', accent:'#c9a14e', soft:'#e7c878', dark:true, bg:'radial-gradient(ellipse at 50% 35%,#1a1726,#0b0b0d)', page:'#0b0b0d', nameFont:'Allura', decor:['✦'], decorKind:'rain'}
+  sinematik:{label:'Altın Sinematik', accent:'#c9a14e', soft:'#e7c878', dark:true, bg:'radial-gradient(ellipse at 50% 35%,#1a1726,#0b0b0d)', page:'#0b0b0d', nameFont:'Allura', decor:['✦'], decorKind:'rain'},
+  /* ===== DOĞUM GÜNÜ TEMALARI ===== */
+  balon:    {label:'Renkli Balon', accent:'#e84393', soft:'#ffd6e8', dark:false, bg:'linear-gradient(160deg,#ffffff,#ffeef6)', page:'#fff7fb', nameFont:'Pacifico', decor:['🎈','🎉','🎊','🎁','⭐'], decorKind:'rain', kind:'birthday'},
+  konfeti:  {label:'Konfeti Partisi', accent:'#f5c542', soft:'#ffe79e', dark:true, bg:'radial-gradient(ellipse at 50% 75%,#2a1a4a,#120a24)', page:'#120a24', nameFont:'Pacifico', decor:['🎈','🎉','🎊'], decorKind:'fireworks', kind:'birthday'}
 };
 
 /* ============ VARSAYILAN CONFIG ============ */
@@ -184,7 +187,8 @@ function fmtDay(d){var dt=new Date(d);if(isNaN(dt))return '';return days()[dt.ge
 function render(cfg){
   cfg = Object.assign({}, DEFAULT, cfg||{});
   var T = THEMES[cfg.theme] || THEMES.altin;
-  var couple = (cfg.brideName||'')+' & '+(cfg.groomName||'');
+  var isBday = (T.kind==='birthday');
+  var couple = isBday ? (cfg.brideName||'') : ((cfg.brideName||'')+' & '+(cfg.groomName||''));
   var ink = T.dark ? '#ece6d6' : '#4a443c';
   var inkSoft = T.dark ? '#b0a78f' : '#7c7264';
   var surface = T.dark ? 'rgba(255,255,255,.05)' : '#ffffff';
@@ -209,10 +213,19 @@ function render(cfg){
 
   /* HERO */
   var hero = el('section','hero'); hero.style.background=T.bg; if(T.dark)hero.style.color='#fff';
+  var heroEyebrow = isBday ? 'Doğum Günü Partisi' : 'Aileleriyle birlikte';
+  var namesHTML = isBday
+    ? esc(cfg.brideName)
+    : esc(cfg.brideName)+'<span class="amp" style="color:'+T.soft+'">&</span>'+esc(cfg.groomName);
+  var ornamentMid = isBday ? '🎂' : '❦';
+  var ageHTML = (isBday && cfg.groomName)
+    ? '<div class="eyebrow reveal" style="margin-top:8px;font-size:17px;letter-spacing:2px;color:'+(T.dark?T.soft:T.accent)+'">🎈 '+esc(cfg.groomName)+' YAŞINDA 🎈</div>'
+    : '';
   hero.innerHTML =
-    '<div class="eyebrow reveal" style="color:'+(T.dark?T.soft:T.accent)+'">Aileleriyle birlikte</div>'+
-    '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(56px,13vw,104px);color:'+(T.dark?'#fff':T.accent)+'">'+esc(cfg.brideName)+'<span class="amp" style="color:'+T.soft+'">&</span>'+esc(cfg.groomName)+'</h1>'+
-    '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>❦<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
+    '<div class="eyebrow reveal" style="color:'+(T.dark?T.soft:T.accent)+'">'+heroEyebrow+'</div>'+
+    '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(56px,13vw,104px);color:'+(T.dark?'#fff':T.accent)+'">'+namesHTML+'</h1>'+
+    ageHTML+
+    '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>'+ornamentMid+'<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
     '<p class="subtitle reveal" style="color:'+inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
     '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date)+' · '+fmtDay(cfg.date)+'</div>'+
     '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">AŞAĞI KAYDIR</div>';
@@ -222,22 +235,22 @@ function render(cfg){
   function titleHTML(t,sub){return '<h2 class="title" style="color:'+T.accent+'">'+esc(t)+'</h2><div class="tsub" style="color:'+inkSoft+'">'+esc(sub)+'</div>';}
 
   /* DAVET */
-  var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,'Hayatımızın en özel günü')+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
+  var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,isBday?'Birlikte kutlayalım':'Hayatımızın en özel günü')+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
 
   /* HİKAYEMİZ */
   if(cfg.story && cfg.story.length){
     var s2=sec(); var h='<div class="tl" style="--c:'+T.accent+'">';
     cfg.story.forEach(function(it){h+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(it.when)+'</div><h4 style="color:'+T.accent+'">'+esc(it.title)+'</h4><p style="color:'+inkSoft+'">'+esc(it.text)+'</p></div>';});
-    h+='</div>'; s2.innerHTML=titleHTML('Hikayemiz','Nasıl başladı?')+h; wrap.appendChild(s2);
+    h+='</div>'; s2.innerHTML=titleHTML('Hikayemiz',isBday?'Güzel anılar':'Nasıl başladı?')+h; wrap.appendChild(s2);
   }
 
   /* GERİ SAYIM */
-  var s3=sec(); s3.innerHTML=titleHTML('Büyük Güne Kalan','Geri sayım')+
+  var s3=sec(); s3.innerHTML=titleHTML(isBday?'Partiye Kalan':'Büyük Güne Kalan','Geri sayım')+
     '<div class="countdown">'+['Gün','Saat','Dakika','Saniye'].map(function(l,i){return '<div class="cd-box" style="background:'+surface+';border:1px solid '+border+'"><div class="cd-num" id="cd'+i+'" style="color:'+T.accent+'">00</div><div class="cd-lab" style="color:'+inkSoft+'">'+l+'</div></div>';}).join('')+'</div>';
   wrap.appendChild(s3);
 
   /* DETAYLAR */
-  var s4=sec(); s4.innerHTML=titleHTML('Düğün Detayları','Sizi bekliyoruz')+
+  var s4=sec(); s4.innerHTML=titleHTML(isBday?'Parti Detayları':'Düğün Detayları','Sizi bekliyoruz')+
     '<div class="cards">'+
       card('📅','Tarih',fmtDate(cfg.date)+'<br>'+fmtDay(cfg.date))+
       card('🕖','Saat',fmtTime(cfg.date)+'<br>'+esc(cfg.reception))+
@@ -258,7 +271,7 @@ function render(cfg){
   if(cfg.families && cfg.families.length){
     var s6=sec(); var f='<div class="fam">';
     cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(x.side)+' Ailesi</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
-    f+='</div>'; s6.innerHTML=titleHTML('Ailelerimiz','Mutluluğumuzu paylaşan')+f; wrap.appendChild(s6);
+    f+='</div>'; s6.innerHTML=titleHTML(isBday?'Sevdiklerimiz':'Ailelerimiz','Mutluluğumuzu paylaşan')+f; wrap.appendChild(s6);
   }
 
   /* HARİTA */
