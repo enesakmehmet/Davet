@@ -33,6 +33,7 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   { key: 'kutlamaPastel', label: 'Pastel Kutlama', c1: '#7aa6b8', c2: '#d8ecf2', cat: 'kutlama' },
   { key: 'kutlamaAltin', label: 'Altın Zarafet', c1: '#b8923f', c2: '#ecd9a8', cat: 'kutlama' },
   { key: 'kutlamaCocuk', label: 'Çocuk Partisi', c1: '#ff7a3d', c2: '#ffe0b8', cat: 'kutlama' },
+  { key: 'kutlamaDisko', label: 'Disko Gecesi', c1: '#0a0118', c2: '#ff2ec4', cat: 'kutlama' },
 ];
 
 const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'kutlama').map((t) => t.key);

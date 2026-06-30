@@ -28,6 +28,7 @@ const THEME_GRAD: Record<string, string> = {
   kutlamaPop: 'linear-gradient(135deg,#ff5e8a,#ffd1e0)', kutlamaGece: 'linear-gradient(135deg,#0f0a22,#ffd86b)',
   kutlamaPastel: 'linear-gradient(135deg,#7aa6b8,#d8ecf2)', kutlamaAltin: 'linear-gradient(135deg,#b8923f,#ecd9a8)',
   kutlamaCocuk: 'linear-gradient(135deg,#ff7a3d,#ffe0b8)',
+  kutlamaDisko: 'linear-gradient(135deg,#0a0118,#ff2ec4)',
 };
 const grad = (t?: string) => THEME_GRAD[t || 'altin'] || THEME_GRAD.altin;
 
