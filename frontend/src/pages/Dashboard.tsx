@@ -4,7 +4,7 @@ import {
   ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { invitationService, guestListService, statsService, settingsService, authService, guestService } from '../services/api';
+import { api, invitationService, guestListService, statsService, settingsService, authService, guestService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
@@ -191,9 +191,6 @@ const InvitationsView = ({ invitations, onDelete, deletingId }: any) => (
 );
 
 const InvCard = ({ inv, onDelete, deletingId }: any) => {
-  const photoObj = inv?.config?.photos?.[0];
-  const photo = typeof photoObj === 'string' ? photoObj : photoObj?.url;
-
   const handleEdit = () => {
     localStorage.setItem('davetim_edit_temp', JSON.stringify(inv));
     window.location.href = '/editor?edit=1';
@@ -204,7 +201,7 @@ const InvCard = ({ inv, onDelete, deletingId }: any) => {
       <div className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
         <iframe 
           title="thumbnail"
-          src={`/davet-preview.html?v=20260701a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
+          src={`/davet-preview.html?v=20260702a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
           style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
         />
         <span className="inv-badge" style={{ zIndex: 10 }}>Yayında</span>

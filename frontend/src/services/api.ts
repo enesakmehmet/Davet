@@ -20,6 +20,60 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const WEDDING_THEMES = new Set(['altin', 'gul', 'minimal', 'bohem', 'lacivert', 'lavanta', 'sonbahar', 'deniz', 'tropikal', 'havai', 'sinematik']);
+
+const birthdayFallbackPhotos = [
+  { url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80', caption: 'En özel günümüzden' },
+  { url: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80', caption: 'Beraber ilk tatilimiz' },
+  { url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80', caption: '' },
+];
+
+const isDefaultWeddingConfig = (cfg: any) =>
+  !cfg || WEDDING_THEMES.has(String(cfg.theme || '')) ||
+  (cfg.brideName === 'Zeynep' && cfg.groomName === 'Ahmet');
+
+const getBirthdayName = (inv: any) =>
+  String(inv?.title || '').split(/[—-]/)[0]?.trim() ||
+  String(inv?.slug || '').split('-')[0] ||
+  'Serra';
+
+const getBirthdayAge = (inv: any, cfg: any) => {
+  const fromSlug = String(inv?.slug || '').match(/(?:^|-)(\d{1,3})(?:-|$)/)?.[1];
+  return String(cfg?.groomName || fromSlug || '32');
+};
+
+const repairInvitation = (inv: any) => {
+  if (!inv) return inv;
+  const text = `${inv.title || ''} ${inv.slug || ''}`.toLocaleLowerCase('tr-TR');
+  const looksBirthday = text.includes('doğum') || text.includes('dogum') || text.includes('birthday');
+  if (!looksBirthday || !isDefaultWeddingConfig(inv.config)) return inv;
+
+  const name = getBirthdayName(inv);
+  const age = getBirthdayAge(inv, inv.config);
+  const existingPhotos = Array.isArray(inv.config?.photos) ? inv.config.photos : [];
+  const photosAreWeddingDefaults = inv.config?.brideName === 'Zeynep' && inv.config?.groomName === 'Ahmet';
+
+  return {
+    ...inv,
+    eventDate: undefined,
+    config: {
+      ...(inv.config || {}),
+      theme: 'kutlamaPop',
+      brideName: name,
+      groomName: age,
+      date: '',
+      subtitle: 'bugün senin günün — iyi ki doğdun!',
+      greeting: 'Mutlu Yıllar Sana',
+      message: 'Bu özel günü seninle kutlamak, gülüşünü görmek ve mutluluğuna ortak olmak en güzel hediye. Hayatımıza neşe kattığın için teşekkürler!',
+      photos: photosAreWeddingDefaults || existingPhotos.length === 0 ? birthdayFallbackPhotos : existingPhotos,
+      videoUrl: inv.config?.videoUrl || '',
+      fromName: inv.config?.fromName || 'Sevgiyle',
+      wish: inv.config?.wish || 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın.',
+      cakeType: inv.config?.cakeType || 'classic',
+    },
+  };
+};
+
 // Mock services for Templates
 export const templateService = {
   getTemplates: async () => {
@@ -41,7 +95,7 @@ export const templateService = {
 export const invitationService = {
   getUserInvitations: async () => {
     const response = await api.get('/invitations');
-    return response.data;
+    return Array.isArray(response.data) ? response.data.map(repairInvitation) : response.data;
   },
   // Yeni form tabanlı editör: config nesnesini kaydeder
   createInvitation: async (data: { title: string; slug: string; eventDate?: string; config: any }) => {
@@ -56,7 +110,7 @@ export const invitationService = {
   // Public: slug ile davetiyeyi (config dahil) getirir
   getBySlug: async (slug: string, password?: string) => {
     const response = await api.post(`/invitations/${slug}`, { password });
-    return response.data;
+    return repairInvitation(response.data);
   },
   // Davetiyeyi yayından kaldır / sil
   deleteInvitation: async (id: string) => {
