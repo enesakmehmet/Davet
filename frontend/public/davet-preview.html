@@ -16,6 +16,11 @@
   .decor{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
   .decor span{position:absolute;top:-20px;animation:fall linear infinite}
   @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.8}100%{transform:translateY(106vh) rotate(360deg);opacity:0}}
+
+  /* Hediye: mum üflenince bir kerelik gül/çiçek yağmuru */
+  .rose-rain{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+  .rose-rain span{position:absolute;top:-40px;opacity:0;animation:rose-fall linear forwards}
+  @keyframes rose-fall{0%{transform:translateY(-40px) rotate(0deg);opacity:0}8%{opacity:1}100%{transform:translateY(112vh) rotate(400deg);opacity:.92}}
   .stars span{position:absolute;background:#fff;border-radius:50%;animation:tw ease-in-out infinite}
   @keyframes tw{0%,100%{opacity:.15;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
   #fw{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -107,6 +112,31 @@
   .vid{border-radius:18px;overflow:hidden;max-width:560px;margin:0 auto;aspect-ratio:16/9;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
   .vid iframe,.vid video{width:100%;height:100%;display:block;border:0;object-fit:cover}
   .sign{letter-spacing:.5px}
+
+  /* Kutlama: mum üflenen pasta */
+  .cake-hint{font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;opacity:.7;margin-bottom:22px;animation:pulse-hint 1.8s ease-in-out infinite}
+  @keyframes pulse-hint{0%,100%{opacity:.5}50%{opacity:.95}}
+  .cake-wrap{position:relative;width:190px;height:190px;margin:0 auto;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+  .cake-candle{position:absolute;left:50%;top:38px;transform:translateX(-50%);width:7px;height:36px;border-radius:3px;
+    background:repeating-linear-gradient(180deg,#fff 0 6px,#ffd166 6px 12px);box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+  .cake-flame{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:16px;height:24px;border-radius:50% 50% 50% 50%/65% 65% 35% 35%;
+    background:radial-gradient(circle at 50% 32%,#fff8d6,#ffb300 55%,#ff6d00 100%);
+    filter:drop-shadow(0 0 10px rgba(255,150,0,.65));transition:opacity .35s,transform .35s;transform-origin:bottom center;
+    animation:flicker 1.3s ease-in-out infinite}
+  @keyframes flicker{0%,100%{transform:translateX(-50%) scale(1) rotate(-2deg)}50%{transform:translateX(-50%) scale(1.08,.94) rotate(2deg)}}
+  .cake-wrap.blown .cake-flame{opacity:0;transform:translateX(-50%) scale(.2);animation:none}
+  .cake-smoke{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;
+    background:rgba(160,160,160,.55);opacity:0;pointer-events:none}
+  .cake-wrap.blown .cake-smoke{animation:smoke-rise 1.1s ease-out forwards}
+  @keyframes smoke-rise{0%{opacity:.7;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-40px) scale(2.6)}}
+  .cake-tier{position:absolute;left:50%;transform:translateX(-50%);border-radius:14px;box-shadow:inset 0 -6px 10px rgba(0,0,0,.08),0 6px 14px rgba(0,0,0,.1)}
+  .cake-tier::before{content:"";position:absolute;left:0;right:0;top:-7px;height:14px;border-radius:50%/10px}
+  .cake-tier1{top:74px;width:96px;height:46px}
+  .cake-tier2{top:112px;width:130px;height:46px}
+  .cake-tier3{top:150px;width:170px;height:40px}
+  .cake-dot{position:absolute;width:7px;height:7px;border-radius:50%;top:6px}
+  .cake-txt{margin-top:16px;font-size:14px;opacity:0;transition:opacity .5s;min-height:20px}
+  .cake-wrap.blown ~ .cake-txt{opacity:1}
 
   /* ===== Dar ekran / telefon önizleme uyumu ===== */
   @media(max-width:560px){
@@ -355,6 +385,21 @@ function renderCelebration(cfg, T, wrap, x){
   /* MESAJ */
   var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting||'Mutlu Yıllar','Sana özel birkaç söz')+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
 
+  /* PASTA: mumu üfle, güller yağsın */
+  var sCake=sec();
+  sCake.innerHTML=titleHTML('Bir Dilek Tut','Mumu üflemek için dokun')+
+    '<div class="cake-hint">👆 Mumu üflemek için dokun</div>'+
+    '<div class="cake-wrap" id="cakeBtn">'+
+      '<div class="cake-smoke"></div>'+
+      '<div class="cake-flame"></div>'+
+      '<div class="cake-candle"></div>'+
+      '<div class="cake-tier cake-tier1" style="background:'+T.soft+'"><span class="cake-dot" style="left:16px;background:'+T.accent+'"></span><span class="cake-dot" style="left:44px;background:'+T.accent+'"></span><span class="cake-dot" style="left:72px;background:'+T.accent+'"></span></div>'+
+      '<div class="cake-tier cake-tier2" style="background:'+T.accent+'"></div>'+
+      '<div class="cake-tier cake-tier3" style="background:'+T.soft+'"></div>'+
+    '</div>'+
+    '<p class="cake-txt" style="color:'+ink+'">🎁 Dileğin tutsun, hediyen yolda…</p>';
+  wrap.appendChild(sCake);
+
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s2=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
@@ -382,6 +427,7 @@ function renderCelebration(cfg, T, wrap, x){
   /* davranışlar */
   setupReveal();
   setupGallery();
+  setupCake();
   setupFabs(cfg, cfg.brideName||'', T);
   currentMusicUrl = cfg.musicUrl || null;
   if(cfg.music) ensureMusicBtn(T); else removeMusicBtn();
@@ -433,6 +479,34 @@ function setupGallery(){
   gal.addEventListener('pointerup',endDrag);
   gal.addEventListener('pointercancel',endDrag);
   gal.addEventListener('pointerleave',function(){ if(dragging)endDrag(); });
+}
+function setupCake(){
+  var wrap=document.getElementById('cakeBtn'); if(!wrap)return;
+  var hint=document.querySelector('.cake-hint');
+  var blown=false;
+  wrap.addEventListener('click',function(){
+    if(blown)return; blown=true;
+    wrap.classList.add('blown');
+    if(hint){ hint.style.transition='opacity .4s'; hint.style.opacity='0'; }
+    spawnRoses();
+  });
+}
+function spawnRoses(){
+  var host=document.createElement('div'); host.className='rose-rain';
+  document.body.appendChild(host);
+  var emojis=['🌹','🌸','💐','🌷'];
+  var n=32;
+  for(var i=0;i<n;i++){
+    var s=document.createElement('span');
+    s.textContent=emojis[i%emojis.length];
+    s.style.left=(Math.random()*100)+'%';
+    s.style.fontSize=(16+Math.random()*18)+'px';
+    var dur=(3.2+Math.random()*2.4);
+    s.style.animationDuration=dur+'s';
+    s.style.animationDelay=(Math.random()*0.6)+'s';
+    host.appendChild(s);
+  }
+  setTimeout(function(){ host.remove(); }, 6500);
 }
 function setupRSVP(cfg, couple, T){
   var phone=cfg.phone;
