@@ -111,6 +111,14 @@
      kullanıcıyı dokunmaya davet eder; müzik başlayınca bu sınıf otomatik kaldırılır */
   .fab.music.needs-tap{animation:musicPulse 1.5s ease-in-out infinite}
   @keyframes musicPulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.28)}50%{box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 0 9px rgba(255,255,255,.35)}}
+  /* Müzik ikonuna dokunmayı hatırlatan zıplayan parmak işareti — sadece needs-tap iken görünür */
+  .fab.music .tap-hint{display:none}
+  .fab.music.needs-tap .tap-hint{
+    display:block;position:absolute;right:100%;margin-right:10px;top:50%;transform:translateY(-50%);
+    font-size:30px;line-height:1;animation:tapBounce 1s ease-in-out infinite;pointer-events:none;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))
+  }
+  @keyframes tapBounce{0%,100%{transform:translateY(-50%) translateX(0)}50%{transform:translateY(-50%) translateX(-7px)}}
 
   /* Kutlama: video + imza */
   .vid{border-radius:18px;overflow:hidden;max-width:560px;margin:0 auto;aspect-ratio:16/9;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -559,7 +567,7 @@ var musicBtn=null;
 var currentMusicUrl=null;
 function ensureMusicBtn(T){
   removeMusicBtn();
-  musicBtn=el('button','fab music needs-tap','🎵');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';
+  musicBtn=el('button','fab music needs-tap','🎵<span class="tap-hint">👉</span>');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';musicBtn.style.position='fixed';
   musicBtn.addEventListener('click',function(){musicState.playing?stopMusic():startMusic();});
   document.body.appendChild(musicBtn);
 }

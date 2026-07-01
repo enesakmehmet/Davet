@@ -63,6 +63,11 @@
   '.dx-fab{position:fixed;right:18px;z-index:9999;width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;background:' + v.accent + ';color:' + (dark ? '#14110f' : '#fff') + ';font-size:20px;box-shadow:0 8px 22px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .25s}' +
   '.dx-fab:hover{transform:scale(1.08)}' +
   '.dx-fab.dx-music{bottom:20px}' +
+  '.dx-fab.dx-music.dx-needs-tap{animation:dxMusicPulse 1.5s ease-in-out infinite}' +
+  '@keyframes dxMusicPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.15)}50%{box-shadow:0 8px 24px rgba(0,0,0,.15),0 0 0 9px rgba(255,255,255,.35)}}' +
+  '.dx-fab.dx-music .dx-tap-hint{display:none}' +
+  '.dx-fab.dx-music.dx-needs-tap .dx-tap-hint{display:block;position:absolute;right:100%;margin-right:10px;top:50%;transform:translateY(-50%);font-size:30px;line-height:1;animation:dxTapBounce 1s ease-in-out infinite;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}' +
+  '@keyframes dxTapBounce{0%,100%{transform:translateY(-50%) translateX(0)}50%{transform:translateY(-50%) translateX(-7px)}}' +
   '.dx-fab.dx-share{bottom:80px}' +
   '.dx-music.dx-playing{animation:dxspin 4s linear infinite}' +
   '@keyframes dxspin{to{transform:rotate(360deg)}}' +
@@ -218,7 +223,7 @@
   document.body.appendChild(shareFab);
 
   /* ---- Arka Plan Müziği (Web Audio, dosyasız) ---- */
-  var musicFab = el('button', 'dx-fab dx-music', '🎵');
+  var musicFab = el('button', 'dx-fab dx-music dx-needs-tap', '🎵<span class="dx-tap-hint">👉</span>');
   musicFab.title = 'Müziği aç/kapat';
   document.body.appendChild(musicFab);
 
@@ -254,14 +259,14 @@
       if (!audioEl) { audioEl = new Audio(); audioEl.loop = true; }
       audioEl.src = D.musicUrl;
       audioEl.play().catch(function () {});
-      playing = true; musicFab.classList.add('dx-playing'); musicFab.textContent = '🔊';
+      playing = true; musicFab.classList.add('dx-playing'); musicFab.classList.remove('dx-needs-tap'); musicFab.textContent = '🔊';
       return;
     }
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
     master = actx.createGain(); master.gain.value = 0.5; master.connect(actx.destination);
     playChord(); loop = setInterval(playChord, 1700);
-    playing = true; musicFab.classList.add('dx-playing'); musicFab.textContent = '🔊';
+    playing = true; musicFab.classList.add('dx-playing'); musicFab.classList.remove('dx-needs-tap'); musicFab.textContent = '🔊';
   }
   function stopMusic() {
     clearInterval(loop);
