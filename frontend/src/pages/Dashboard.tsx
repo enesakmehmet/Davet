@@ -139,6 +139,7 @@ const Dashboard = () => {
               {resending ? 'Gönderiliyor…' : 'Doğrulama e-postasını tekrar gönder'}
             </button>
             {resendMsg && <span className="db-banner-msg">{resendMsg}</span>}
+            <span className="db-banner-hint">E-posta gelmezse Spam / Gereksiz klasörünü kontrol et.</span>
           </div>
         )}
 

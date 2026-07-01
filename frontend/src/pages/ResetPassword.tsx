@@ -52,6 +52,9 @@ const ResetPassword = () => {
         <Link to="/" className="auth-logo">Davetim</Link>
         <h1 className="auth-title">Yeni şifre belirle</h1>
         <p className="auth-sub">E-postana gönderdiğimiz 6 haneli kodu ve yeni şifreni gir</p>
+        <p style={{ fontSize: 12, color: '#9a9a9a', textAlign: 'center', margin: '-12px 0 16px', lineHeight: 1.5 }}>
+          Kod gelmezse Spam / Gereksiz klasörünü kontrol et — bazen oraya düşebiliyor.
+        </p>
 
         {error && <div className="auth-err">{error}</div>}
         {resent && <p style={{ fontSize: 13, color: '#2e7d52', textAlign: 'center', margin: '0 0 12px' }}>Kod tekrar gönderildi.</p>}
