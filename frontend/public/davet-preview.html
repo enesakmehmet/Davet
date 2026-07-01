@@ -256,7 +256,7 @@ var DEFAULT = {
 };
 
 var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,master:null,step:0};
-var introPlayed=false;
+var introPlayed=false, introPreviewDismissed=false;
 
 function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
@@ -269,8 +269,9 @@ function initials(name){
   return String(name||'').split(/\s+/).filter(function(x){return x && x!=='&';}).slice(0,2).map(function(x){return x.charAt(0).toUpperCase();}).join('');
 }
 function showIntro(cfg,T,couple,isThumb,lang){
-  if(introPlayed || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
-  introPlayed=true;
+  var previewMode = !!(cfg && cfg.__showIntroPreview);
+  if((!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  if(!previewMode) introPlayed=true;
   document.querySelectorAll('.intro-gate').forEach(function(x){x.remove();});
   var photo=firstPhoto(cfg);
   var gate=el('div','intro-gate');
@@ -290,11 +291,11 @@ function showIntro(cfg,T,couple,isThumb,lang){
       '<div class="intro-date">'+esc(fmtDate(cfg.date, lang))+'</div>'+
       '<div class="intro-open">DOKUN VE AC</div>'+
     '</div>';
-  function finish(){ gate.classList.add('done'); setTimeout(function(){ gate.remove(); },850); }
+  function finish(){ if(previewMode) introPreviewDismissed=true; gate.classList.add('done'); setTimeout(function(){ gate.remove(); },850); }
   gate.addEventListener('click',finish);
   gate.addEventListener('touchend',finish);
   document.body.appendChild(gate);
-  setTimeout(finish,4200);
+  if(!previewMode) setTimeout(finish,4200);
 }
 function months(lang){
   if (lang === 'en') return ['January','February','March','April','May','June','July','August','September','October','November','December'];

@@ -211,7 +211,7 @@ const Editor = () => {
   const [password, setPassword] = useState('');
 
   const post = () => {
-    iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg: cfgRef.current }, '*');
+    iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg: { ...cfgRef.current, __showIntroPreview: true } }, '*');
   };
 
   useEffect(() => {
