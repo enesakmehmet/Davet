@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Palette, Heart, MapPin, Mail, Music, Image as ImageIcon,
   Users, BookOpen, Download, Share2, Plus, Trash2, Check, UploadCloud,
-  Video, Sparkles, X
+  Video, Sparkles, X, Settings as SettingsIcon
 } from 'lucide-react';
 import { invitationService, assetService } from '../services/api';
 import { slugify } from '../utils/format';
