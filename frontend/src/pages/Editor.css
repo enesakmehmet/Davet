@@ -66,13 +66,17 @@
 .item-head span{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#9a9a9a}
 .icon-del{border:none;background:#faf1f1;color:#c45;border-radius:7px;padding:6px;cursor:pointer;display:flex;transition:.18s}
 .icon-del:hover{background:#f5dada}
+.icon-upload{border:none;background:#fdf8ec;color:#9c7a31;border-radius:7px;padding:6px;cursor:pointer;display:flex;transition:.18s;flex-shrink:0}
+.icon-upload:hover{background:#f6ecd0}
+.icon-upload:disabled{opacity:.5;cursor:default}
 .add-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border:1px dashed #c9a14e;background:#fff;color:#9c7a31;
   border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.18s}
 .add-btn:hover{background:#fdf8ec}
 
 /* Fotoğraf satırı */
 .photo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.photo-thumb{width:48px;height:48px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--color-border,#eae8e1);background-color:#f0f0f0}
+.photo-thumb{width:48px;height:48px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--color-border,#eae8e1);background-color:#f0f0f0;display:flex;align-items:center;justify-content:center}
+.photo-thumb-loading{font-size:11px;color:#9a9a9a}
 .photo-row input{flex:1;padding:10px 12px;border:1px solid var(--color-border,#eae8e1);border-radius:8px;font-size:13px;font-family:inherit}
 .photo-row input:focus{outline:none;border-color:#c9a14e}
 

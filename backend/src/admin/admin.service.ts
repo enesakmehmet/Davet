@@ -366,6 +366,25 @@ export class AdminService {
     });
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı veya zaten kaldırılmış.');
 
+    // Davete bağlı, backend'e yüklenmiş dosyaları (müzik + fotoğraflar) DB'den tamamen sil
+    try {
+      const cfg: any = invitation.config;
+      const assetIds = new Set<string>();
+      const collect = (val: unknown) => {
+        if (typeof val !== 'string') return;
+        const matches = val.matchAll(/\/assets\/file\/([0-9a-fA-F-]+)/g);
+        for (const m of matches) assetIds.add(m[1]);
+      };
+      collect(cfg?.musicUrl);
+      if (Array.isArray(cfg?.photos)) cfg.photos.forEach(collect);
+
+      if (assetIds.size) {
+        await this.prisma.asset.deleteMany({ where: { id: { in: [...assetIds] }, userId: invitation.userId } });
+      }
+    } catch {
+      /* dosya silme hatası daveti kaldırmayı engellemesin */
+    }
+
     await this.prisma.invitation.update({
       where: { id: invitationId },
       data: { deletedAt: new Date() },

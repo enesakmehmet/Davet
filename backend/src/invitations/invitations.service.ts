@@ -113,16 +113,24 @@ export class InvitationsService {
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
     if (invitation.userId !== userId) throw new ForbiddenException('Yetkisiz işlem.');
 
-    // Davete bağlı müzik dosyasını DB'den tamamen sil (geride bir şey kalmasın)
+    // Davete bağlı, backend'e yüklenmiş dosyaları (müzik + fotoğraflar) DB'den tamamen sil
+    // (geride yetim/kullanılmayan dosya kalmasın). Harici URL'ler (unsplash vb.) etkilenmez.
     try {
       const cfg: any = invitation.config;
-      const url: string | undefined = cfg?.musicUrl;
-      const m = typeof url === 'string' ? url.match(/\/assets\/file\/([0-9a-fA-F-]+)/) : null;
-      if (m) {
-        await this.prisma.asset.deleteMany({ where: { id: m[1], userId } });
+      const assetIds = new Set<string>();
+      const collect = (val: unknown) => {
+        if (typeof val !== 'string') return;
+        const matches = val.matchAll(/\/assets\/file\/([0-9a-fA-F-]+)/g);
+        for (const m of matches) assetIds.add(m[1]);
+      };
+      collect(cfg?.musicUrl);
+      if (Array.isArray(cfg?.photos)) cfg.photos.forEach(collect);
+
+      if (assetIds.size) {
+        await this.prisma.asset.deleteMany({ where: { id: { in: [...assetIds] }, userId } });
       }
     } catch {
-      /* müzik silme hatası daveti kaldırmayı engellemesin */
+      /* dosya silme hatası daveti kaldırmayı engellemesin */
     }
 
     return this.prisma.invitation.update({

@@ -114,6 +114,33 @@ describe('InvitationsService', () => {
       await expect(service.remove('inv1', 'user1')).rejects.toBeInstanceOf(ForbiddenException);
     });
 
+    it('davete bağlı yüklenmiş müzik ve fotoğrafları (assets) DB\'den tamamen siler', async () => {
+      prisma.invitation.findFirst.mockResolvedValue({
+        id: 'inv1',
+        userId: 'user1',
+        config: {
+          musicUrl: 'https://api.example.com/api/assets/file/aaaa1111-1111-1111-1111-111111111111',
+          photos: [
+            'https://api.example.com/api/assets/file/bbbb2222-2222-2222-2222-222222222222',
+            'https://images.unsplash.com/harici-foto.jpg', // harici URL — silinmemeli
+          ],
+        },
+      });
+      prisma.invitation.update.mockResolvedValue({ id: 'inv1', deletedAt: new Date() });
+
+      await service.remove('inv1', 'user1');
+
+      expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
+        where: {
+          id: { in: expect.arrayContaining([
+            'aaaa1111-1111-1111-1111-111111111111',
+            'bbbb2222-2222-2222-2222-222222222222',
+          ]) },
+          userId: 'user1',
+        },
+      });
+    });
+
     it('sahibi doğruysa davetiyeyi soft-delete yapar (deletedAt set edilir)', async () => {
       prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'user1', config: {} });
       prisma.invitation.update.mockResolvedValue({ id: 'inv1', deletedAt: new Date() });

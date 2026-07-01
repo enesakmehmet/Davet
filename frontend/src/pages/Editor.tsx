@@ -183,10 +183,13 @@ const Editor = () => {
   const [saveError, setSaveError] = useState('');
   const [musicUploading, setMusicUploading] = useState(false);
   const [musicErr, setMusicErr] = useState('');
+  const [photoUploadingIdx, setPhotoUploadingIdx] = useState<number | null>(null);
+  const [photoUploadErr, setPhotoUploadErr] = useState('');
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false); // mobilde tam ekran önizleme aç/kapa
   const idRef = useRef<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const readyRef = useRef(false);
+  const photoFileInputs = useRef<(HTMLInputElement | null)[]>([]);
   // Her zaman en güncel cfg'yi tut (stale closure'ı önler)
   const cfgRef = useRef(cfg);
   cfgRef.current = cfg;
@@ -292,6 +295,33 @@ const Editor = () => {
       setMusicUploading(false);
       e.target.value = '';
     }
+  };
+
+  // Fotoğraf: bilgisayardan seçilen dosyayı backend'e yükler, dönen URL'i ilgili slota yazar
+  const onPhotoFile = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setPhotoUploadingIdx(idx); setPhotoUploadErr('');
+    try {
+      const r = await assetService.uploadImage(f);
+      updArr('photos', idx, r.url);
+    } catch (err: any) {
+      setPhotoUploadErr(err?.message || 'Fotoğraf yüklenemedi.');
+    } finally {
+      setPhotoUploadingIdx(null);
+      e.target.value = '';
+    }
+  };
+
+  // Yeni bir fotoğraf slotu ekleyip hemen bilgisayardan yükleme seçtirir
+  const addPhotoFromComputer = () => {
+    setCfg((c) => {
+      const idx = c.photos.length;
+      const next = { ...c, photos: [...c.photos, ''] };
+      // state güncellendikten sonra o slotun dosya seçicisini tetikle
+      setTimeout(() => photoFileInputs.current[idx]?.click(), 0);
+      return next;
+    });
   };
 
   const encodeCfg = () => btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
@@ -503,15 +533,37 @@ const Editor = () => {
           {active === 'photos' && (
             <div className="grp">
               <h3>Fotoğraf Galerisi</h3>
-              <p className="grp-sub">Fotoğraf bağlantısı (URL) ekleyin. Slayt otomatik döner.</p>
+              <p className="grp-sub">Bilgisayarından fotoğraf yükle veya bir bağlantı (URL) yapıştır. Slayt otomatik döner.</p>
+              {photoUploadErr && <small className="hint" style={{ color: '#b3261e', display: 'block', marginBottom: 10 }}>{photoUploadErr}</small>}
               {cfg.photos.map((p, i) => (
                 <div className="photo-row" key={i}>
-                  <div className="photo-thumb" style={{ backgroundImage: `url("${p}")` }} />
-                  <input value={p} onChange={(e) => updArr('photos', i, e.target.value)} placeholder="https://..." />
+                  <div className="photo-thumb" style={{ backgroundImage: p ? `url("${p}")` : undefined }}>
+                    {photoUploadingIdx === i && <span className="photo-thumb-loading">…</span>}
+                  </div>
+                  <input value={p} onChange={(e) => updArr('photos', i, e.target.value)} placeholder="https://... veya bilgisayardan yükle" />
+                  <input
+                    ref={(el) => { photoFileInputs.current[i] = el; }}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
+                    style={{ display: 'none' }}
+                    onChange={(e) => onPhotoFile(i, e)}
+                  />
+                  <button
+                    type="button"
+                    className="icon-upload"
+                    title="Bilgisayardan yükle"
+                    onClick={() => photoFileInputs.current[i]?.click()}
+                    disabled={photoUploadingIdx === i}
+                  >
+                    <UploadCloud size={14} />
+                  </button>
                   <button className="icon-del" onClick={() => delArr('photos', i)}><Trash2 size={14} /></button>
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArr('photos', '')}><Plus size={15} /> Fotoğraf Ekle</button>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button className="add-btn" onClick={addPhotoFromComputer}><UploadCloud size={15} /> Bilgisayardan Yükle</button>
+                <button className="add-btn" onClick={() => addArr('photos', '')}><Plus size={15} /> Bağlantı (URL) Ekle</button>
+              </div>
             </div>
           )}
 

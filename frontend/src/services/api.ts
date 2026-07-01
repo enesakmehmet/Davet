@@ -65,7 +65,7 @@ export const invitationService = {
   },
 };
 
-// Varlık yükleme (MP3 müzik vb.) — multipart için ham fetch kullanılır
+// Varlık yükleme (MP3 müzik, fotoğraf vb.) — multipart için ham fetch kullanılır
 export const assetService = {
   uploadAudio: async (file: File): Promise<{ url: string }> => {
     const fd = new FormData();
@@ -79,6 +79,21 @@ export const assetService = {
     if (!res.ok) {
       const e = await res.json().catch(() => ({}));
       throw new Error((e as any).message || 'Müzik yüklenemedi.');
+    }
+    return res.json();
+  },
+  uploadImage: async (file: File): Promise<{ url: string }> => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(API_URL.replace(/\/$/, '') + '/assets/upload-image', {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: fd,
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error((e as any).message || 'Fotoğraf yüklenemedi.');
     }
     return res.json();
   },
