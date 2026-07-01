@@ -59,8 +59,11 @@
 
   .gal{max-width:520px;margin:0 auto;position:relative;border-radius:16px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.16)}
   .gal .fr{padding-top:64%}
-  .gal .sl{position:absolute;inset:0;opacity:0;transition:opacity .9s;background-size:cover;background-position:center}
+  .gal .sl{position:absolute;inset:0;opacity:0;transition:opacity .9s}
   .gal .sl.on{opacity:1}
+  /* Fotoğraf kesilmesin diye: arkada bulanık dolgu (bg) + önde tam görünen fotoğraf (fg) */
+  .gal .sl .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(24px) brightness(.7);transform:scale(1.15)}
+  .gal .sl .fg{position:absolute;inset:0;background-size:contain;background-position:center;background-repeat:no-repeat}
   .dots{display:flex;gap:7px;justify-content:center;margin-top:14px}
   .dots span{width:9px;height:9px;border-radius:50%;opacity:.4;transition:.3s}
   .dots span.on{opacity:1;transform:scale(1.25)}
@@ -281,7 +284,7 @@ function render(cfg){
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(u,i){g+='<div class="sl'+(i===0?' on':'')+'" style="background-image:url(\''+u+'\')"></div>';});
+    cfg.photos.forEach(function(u,i){g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div></div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s5.innerHTML=titleHTML('Fotoğraf Galerisi','Birlikte güzel anlar')+g; wrap.appendChild(s5);
   }
@@ -355,7 +358,7 @@ function renderCelebration(cfg, T, wrap, x){
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s2=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(u,i){g+='<div class="sl'+(i===0?' on':'')+'" style="background-image:url(\''+u+'\')"></div>';});
+    cfg.photos.forEach(function(u,i){g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div></div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s2.innerHTML=titleHTML('Anılarımız','Birlikte güzel anlar')+g; wrap.appendChild(s2);
   }
