@@ -50,6 +50,19 @@ export class AdminController {
     return this.adminService.updateUserStatus(id, status);
   }
 
+  @Patch('users/:id/role')
+  async updateUserRole(
+    @Param('id') id: string,
+    @Body('role') role: string,
+  ) {
+    return this.adminService.updateUserRole(id, role);
+  }
+
+  @Get('trends')
+  async getTrends() {
+    return this.adminService.getTrends();
+  }
+
   @Get('templates')
   async getAllTemplates(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -104,5 +117,10 @@ export class AdminController {
   @Get('invitations/:id/guests')
   async getInvitationGuests(@Param('id') id: string) {
     return this.adminService.getInvitationGuests(id);
+  }
+
+  @Delete('invitations/:id')
+  async removeInvitation(@Param('id') id: string) {
+    return this.adminService.removeInvitation(id);
   }
 }

@@ -153,6 +153,16 @@ export class AdminService {
     return { message: 'Kullanıcı durumu güncellendi', user };
   }
 
+  async updateUserRole(id: string, role: string) {
+    const safe = role === 'admin' ? 'admin' : 'user';
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { role: safe },
+      select: { id: true, email: true, role: true },
+    });
+    return { message: 'Kullanıcı rolü güncellendi', user };
+  }
+
   async getAllTemplates(page: number = 1, limit: number = 20, status?: string) {
     const skip = (page - 1) * limit;
     const where = status ? { deletedAt: status === 'deleted' ? { not: null } : null } : {};
@@ -347,5 +357,56 @@ export class AdminService {
     const attending = guests.filter((g) => g.status === 'attending').length;
     const notAttending = guests.filter((g) => g.status === 'not_attending').length;
     return { invitation, guests, summary: { total: guests.length, attending, notAttending } };
+  }
+
+  // Admin: uygunsuz/sahte bir davetiyeyi doğrudan yayından kaldırır (sahiplik kontrolü yapılmaz)
+  async removeInvitation(invitationId: string) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: invitationId, deletedAt: null },
+    });
+    if (!invitation) throw new NotFoundException('Davetiye bulunamadı veya zaten kaldırılmış.');
+
+    await this.prisma.invitation.update({
+      where: { id: invitationId },
+      data: { deletedAt: new Date() },
+    });
+
+    return { message: 'Davetiye yayından kaldırıldı.' };
+  }
+
+  // Son 30 gün: günlük yeni kullanıcı + günlük gelir trendi (dashboard grafiği için)
+  async getTrends() {
+    const since = new Date(Date.now() - 30 * 86400000);
+
+    const [users, payments] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { createdAt: { gte: since } },
+        select: { createdAt: true },
+      }),
+      this.prisma.payment.findMany({
+        where: { createdAt: { gte: since }, status: 'completed' },
+        select: { createdAt: true, amount: true },
+      }),
+    ]);
+
+    const days: string[] = [];
+    for (let i = 29; i >= 0; i--) {
+      days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+    }
+
+    const dailyUsers: Record<string, number> = {};
+    const dailyRevenue: Record<string, number> = {};
+    days.forEach((d) => { dailyUsers[d] = 0; dailyRevenue[d] = 0; });
+
+    users.forEach((u) => {
+      const d = u.createdAt.toISOString().slice(0, 10);
+      if (dailyUsers[d] !== undefined) dailyUsers[d]++;
+    });
+    payments.forEach((p) => {
+      const d = p.createdAt.toISOString().slice(0, 10);
+      if (dailyRevenue[d] !== undefined) dailyRevenue[d] += Number(p.amount || 0);
+    });
+
+    return { days, dailyUsers, dailyRevenue };
   }
 }
