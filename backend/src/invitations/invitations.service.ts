@@ -85,12 +85,25 @@ export class InvitationsService {
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
     if (invitation.userId !== userId) throw new ForbiddenException('Bu davetiyeyi düzenleme yetkiniz yok.');
 
-    const { pages, ...updateData } = updateInvitationDto;
+    const { pages, password, ...updateData } = updateInvitationDto as any;
+
+    let updatePayload: Prisma.InvitationUpdateInput = { ...updateData };
+    
+    if (password !== undefined) {
+      if (password === null || password === '') {
+        updatePayload.isPasswordProtected = false;
+        updatePayload.passwordHash = null;
+      } else {
+        const bcrypt = require('bcrypt');
+        updatePayload.passwordHash = await bcrypt.hash(password, 10);
+        updatePayload.isPasswordProtected = true;
+      }
+    }
 
     return this.prisma.$transaction(async (tx) => {
       const updatedInv = await tx.invitation.update({
         where: { id },
-        data: updateData as Prisma.InvitationUpdateInput,
+        data: updatePayload,
       });
 
       if (pages) {

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsObject, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateInvitationPageDto {
@@ -32,4 +32,12 @@ export class CreateInvitationDto {
   @Type(() => CreateInvitationPageDto)
   @IsOptional()
   pages?: CreateInvitationPageDto[];
+
+  @IsBoolean()
+  @IsOptional()
+  isPasswordProtected?: boolean;
+
+  @IsString()
+  @IsOptional()
+  password?: string;
 }

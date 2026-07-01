@@ -144,6 +144,7 @@ const SECTIONS: SectionDef[] = [
   { id: 'photos', label: 'Fotoğraflar', icon: ImageIcon },
   { id: 'music', label: 'Müzik', icon: Music },
   { id: 'rsvp', label: 'RSVP', icon: Mail },
+  { id: 'settings', label: 'Ayarlar', icon: SettingsIcon },
 ];
 
 /* Kutlama modunda farklı bölümler (davet mekanikleri yok) */
@@ -154,6 +155,7 @@ const CELEB_SECTIONS: SectionDef[] = [
   { id: 'video', label: 'Video', icon: Video },
   { id: 'music', label: 'Müzik', icon: Music },
   { id: 'wish', label: 'Dilek & İmza', icon: Sparkles },
+  { id: 'settings', label: 'Ayarlar', icon: SettingsIcon },
 ];
 
 const DRAFT_KEY = 'davetim_editor_draft_v1';
@@ -203,6 +205,9 @@ const Editor = () => {
   // Her zaman en güncel cfg'yi tut (stale closure'ı önler)
   const cfgRef = useRef(cfg);
   cfgRef.current = cfg;
+  
+  const [isProtected, setIsProtected] = useState(false);
+  const [password, setPassword] = useState('');
 
   const post = () => {
     iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg: cfgRef.current }, '*');
@@ -230,6 +235,7 @@ const Editor = () => {
           if (inv.config) setCfg(normalizeCfg(inv.config));
           if (inv.id) idRef.current = inv.id;
           if (inv.slug) setSavedSlug(inv.slug);
+          if (inv.isPasswordProtected) setIsProtected(true);
           localStorage.removeItem('davetim_edit_temp');
           return;
         }
@@ -244,6 +250,7 @@ const Editor = () => {
         setCfg(normalizeCfg(draft.cfg));
         if (draft.id) idRef.current = draft.id;
         if (draft.slug) setSavedSlug(draft.slug);
+        if (draft.isProtected) setIsProtected(true);
       } else {
         localStorage.removeItem(DRAFT_KEY);
       }
@@ -257,13 +264,13 @@ const Editor = () => {
   useEffect(() => {
     const t = setTimeout(() => {
       try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ cfg, id: idRef.current, slug: savedSlug }));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ cfg, id: idRef.current, slug: savedSlug, isProtected }));
       } catch {
         /* localStorage dolu/erişilemez olabilir, sessizce geç */
       }
     }, 600);
     return () => clearTimeout(t);
-  }, [cfg, savedSlug]);
+  }, [cfg, savedSlug, isProtected]);
 
   // ---- Otomatik kayıt: davetiye zaten yayınlanmışsa arka planda sunucuya da yazsın ----
   useEffect(() => {
@@ -382,11 +389,16 @@ const Editor = () => {
           ? `${cfg.brideName} — Doğum Günü Davetiyesi`
           : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
       const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? new Date(cfg.date).toISOString() : undefined;
+      const payload: any = { title, eventDate, config: cfg, isPasswordProtected: isProtected };
+      if (isProtected && password) payload.password = password;
+      if (!isProtected) payload.password = ''; // clear password
+
       if (idRef.current) {
-        await invitationService.saveInvitation(idRef.current, { title, eventDate, config: cfg });
+        await invitationService.saveInvitation(idRef.current, payload);
       } else {
         const slug = `${slugify(`${cfg.brideName}-${cfg.groomName}`)}-${Math.random().toString(36).slice(2, 6)}`;
-        const inv = await invitationService.createInvitation({ title, slug, eventDate, config: cfg });
+        payload.slug = slug;
+        const inv = await invitationService.createInvitation(payload);
         idRef.current = inv.id;
         setSavedSlug(inv.slug);
       }
@@ -674,6 +686,25 @@ const Editor = () => {
               <Field label="İmza / Gönderen">
                 <input value={cfg.fromName} onChange={(e) => set('fromName', e.target.value)} placeholder="Sevgiyle, Annen" />
               </Field>
+            </div>
+          )}
+
+          {active === 'settings' && (
+            <div className="grp">
+              <h3>Davetiye Ayarları</h3>
+              <p className="grp-sub">Davetiyenizi sadece belirlediğiniz kişilerin görmesini istiyorsanız şifre ile koruyun.</p>
+              
+              <div className="settings-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <input type="checkbox" id="prot" checked={isProtected} onChange={(e) => setIsProtected(e.target.checked)} style={{ width: 18, height: 18, accentColor: 'var(--color-ink)' }} />
+                <label htmlFor="prot" style={{ margin: 0, fontWeight: 500, cursor: 'pointer' }}>Şifre Koruması Açık</label>
+              </div>
+
+              {isProtected && (
+                <Field label="Davetiye Şifresi">
+                  <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Yeni bir şifre belirleyin..." />
+                  <small className="hint">Eğer davetiyenizi daha önce şifrelediyseniz ve değiştirmek istemiyorsanız burayı boş bırakabilirsiniz.</small>
+                </Field>
+              )}
             </div>
           )}
         </section>

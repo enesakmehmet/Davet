@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
-  ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle,
+  ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { invitationService, guestListService, statsService, settingsService, authService } from '../services/api';
+import { invitationService, guestListService, statsService, settingsService, authService, guestService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
@@ -201,9 +201,13 @@ const InvCard = ({ inv, onDelete, deletingId }: any) => {
 
   return (
     <div className="inv-card">
-      <div className="inv-thumb" style={{ background: photo ? undefined : grad(inv?.config?.theme) }}>
-        {photo && <img src={photo} alt="" />}
-        <span className="inv-badge">Yayında</span>
+      <div className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
+        <iframe 
+          title="thumbnail"
+          src={`/davet-preview.html?v=20260701a#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
+          style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
+        />
+        <span className="inv-badge" style={{ zIndex: 10 }}>Yayında</span>
       </div>
       <div className="inv-body">
         <h4>{inv.title || 'Düğün Davetiyesi'}</h4>
@@ -229,15 +233,83 @@ const GuestsView = ({ invitations }: any) => {
   const [sel, setSel] = useState(invitations[0]?.id || '');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addName, setAddName] = useState('');
+  const [addStatus, setAddStatus] = useState('attending');
+  const [addCount, setAddCount] = useState(1);
+  const [addLoading, setAddLoading] = useState(false);
 
-  useEffect(() => {
+  const fetchGuests = () => {
     if (!sel) return;
     setLoading(true);
     guestListService.byInvitation(sel)
       .then((d: any) => setData(Array.isArray(d) ? d : []))
       .catch(() => setData([]))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchGuests();
   }, [sel]);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`"${name}" adlı misafiri silmek istediğinize emin misiniz?`)) return;
+    try {
+      await api.delete(`/guests/${id}`); // Direct api call or add to service
+      setData((prev: any) => prev.filter((g: any) => g.id !== id));
+    } catch (err) {
+      alert('Silinemedi, lütfen tekrar deneyin.');
+    }
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addName.trim()) return;
+    setAddLoading(true);
+    try {
+      // Create guest manually
+      await guestService.submitRsvp({
+        invitationId: sel,
+        name: addName,
+        coming: addStatus === 'attending',
+        companionCount: addCount,
+        message: 'Elden Davetiye (Manuel Eklendi)',
+      });
+      setIsAdding(false);
+      setAddName('');
+      setAddStatus('attending');
+      setAddCount(1);
+      fetchGuests();
+    } catch (err) {
+      alert('Eklenemedi, lütfen tekrar deneyin.');
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  const exportCSV = () => {
+    const list = Array.isArray(data) ? data : [];
+    if (list.length === 0) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+    csvContent += "Ad Soyad,Durum,Kişi Sayısı,Mesaj\n";
+    
+    list.forEach((g: any) => {
+      const name = `"${g.name.replace(/"/g, '""')}"`;
+      const status = g.status === 'attending' ? 'Katılıyor' : g.status === 'not_attending' ? 'Katılmıyor' : g.status;
+      const count = g.companionCount || 0;
+      const msg = `"${(g.message || '').replace(/"/g, '""')}"`;
+      csvContent += `${name},${status},${count},${msg}\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "misafir_listesi.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (invitations.length === 0) return <div className="db-empty">Önce bir davetiye oluştur, sonra RSVP yanıtları burada görünür.</div>;
 
@@ -247,12 +319,50 @@ const GuestsView = ({ invitations }: any) => {
 
   return (
     <>
-      <div className="db-picker">
-        <label>Davetiye:</label>
-        <select value={sel} onChange={(e) => setSel(e.target.value)}>
-          {invitations.map((i: any) => <option key={i.id} value={i.id}>{i.title}</option>)}
-        </select>
+      <div className="db-picker" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+        <div>
+          <label style={{ marginRight: '10px' }}>Davetiye:</label>
+          <select value={sel} onChange={(e) => setSel(e.target.value)}>
+            {invitations.map((i: any) => <option key={i.id} value={i.id}>{i.title}</option>)}
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="db-btn" onClick={() => setIsAdding(true)}><Plus size={16} /> Misafir Ekle</button>
+          <button className="db-btn" onClick={exportCSV} disabled={list.length === 0}><Download size={16} /> Excel (CSV)</button>
+        </div>
       </div>
+      
+      {isAdding && (
+        <div className="ed-preview-fab" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, borderRadius: 0, padding: '20px' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '100%', maxWidth: '400px', color: '#333' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0 }}>Manuel Misafir Ekle</h3>
+              <button onClick={() => setIsAdding(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleAdd}>
+              <div className="settings-row" style={{ display: 'block', marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px' }}>Ad Soyad</label>
+                <input style={{ width: '100%', padding: '8px' }} required value={addName} onChange={(e) => setAddName(e.target.value)} />
+              </div>
+              <div className="settings-row" style={{ display: 'block', marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px' }}>Durum</label>
+                <select style={{ width: '100%', padding: '8px' }} value={addStatus} onChange={(e) => setAddStatus(e.target.value)}>
+                  <option value="attending">Katılıyor</option>
+                  <option value="not_attending">Katılmıyor</option>
+                </select>
+              </div>
+              <div className="settings-row" style={{ display: 'block', marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '4px' }}>Kişi Sayısı</label>
+                <input style={{ width: '100%', padding: '8px' }} type="number" min="1" required value={addCount} onChange={(e) => setAddCount(parseInt(e.target.value) || 1)} />
+              </div>
+              <button className="db-btn" type="submit" disabled={addLoading} style={{ width: '100%', justifyContent: 'center' }}>
+                {addLoading ? 'Ekleniyor...' : 'Ekle'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <section className="db-cards">
         <Stat lab="Toplam Yanıt" val={list.length} ico={<Users size={18} />} />
         <Stat lab="Katılıyor" val={attending} ico={<MailOpen size={18} />} gold />
@@ -264,7 +374,7 @@ const GuestsView = ({ invitations }: any) => {
         ) : (
           <div className="db-table-wrap">
             <table className="db-table">
-              <thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Mesaj</th></tr></thead>
+              <thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Mesaj</th><th style={{width:'50px',textAlign:'center'}}>Sil</th></tr></thead>
               <tbody>
                 {list.map((g: any) => (
                   <tr key={g.id}>
@@ -273,6 +383,11 @@ const GuestsView = ({ invitations }: any) => {
                       {g.status === 'attending' ? 'Katılıyor' : g.status === 'not_attending' ? 'Katılmıyor' : g.status}</span></td>
                     <td>{g.companionCount ?? 0}</td>
                     <td className="db-msg">{g.message || '—'}</td>
+                    <td style={{textAlign:'center'}}>
+                      <button onClick={() => handleDelete(g.id, g.name)} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer' }} title="Sil">
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
