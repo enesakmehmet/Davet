@@ -270,7 +270,7 @@ function initials(name){
 }
 function showIntro(cfg,T,couple,isThumb,lang){
   var previewMode = !!(cfg && cfg.__showIntroPreview);
-  if((!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  if((cfg && cfg.__skipIntro) || (!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
   if(!previewMode) introPlayed=true;
   document.querySelectorAll('.intro-gate').forEach(function(x){x.remove();});
   var photo=firstPhoto(cfg);
@@ -857,7 +857,8 @@ function startFireworks(cv){
 /* ============ GİRİŞ ============ */
 window.addEventListener('message',function(e){ if(e.data && e.data.__davet){ render(e.data.cfg); } });
 function parseHash(){try{var m=location.hash.match(/cfg=([^&]+)/);if(m)return JSON.parse(decodeURIComponent(escape(atob(m[1]))));}catch(e){}return null;}
-render(window.__INITIAL_CFG__ || parseHash() || DEFAULT);
+var initialCfg = window.__INITIAL_CFG__ || parseHash();
+render(initialCfg || Object.assign({}, DEFAULT, { __skipIntro: !!(window.parent && window.parent!==window) }));
 /* editöre hazır olduğunu bildir */
 try{ if(window.parent && window.parent!==window) window.parent.postMessage({__davetReady:true},'*'); }catch(e){}
 </script>
