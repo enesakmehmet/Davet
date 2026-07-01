@@ -471,7 +471,7 @@ function render(cfg){
     document.head.appendChild(s);
   }
 
-  showIntro(cfg, T, couple, isThumb, lang);
+  if(!isBday && !isCeleb) showIntro(cfg, T, couple, isThumb, lang);
 
   /* ============ KUTLAMA MODU (davet değil) ============ */
   if(isCeleb){ renderCelebration(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple, isThumb:isThumb}); return; }
