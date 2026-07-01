@@ -11,7 +11,7 @@ describe('AuthService', () => {
   const mockUsersService = {
     findByEmail: jest.fn(),
     findById: jest.fn(),
-    findByResetToken: jest.fn(),
+    findByEmailAndResetCode: jest.fn(),
     findByVerifyToken: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -86,24 +86,48 @@ describe('AuthService', () => {
       expect(mockMailService.sendForgotPassword).not.toHaveBeenCalled();
     });
 
-    it('kullanıcı varsa reset token üretip mail gönderir', async () => {
+    it('kullanıcı varsa 6 haneli reset kodu üretip mail gönderir (10 dk geçerli)', async () => {
       mockUsersService.findByEmail.mockResolvedValue({ id: 'u1', email: 'a@b.com' });
       mockUsersService.update.mockResolvedValue({});
       await service.forgotPassword({ email: 'a@b.com' });
+
       expect(mockUsersService.update).toHaveBeenCalledWith('u1', expect.objectContaining({
-        resetToken: expect.any(String),
+        resetToken: expect.stringMatching(/^\d{6}$/),
         resetTokenExpires: expect.any(Date),
       }));
-      expect(mockMailService.sendForgotPassword).toHaveBeenCalled();
+
+      const [, updateArgs] = mockUsersService.update.mock.calls[0];
+      const minutesLeft = (updateArgs.resetTokenExpires.getTime() - Date.now()) / 60000;
+      expect(minutesLeft).toBeGreaterThan(9);
+      expect(minutesLeft).toBeLessThanOrEqual(10);
+
+      expect(mockMailService.sendForgotPassword).toHaveBeenCalledWith(
+        'a@b.com',
+        expect.stringMatching(/^\d{6}$/),
+      );
     });
   });
 
   describe('resetPassword', () => {
-    it('geçersiz token için BadRequestException fırlatır', async () => {
-      mockUsersService.findByResetToken.mockResolvedValue(null);
+    it('geçersiz kod için BadRequestException fırlatır', async () => {
+      mockUsersService.findByEmailAndResetCode.mockResolvedValue(null);
       await expect(
-        service.resetPassword({ token: 'gecersiz', newPassword: 'YeniSifre1' }),
+        service.resetPassword({ email: 'a@b.com', code: '000000', newPassword: 'YeniSifre1' }),
       ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('geçerli kodla şifreyi değiştirir ve refreshToken/resetToken temizlenir', async () => {
+      mockUsersService.findByEmailAndResetCode.mockResolvedValue({ id: 'u1', email: 'a@b.com' });
+      mockUsersService.update.mockResolvedValue({});
+
+      const result = await service.resetPassword({ email: 'a@b.com', code: '123456', newPassword: 'YeniSifre1' });
+
+      expect(mockUsersService.update).toHaveBeenCalledWith('u1', expect.objectContaining({
+        resetToken: null,
+        resetTokenExpires: null,
+        refreshToken: null,
+      }));
+      expect(result.message).toContain('değiştirildi');
     });
   });
 

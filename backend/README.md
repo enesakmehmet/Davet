@@ -145,11 +145,9 @@ JWT_REFRESH_SECRET="your-refresh-secret"
 REDIS_HOST="localhost"
 REDIS_PORT="6379"
 
-# SMTP
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="your-email@gmail.com"
-SMTP_PASS="your-app-password"
+# Mail (Resend — https://resend.com)
+RESEND_API_KEY="re_xxx..."
+MAIL_FROM="Davetim <onboarding@resend.dev>"
 
 # PayTR (Opsiyonel)
 PAYTR_MERCHANT_ID=""

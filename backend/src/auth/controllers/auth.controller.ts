@@ -38,7 +38,7 @@ export class AuthController {
   }
 
   @UseGuards(ThrottlerGuard)
-  @ApiOperation({ summary: 'Şifre sıfırlama linki e-posta ile gönderir' })
+  @ApiOperation({ summary: 'Şifre sıfırlama kodu e-posta ile gönderir' })
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -46,7 +46,7 @@ export class AuthController {
   }
 
   @UseGuards(ThrottlerGuard)
-  @ApiOperation({ summary: 'Token ile şifreyi sıfırlar' })
+  @ApiOperation({ summary: 'E-posta ile gönderilen kodla şifreyi sıfırlar' })
   @HttpCode(HttpStatus.OK)
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {

@@ -37,9 +37,10 @@ export class UsersService {
     });
   }
 
-  async findByResetToken(token: string): Promise<User | null> {
+  /** Şifre sıfırlama kodu 6 hane olduğundan (çakışma/deneme riskine karşı) e-posta ile birlikte aranır. */
+  async findByEmailAndResetCode(email: string, code: string): Promise<User | null> {
     return this.prisma.user.findFirst({
-      where: { resetToken: token, resetTokenExpires: { gt: new Date() } },
+      where: { email, resetToken: code, resetTokenExpires: { gt: new Date() } },
     });
   }
 }

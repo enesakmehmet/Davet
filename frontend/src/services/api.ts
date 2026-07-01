@@ -117,8 +117,8 @@ export const authService = {
     const { data } = await api.post('/auth/forgot-password', { email });
     return data;
   },
-  resetPassword: async (token: string, newPassword: string) => {
-    const { data } = await api.post('/auth/reset-password', { token, newPassword });
+  resetPassword: async (email: string, code: string, newPassword: string) => {
+    const { data } = await api.post('/auth/reset-password', { email, code, newPassword });
     return data;
   },
   verifyEmail: async (token: string) => {

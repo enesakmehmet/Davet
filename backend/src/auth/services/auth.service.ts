@@ -9,7 +9,7 @@ import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'crypto';
+import { randomBytes, randomInt } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -94,28 +94,25 @@ export class AuthService {
     const user = await this.usersService.findByEmail(dto.email);
     // Kullanıcı bulunamasa da aynı mesajı dön: hangi e-postaların kayıtlı olduğu sızdırılmasın
     if (user) {
-      const resetToken = randomBytes(32).toString('hex');
-      const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 saat
+      // 6 haneli, tahmin edilmesi zor bir kod (crypto.randomInt — Math.random değil)
+      const resetToken = String(randomInt(0, 1_000_000)).padStart(6, '0');
+      const resetTokenExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 dakika
       await this.usersService.update(user.id, { resetToken, resetTokenExpires });
 
       try {
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-        await this.mailService.sendForgotPassword(
-          user.email,
-          `${frontendUrl}/reset-password?token=${resetToken}`,
-        );
+        await this.mailService.sendForgotPassword(user.email, resetToken);
       } catch {
         /* mail gönderilemese de kullanıcıya aynı genel mesaj dönülür */
       }
     }
 
-    return { message: 'Bu e-posta kayıtlıysa şifre sıfırlama linki gönderildi.' };
+    return { message: 'Bu e-posta kayıtlıysa şifre sıfırlama kodu gönderildi.' };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const user = await this.usersService.findByResetToken(dto.token);
+    const user = await this.usersService.findByEmailAndResetCode(dto.email, dto.code);
     if (!user) {
-      throw new BadRequestException('Geçersiz veya süresi dolmuş bağlantı. Yeniden talep edin.');
+      throw new BadRequestException('Geçersiz veya süresi dolmuş kod. Yeniden talep edin.');
     }
 
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);

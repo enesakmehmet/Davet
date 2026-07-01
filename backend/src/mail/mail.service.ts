@@ -1,23 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
 
+/**
+ * E-posta gönderimi Resend (https://resend.com) üzerinden yapılır.
+ * Ekstra bir SDK'ya gerek yok — Resend'in REST API'sine doğrudan istek atıyoruz.
+ *
+ * Gerekli ortam değişkenleri (.env):
+ *   RESEND_API_KEY   → Resend hesabındaki API key (re_xxx...)
+ *   MAIL_FROM        → Gönderen adres. Kendi domainini Resend'de doğrulamadıysan
+ *                       "onboarding@resend.dev" test adresini kullanabilirsin
+ *                       (bu durumda sadece Resend hesabına kayıtlı e-postana gönderim yapılabilir).
+ *
+ * RESEND_API_KEY tanımlı değilse (örn. lokal geliştirmede), e-postayı gerçekten
+ * göndermek yerine sadece konsola yazarız — akış (kayıt/giriş/şifre sıfırlama)
+ * e-posta olmadan da kesintisiz çalışmaya devam eder.
+ */
 @Injectable()
 export class MailService {
-  private transporter;
   private readonly logger = new Logger(MailService.name);
-
-  constructor() {
-    // Gerçekte ENV'den alınmalıdır. Şimdilik dummy veriler.
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER || 'test',
-        pass: process.env.SMTP_PASS || 'test',
-      },
-    });
-  }
+  private readonly apiKey = process.env.RESEND_API_KEY || '';
+  private readonly from = process.env.MAIL_FROM || 'Davetim <onboarding@resend.dev>';
 
   async sendVerificationEmail(to: string, verifyLink: string) {
     await this.sendMail({
@@ -28,12 +29,19 @@ export class MailService {
     });
   }
 
-  async sendForgotPassword(to: string, resetLink: string) {
+  /** Şifre sıfırlama için 6 haneli tek kullanımlık kod gönderir (link değil). */
+  async sendForgotPassword(to: string, code: string) {
     await this.sendMail({
       to,
-      subject: 'Şifre Sıfırlama Talebi',
-      text: `Şifrenizi sıfırlamak için şu linke tıklayın: ${resetLink}`,
-      html: `<p>Şifrenizi sıfırlamak için <a href="${resetLink}">buraya tıklayın</a></p>`,
+      subject: `${code} - Şifre Sıfırlama Kodunuz`,
+      text: `Şifre sıfırlama kodunuz: ${code}\nBu kod 10 dakika geçerlidir. Bu talebi siz yapmadıysanız bu e-postayı yok sayabilirsiniz.`,
+      html: `
+        <div style="font-family:sans-serif;max-width:420px;margin:0 auto">
+          <p>Şifreni sıfırlamak için aşağıdaki kodu kullan:</p>
+          <p style="font-size:32px;font-weight:700;letter-spacing:6px;text-align:center;
+             background:#f8f7f4;border-radius:12px;padding:18px 0;margin:20px 0">${code}</p>
+          <p style="color:#8a8a8a;font-size:13px">Bu kod <strong>10 dakika</strong> geçerlidir. Bu talebi siz yapmadıysanız bu e-postayı yok sayabilirsiniz.</p>
+        </div>`,
     });
   }
 
@@ -122,14 +130,41 @@ export class MailService {
     text: string;
     html?: string;
   }) {
+    if (!this.apiKey) {
+      // Lokal geliştirmede RESEND_API_KEY tanımlı değilse gerçekten göndermek yerine
+      // konsola yazıyoruz ki akış (kayıt/giriş/şifre sıfırlama) e-posta olmadan da çalışsın.
+      this.logger.warn(
+        `RESEND_API_KEY tanımlı değil — e-posta gönderilmedi (sadece konsola yazıldı). Alıcı: ${options.to} | Konu: ${options.subject}`,
+      );
+      this.logger.warn(options.text);
+      return { id: 'dev-no-op' };
+    }
+
     try {
-      const info = await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || '"Davetim" <noreply@davetim.com>',
-        ...options,
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: this.from,
+          to: options.to,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+        }),
       });
-      this.logger.log(`E-posta gönderildi: ${info.messageId}`);
-      return info;
-    } catch (error) {
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || `Resend API hatası (HTTP ${res.status})`);
+      }
+
+      this.logger.log(`E-posta gönderildi (Resend id: ${data?.id}) → ${options.to}`);
+      return data;
+    } catch (error: any) {
       this.logger.error(`E-posta gönderme hatası: ${error.message}`);
       throw error;
     }
