@@ -685,7 +685,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-            <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260630c" onLoad={post} />
+            <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260701a" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>
