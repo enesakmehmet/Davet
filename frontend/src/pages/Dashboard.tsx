@@ -204,7 +204,7 @@ const InvCard = ({ inv, onDelete, deletingId }: any) => {
       <div className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
         <iframe 
           title="thumbnail"
-          src={`/davet-preview.html?v=20260701a#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
+          src={`/davet-preview.html?v=20260701a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
           style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
         />
         <span className="inv-badge" style={{ zIndex: 10 }}>Yayında</span>

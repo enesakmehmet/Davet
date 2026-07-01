@@ -253,6 +253,7 @@ function fmtDay(d, lang){var dt=new Date(d);if(isNaN(dt))return '';return days(l
 
 /* ============ RENDER ============ */
 function render(cfg){
+  var isThumb = location.search.indexOf('thumb=1') !== -1 || location.hash.indexOf('thumb=1') !== -1;
   cfg = Object.assign({}, DEFAULT, cfg||{});
   var isCelebKey = /^kutlama/.test(String(cfg.theme||''));
   var T = THEMES[cfg.theme] || (isCelebKey ? THEMES.kutlamaPop : THEMES.altin);
@@ -403,8 +404,15 @@ function render(cfg){
   var wrap = el('div'); wrap.style.maxWidth='760px';wrap.style.margin='0 auto';wrap.style.position='relative';wrap.style.zIndex='2';
   app.appendChild(wrap);
 
+  if (isThumb) {
+    document.body.classList.add('is-thumb');
+    var s = document.createElement('style');
+    s.textContent = '.is-thumb { overflow: hidden !important; pointer-events: none !important; } .is-thumb section.hero { min-height: 0 !important; padding: 40px 20px !important; display: block !important; text-align: center; } .is-thumb .scroll-cue { display: none !important; }';
+    document.head.appendChild(s);
+  }
+
   /* ============ KUTLAMA MODU (davet değil) ============ */
-  if(isCeleb){ renderCelebration(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple}); return; }
+  if(isCeleb){ renderCelebration(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple, isThumb:isThumb}); return; }
 
   /* HERO */
   var hero = el('section','hero'); hero.style.background=T.bg; if(T.dark)hero.style.color='#fff';
@@ -509,7 +517,7 @@ function render(cfg){
 
 /* ============ KUTLAMA RENDER (davet değil, kişiye gönderilen kutlama) ============ */
 function renderCelebration(cfg, T, wrap, x){
-  var ink=x.ink, inkSoft=x.inkSoft, surface=x.surface, border=x.border;
+  var ink=x.ink, inkSoft=x.inkSoft, surface=x.surface, border=x.border, isThumb=x.isThumb;
   function sec(bg){var s=el('section','fade');if(bg)s.style.background=bg;return s;}
   function titleHTML(t,sub){return '<h2 class="title" style="color:'+T.accent+'">'+esc(t)+'</h2>'+(sub?'<div class="tsub" style="color:'+inkSoft+'">'+esc(sub)+'</div>':'');}
 
@@ -574,12 +582,14 @@ function renderCelebration(cfg, T, wrap, x){
   wrap.appendChild(ft);
 
   /* davranışlar */
-  setupReveal();
-  setupGallery();
-  setupCake();
-  setupFabs(cfg, cfg.brideName||'', T);
-  currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+  if(!isThumb) {
+    setupReveal();
+    setupGallery();
+    setupCake();
+    setupFabs(cfg, cfg.brideName||'', T);
+    currentMusicUrl = cfg.musicUrl || null;
+    if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+  }
 }
 
 function videoEmbed(url,border){
