@@ -237,11 +237,19 @@ var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,m
 
 function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
-function months(){return ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];}
-function fmtDate(d){var dt=new Date(d);if(isNaN(dt))return '';return dt.getDate()+' '+months()[dt.getMonth()]+' '+dt.getFullYear();}
+function months(lang){
+  if (lang === 'en') return ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  if (lang === 'de') return ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  return ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+}
+function days(lang){
+  if (lang === 'en') return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  if (lang === 'de') return ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  return ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+}
+function fmtDate(d, lang){var dt=new Date(d);if(isNaN(dt))return '';return dt.getDate()+' '+months(lang)[dt.getMonth()]+' '+dt.getFullYear();}
 function fmtTime(d){var dt=new Date(d);if(isNaN(dt))return '';return ('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}
-function days(){return ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];}
-function fmtDay(d){var dt=new Date(d);if(isNaN(dt))return '';return days()[dt.getDay()];}
+function fmtDay(d, lang){var dt=new Date(d);if(isNaN(dt))return '';return days(lang)[dt.getDay()];}
 
 /* ============ RENDER ============ */
 function render(cfg){
@@ -255,6 +263,128 @@ function render(cfg){
   var inkSoft = T.dark ? '#b0a78f' : '#7c7264';
   var surface = T.dark ? 'rgba(255,255,255,.05)' : '#ffffff';
   var border = T.dark ? 'rgba(255,255,255,.16)' : T.soft;
+  var lang = cfg.lang || 'tr';
+
+  var i18n = {
+    tr: {
+      bdayParty: 'Doğum Günü Partisi',
+      familiesTogether: 'Aileleriyle birlikte',
+      yearsOld: ' YAŞINDA',
+      scrollDown: 'AŞAĞI KAYDIR',
+      bdayCelebrate: 'Birlikte kutlayalım',
+      specialDay: 'Hayatımızın en özel günü',
+      storyBday: 'Güzel anılar',
+      storyWed: 'Nasıl başladı?',
+      storyTitle: 'Hikayemiz',
+      cdBday: 'Partiye Kalan',
+      cdWed: 'Büyük Güne Kalan',
+      cdSub: 'Geri sayım',
+      days: 'Gün', hours: 'Saat', mins: 'Dakika', secs: 'Saniye',
+      detBday: 'Parti Detayları',
+      detWed: 'Düğün Detayları',
+      detSub: 'Sizi bekliyoruz',
+      date: 'Tarih', time: 'Saat', venue: 'Mekan',
+      galTitle: 'Fotoğraf Galerisi',
+      galSub: 'Birlikte güzel anlar',
+      famBday: 'Sevdiklerimiz',
+      famWed: 'Ailelerimiz',
+      famSub: 'Mutluluğumuzu paylaşan',
+      famSuffix: ' Ailesi',
+      mapTitle: 'Mekan & Yol Tarifi',
+      dirBtn: '🧭 Yol Tarifi',
+      calBtn: '📅 Takvime Ekle',
+      rsvpTitle: 'Katılım Bildirimi',
+      rsvpSub: 'Lütfen {date}\'e kadar bildirin',
+      btnYes: '💛 Katılıyorum',
+      btnNo: 'Katılamıyorum',
+      lblName: 'Ad Soyad',
+      plcName: 'Adınız Soyadınız',
+      lblCount: 'Kaç kişi?',
+      lblMsg: 'Mesajınız',
+      plcMsg: 'Çifte not...',
+      btnSend: 'Yanıtı Gönder',
+      waBtn: 'WhatsApp ile bildir'
+    },
+    en: {
+      bdayParty: 'Birthday Party',
+      familiesTogether: 'Together with their families',
+      yearsOld: ' YEARS OLD',
+      scrollDown: 'SCROLL DOWN',
+      bdayCelebrate: 'Let\'s celebrate together',
+      specialDay: 'The most special day of our lives',
+      storyBday: 'Beautiful memories',
+      storyWed: 'How it started',
+      storyTitle: 'Our Story',
+      cdBday: 'Countdown to Party',
+      cdWed: 'Countdown to the Big Day',
+      cdSub: 'Countdown',
+      days: 'Days', hours: 'Hours', mins: 'Minutes', secs: 'Seconds',
+      detBday: 'Party Details',
+      detWed: 'Wedding Details',
+      detSub: 'We are waiting for you',
+      date: 'Date', time: 'Time', venue: 'Venue',
+      galTitle: 'Photo Gallery',
+      galSub: 'Beautiful moments together',
+      famBday: 'Our Loved Ones',
+      famWed: 'Our Families',
+      famSub: 'Sharing our happiness',
+      famSuffix: ' Family',
+      mapTitle: 'Venue & Directions',
+      dirBtn: '🧭 Get Directions',
+      calBtn: '📅 Add to Calendar',
+      rsvpTitle: 'RSVP',
+      rsvpSub: 'Please reply by {date}',
+      btnYes: '💛 I will attend',
+      btnNo: 'I cannot attend',
+      lblName: 'Full Name',
+      plcName: 'Your Full Name',
+      lblCount: 'Guests count',
+      lblMsg: 'Your Message',
+      plcMsg: 'A note for the couple...',
+      btnSend: 'Send Reply',
+      waBtn: 'Notify via WhatsApp'
+    },
+    de: {
+      bdayParty: 'Geburtstagsparty',
+      familiesTogether: 'Zusammen mit ihren Familien',
+      yearsOld: ' JAHRE ALT',
+      scrollDown: 'NACH UNTEN SCROLLEN',
+      bdayCelebrate: 'Lass uns zusammen feiern',
+      specialDay: 'Der schönste Tag unseres Lebens',
+      storyBday: 'Schöne Erinnerungen',
+      storyWed: 'Wie es begann',
+      storyTitle: 'Unsere Geschichte',
+      cdBday: 'Countdown zur Party',
+      cdWed: 'Countdown zum großen Tag',
+      cdSub: 'Countdown',
+      days: 'Tage', hours: 'Stdn', mins: 'Min', secs: 'Sek',
+      detBday: 'Party-Details',
+      detWed: 'Hochzeitsdetails',
+      detSub: 'Wir warten auf euch',
+      date: 'Datum', time: 'Zeit', venue: 'Ort',
+      galTitle: 'Fotogalerie',
+      galSub: 'Schöne gemeinsame Momente',
+      famBday: 'Unsere Lieben',
+      famWed: 'Unsere Familien',
+      famSub: 'Teilen unser Glück',
+      famSuffix: ' Familie',
+      mapTitle: 'Ort & Anfahrt',
+      dirBtn: '🧭 Wegbeschreibung',
+      calBtn: '📅 Zum Kalender',
+      rsvpTitle: 'Zusagen',
+      rsvpSub: 'Bitte bis {date} antworten',
+      btnYes: '💛 Ich nehme teil',
+      btnNo: 'Ich kann nicht teilnehmen',
+      lblName: 'Vollständiger Name',
+      plcName: 'Dein Name',
+      lblCount: 'Gästezahl',
+      lblMsg: 'Deine Nachricht',
+      plcMsg: 'Eine Nachricht für das Paar...',
+      btnSend: 'Antwort senden',
+      waBtn: 'Über WhatsApp benachrichtigen'
+    }
+  };
+  var t = i18n[lang] || i18n.tr;
 
   if(cdTimer)clearInterval(cdTimer); if(galTimer)clearInterval(galTimer); stopMusic();
   if(fwRAF){cancelAnimationFrame(fwRAF);fwRAF=null;} if(window.__fwInt){clearInterval(window.__fwInt);window.__fwInt=null;}
@@ -278,13 +408,13 @@ function render(cfg){
 
   /* HERO */
   var hero = el('section','hero'); hero.style.background=T.bg; if(T.dark)hero.style.color='#fff';
-  var heroEyebrow = isBday ? 'Doğum Günü Partisi' : 'Aileleriyle birlikte';
+  var heroEyebrow = isBday ? t.bdayParty : t.familiesTogether;
   var namesHTML = isBday
     ? esc(cfg.brideName)
     : esc(cfg.brideName)+'<span class="amp" style="color:'+T.soft+'">&</span>'+esc(cfg.groomName);
   var ornamentMid = isBday ? '🎂' : '❦';
   var ageHTML = (isBday && cfg.groomName)
-    ? '<div class="eyebrow reveal" style="margin-top:8px;font-size:17px;letter-spacing:2px;color:'+(T.dark?T.soft:T.accent)+'">🎈 '+esc(cfg.groomName)+' YAŞINDA 🎈</div>'
+    ? '<div class="eyebrow reveal" style="margin-top:8px;font-size:17px;letter-spacing:2px;color:'+(T.dark?T.soft:T.accent)+'">🎈 '+esc(cfg.groomName)+ t.yearsOld +' 🎈</div>'
     : '';
   hero.innerHTML =
     '<div class="eyebrow reveal" style="color:'+(T.dark?T.soft:T.accent)+'">'+heroEyebrow+'</div>'+
@@ -292,78 +422,78 @@ function render(cfg){
     ageHTML+
     '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>'+ornamentMid+'<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
     '<p class="subtitle reveal" style="color:'+inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
-    '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date)+' · '+fmtDay(cfg.date)+'</div>'+
-    '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">AŞAĞI KAYDIR</div>';
+    '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
+    '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">'+t.scrollDown+'</div>';
   wrap.appendChild(hero);
 
   function sec(bg){var s=el('section','fade');if(bg)s.style.background=bg;return s;}
   function titleHTML(t,sub){return '<h2 class="title" style="color:'+T.accent+'">'+esc(t)+'</h2><div class="tsub" style="color:'+inkSoft+'">'+esc(sub)+'</div>';}
 
   /* DAVET */
-  var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,isBday?'Birlikte kutlayalım':'Hayatımızın en özel günü')+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
+  var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,isBday?t.bdayCelebrate:t.specialDay)+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
 
   /* HİKAYEMİZ */
   if(cfg.story && cfg.story.length){
     var s2=sec(); var h='<div class="tl" style="--c:'+T.accent+'">';
     cfg.story.forEach(function(it){h+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(it.when)+'</div><h4 style="color:'+T.accent+'">'+esc(it.title)+'</h4><p style="color:'+inkSoft+'">'+esc(it.text)+'</p></div>';});
-    h+='</div>'; s2.innerHTML=titleHTML('Hikayemiz',isBday?'Güzel anılar':'Nasıl başladı?')+h; wrap.appendChild(s2);
+    h+='</div>'; s2.innerHTML=titleHTML(t.storyTitle,isBday?t.storyBday:t.storyWed)+h; wrap.appendChild(s2);
   }
 
   /* GERİ SAYIM */
-  var s3=sec(); s3.innerHTML=titleHTML(isBday?'Partiye Kalan':'Büyük Güne Kalan','Geri sayım')+
-    '<div class="countdown">'+['Gün','Saat','Dakika','Saniye'].map(function(l,i){return '<div class="cd-box" style="background:'+surface+';border:1px solid '+border+'"><div class="cd-num" id="cd'+i+'" style="color:'+T.accent+'">00</div><div class="cd-lab" style="color:'+inkSoft+'">'+l+'</div></div>';}).join('')+'</div>';
+  var s3=sec(); s3.innerHTML=titleHTML(isBday?t.cdBday:t.cdWed, t.cdSub)+
+    '<div class="countdown">'+[t.days, t.hours, t.mins, t.secs].map(function(l,i){return '<div class="cd-box" style="background:'+surface+';border:1px solid '+border+'"><div class="cd-num" id="cd'+i+'" style="color:'+T.accent+'">00</div><div class="cd-lab" style="color:'+inkSoft+'">'+l+'</div></div>';}).join('')+'</div>';
   wrap.appendChild(s3);
 
   /* DETAYLAR */
-  var s4=sec(); s4.innerHTML=titleHTML(isBday?'Parti Detayları':'Düğün Detayları','Sizi bekliyoruz')+
+  var s4=sec(); s4.innerHTML=titleHTML(isBday?t.detBday:t.detWed, t.detSub)+
     '<div class="cards">'+
-      card('📅','Tarih',fmtDate(cfg.date)+'<br>'+fmtDay(cfg.date))+
-      card('🕖','Saat',fmtTime(cfg.date)+'<br>'+esc(cfg.reception))+
-      card('📍','Mekan',esc(cfg.venueName)+'<br>'+esc(cfg.venueCity))+
+      card('📅',t.date,fmtDate(cfg.date, lang)+'<br>'+fmtDay(cfg.date, lang))+
+      card('🕖',t.time,fmtTime(cfg.date)+'<br>'+esc(cfg.reception))+
+      card('📍',t.venue,esc(cfg.venueName)+'<br>'+esc(cfg.venueCity))+
     '</div>';
   wrap.appendChild(s4);
-  function card(ic,t,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+t+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
+  function card(ic,ti,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+ti+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
 
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
     cfg.photos.forEach(function(src,i){var u=typeof src==='string'?src:(src.url||'');var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
-    s5.innerHTML=titleHTML('Fotoğraf Galerisi','Birlikte güzel anlar')+g; wrap.appendChild(s5);
+    s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
   }
 
   /* AİLELER */
   if(cfg.families && cfg.families.length){
     var s6=sec(); var f='<div class="fam">';
-    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+(isBday?esc(x.side):esc(x.side)+' Ailesi')+'</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
-    f+='</div>'; s6.innerHTML=titleHTML(isBday?'Sevdiklerimiz':'Ailelerimiz','Mutluluğumuzu paylaşan')+f; wrap.appendChild(s6);
+    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+(isBday?esc(x.side):esc(x.side)+t.famSuffix)+'</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
+    f+='</div>'; s6.innerHTML=titleHTML(isBday?t.famBday:t.famWed, t.famSub)+f; wrap.appendChild(s6);
   }
 
   /* HARİTA */
-  var s7=sec(); s7.innerHTML=titleHTML('Mekan & Yol Tarifi',cfg.venueName)+
+  var s7=sec(); s7.innerHTML=titleHTML(t.mapTitle,cfg.venueName)+
     '<div class="map-frame" style="border:1px solid '+border+'"><iframe loading="lazy" src="https://www.google.com/maps?q='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'&output=embed"></iframe></div>'+
-    '<div class="btnrow"><a class="btn" target="_blank" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';border-color:'+T.accent+'" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'">🧭 Yol Tarifi</a>'+
-    '<button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">📅 Takvime Ekle</button></div>';
+    '<div class="btnrow"><a class="btn" target="_blank" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';border-color:'+T.accent+'" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'">'+t.dirBtn+'</a>'+
+    '<button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button></div>';
   wrap.appendChild(s7);
 
   /* RSVP */
   var s8=sec(T.dark?'rgba(255,255,255,.02)':'rgba(0,0,0,.015)');
-  s8.innerHTML=titleHTML('Katılım Bildirimi','Lütfen '+esc(cfg.rsvpDeadline)+'\'e kadar bildirin')+
+  s8.innerHTML=titleHTML(t.rsvpTitle, t.rsvpSub.replace('{date}', esc(cfg.rsvpDeadline)))+
     '<div class="rsvp-card" style="background:'+surface+';border:1px solid '+border+'">'+
       '<form id="rf"><div class="choice">'+
-        '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">💛 Katılıyorum</button>'+
-        '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">Katılamıyorum</button></div>'+
-        '<div class="field"><label style="color:'+inkSoft+'">Ad Soyad</label><input id="gn" placeholder="Adınız Soyadınız" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
-        '<div class="field" id="cf"><label style="color:'+inkSoft+'">Kaç kişi?</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
-        '<div class="field"><label style="color:'+inkSoft+'">Mesajınız</label><textarea id="gm" rows="2" placeholder="Çifte not..." style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
-        '<button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>Yanıtı Gönder</button></form>'+
-      '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">WhatsApp ile bildir</a></div>'+
+        '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnYes+'</button>'+
+        '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
+        '<button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>'+t.btnSend+'</button></form>'+
+      '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
     '</div>';
   wrap.appendChild(s8);
 
   /* FOOTER */
   var ft=el('footer'); ft.style.background=T.dark?'rgba(0,0,0,.3)':T.accent; ft.style.color=T.dark?T.soft:'#fff';
-  ft.innerHTML='<div class="fn" style="font-family:\''+T.nameFont+'\',cursive;font-size:48px">'+esc(couple)+'</div><p>'+fmtDate(cfg.date).toUpperCase()+' — '+esc(cfg.venueCity)+'</p>';
+  ft.innerHTML='<div class="fn" style="font-family:\''+T.nameFont+'\',cursive;font-size:48px">'+esc(couple)+'</div><p>'+fmtDate(cfg.date, lang).toUpperCase()+' — '+esc(cfg.venueCity)+'</p>';
   wrap.appendChild(ft);
 
   /* ==== davranışlar ==== */
@@ -552,7 +682,10 @@ function setupRSVP(cfg, couple, T){
     document.getElementById('wl').href='https://wa.me/'+phone+'?text='+waText;
     document.getElementById('th').classList.add('show');});
 }
-function fmtICS(d){return d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';}
+function fmtICS(d){
+  return d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + 'T' + 
+         ('0'+d.getHours()).slice(-2) + ('0'+d.getMinutes()).slice(-2) + ('0'+d.getSeconds()).slice(-2);
+}
 function setupCalendar(cfg, couple){
   var b=document.getElementById('calBtn'); if(!b)return;
   b.addEventListener('click',function(){

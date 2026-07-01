@@ -101,6 +101,7 @@ type Cfg = {
   // kutlama modu
   videoUrl: string; fromName: string; wish: string;
   cakeType?: string;
+  lang?: string;
 };
 
 const DEFAULT_CFG: Cfg = {
@@ -692,9 +693,18 @@ const Editor = () => {
           {active === 'settings' && (
             <div className="grp">
               <h3>Davetiye Ayarları</h3>
-              <p className="grp-sub">Davetiyenizi sadece belirlediğiniz kişilerin görmesini istiyorsanız şifre ile koruyun.</p>
+              <p className="grp-sub">Davetiyenizi sadece belirlediğiniz kişilerin görmesini istiyorsanız şifre ile koruyun ve varsayılan dilini ayarlayın.</p>
               
-              <div className="settings-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <Field label="Davetiye Dili">
+                <select value={cfg.lang || 'tr'} onChange={(e) => set('lang', e.target.value)}>
+                  <option value="tr">Türkçe</option>
+                  <option value="en">English (İngilizce)</option>
+                  <option value="de">Deutsch (Almanca)</option>
+                </select>
+                <small className="hint">Davetiyedeki sabit metinlerin (Tarih, Saat, Katılıyorum vb.) hangi dilde görüneceğini seçin.</small>
+              </Field>
+
+              <div className="settings-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, marginTop: 24 }}>
                 <input type="checkbox" id="prot" checked={isProtected} onChange={(e) => setIsProtected(e.target.checked)} style={{ width: 18, height: 18, accentColor: 'var(--color-ink)' }} />
                 <label htmlFor="prot" style={{ margin: 0, fontWeight: 500, cursor: 'pointer' }}>Şifre Koruması Açık</label>
               </div>
