@@ -13,6 +13,28 @@
   body{font-family:'Montserrat',sans-serif;color:#444;overflow-x:hidden;background:#fff}
   #app{min-height:100vh}
   section{padding:64px 24px;text-align:center;position:relative}
+  .intro-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;background:#111;cursor:pointer;transition:opacity .75s ease,visibility .75s ease}
+  .intro-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .intro-bg{position:absolute;inset:-5%;background-size:cover;background-position:center;filter:brightness(.55) saturate(1.08);transform:scale(1.08);animation:intro-ken 4.6s ease-out forwards}
+  .intro-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.18),transparent 28%),linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.72))}
+  .intro-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.74) 82%)}
+  .intro-curtain{position:absolute;top:0;bottom:0;width:51%;background:linear-gradient(90deg,rgba(0,0,0,.98),rgba(28,19,12,.88));animation:intro-curtain 2.7s cubic-bezier(.7,0,.2,1) .9s forwards}
+  .intro-curtain.left{left:0;transform-origin:left}
+  .intro-curtain.right{right:0;transform-origin:right;animation-name:intro-curtain-r}
+  .intro-sweep{position:absolute;inset:-20%;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.28) 48%,transparent 62%);transform:translateX(-75%) rotate(8deg);animation:intro-sweep 2.2s ease-out .55s forwards}
+  .intro-card{position:relative;z-index:2;width:min(86vw,520px);text-align:center;padding:28px 18px;animation:intro-card 1.15s ease-out both}
+  .intro-kicker{font-size:11px;letter-spacing:5px;text-transform:uppercase;font-weight:600;opacity:.88}
+  .intro-monogram{width:86px;height:86px;border:1px solid rgba(255,255,255,.62);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:18px auto 16px;font-family:'Cormorant Garamond',serif;font-size:30px;background:rgba(255,255,255,.08);box-shadow:0 0 0 12px rgba(255,255,255,.04)}
+  .intro-names{font-family:'Cormorant Garamond',serif;font-size:clamp(38px,10vw,70px);font-weight:500;line-height:1.02;text-shadow:0 8px 26px rgba(0,0,0,.45)}
+  .intro-date{margin-top:14px;font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:.9}
+  .intro-open{margin-top:28px;display:inline-flex;align-items:center;justify-content:center;min-width:168px;padding:12px 24px;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:#fff;animation:intro-pulse 1.7s ease-in-out infinite}
+  @keyframes intro-ken{to{transform:scale(1)}}
+  @keyframes intro-card{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:none}}
+  @keyframes intro-curtain{to{transform:translateX(-104%)}}
+  @keyframes intro-curtain-r{to{transform:translateX(104%)}}
+  @keyframes intro-sweep{to{transform:translateX(75%) rotate(8deg)}}
+  @keyframes intro-pulse{0%,100%{transform:translateY(0);box-shadow:0 0 0 0 rgba(255,255,255,.24)}50%{transform:translateY(-2px);box-shadow:0 0 0 10px rgba(255,255,255,0)}}
+  @media (prefers-reduced-motion: reduce){.intro-gate{display:none}.intro-bg,.intro-curtain,.intro-sweep,.intro-card,.intro-open{animation:none}}
   .decor{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
   .decor span{position:absolute;top:-20px;animation:fall linear infinite}
   @keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:0}10%{opacity:.8}100%{transform:translateY(106vh) rotate(360deg);opacity:0}}
@@ -234,9 +256,46 @@ var DEFAULT = {
 };
 
 var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,master:null,step:0};
+var introPlayed=false;
 
 function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+function firstPhoto(cfg){
+  if(!cfg || !cfg.photos || !cfg.photos.length) return '';
+  var p=cfg.photos[0];
+  return typeof p==='string'?p:(p&&p.url?p.url:'');
+}
+function initials(name){
+  return String(name||'').split(/\s+/).filter(function(x){return x && x!=='&';}).slice(0,2).map(function(x){return x.charAt(0).toUpperCase();}).join('');
+}
+function showIntro(cfg,T,couple,isThumb,lang){
+  if(introPlayed || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  introPlayed=true;
+  document.querySelectorAll('.intro-gate').forEach(function(x){x.remove();});
+  var photo=firstPhoto(cfg);
+  var gate=el('div','intro-gate');
+  gate.setAttribute('role','button');
+  gate.setAttribute('aria-label','Daveti ac');
+  var bgStyle=photo?'background-image:url(&quot;'+photo.replace(/"/g,'&quot;')+'&quot;)':'background:'+T.bg;
+  var monogram=initials(couple).replace('&','') || initials(cfg.brideName) || 'D';
+  gate.innerHTML=
+    '<div class="intro-bg" style="'+bgStyle+'"></div>'+
+    '<div class="intro-vignette"></div>'+
+    '<div class="intro-sweep"></div>'+
+    '<div class="intro-curtain left"></div><div class="intro-curtain right"></div>'+
+    '<div class="intro-card">'+
+      '<div class="intro-kicker">DAVETIYE</div>'+
+      '<div class="intro-monogram">'+esc(monogram)+'</div>'+
+      '<div class="intro-names">'+esc(couple)+'</div>'+
+      '<div class="intro-date">'+esc(fmtDate(cfg.date, lang))+'</div>'+
+      '<div class="intro-open">DOKUN VE AC</div>'+
+    '</div>';
+  function finish(){ gate.classList.add('done'); setTimeout(function(){ gate.remove(); },850); }
+  gate.addEventListener('click',finish);
+  gate.addEventListener('touchend',finish);
+  document.body.appendChild(gate);
+  setTimeout(finish,4200);
+}
 function months(lang){
   if (lang === 'en') return ['January','February','March','April','May','June','July','August','September','October','November','December'];
   if (lang === 'de') return ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -410,6 +469,8 @@ function render(cfg){
     s.textContent = '.is-thumb { overflow: hidden !important; pointer-events: none !important; } .is-thumb section.hero { min-height: 0 !important; padding: 40px 20px !important; display: block !important; text-align: center; } .is-thumb .scroll-cue { display: none !important; }';
     document.head.appendChild(s);
   }
+
+  showIntro(cfg, T, couple, isThumb, lang);
 
   /* ============ KUTLAMA MODU (davet değil) ============ */
   if(isCeleb){ renderCelebration(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple, isThumb:isThumb}); return; }
