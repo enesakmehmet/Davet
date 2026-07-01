@@ -7,13 +7,14 @@ export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
   async recordView(recordViewDto: RecordViewDto) {
-    const { invitationId, country, browser, device, operatingSystem, referrer } = recordViewDto;
+    const { invitationId, country, browser, device, operatingSystem, referrer, city } = recordViewDto;
 
     // Ayrıntılı logları kaydet
     await this.prisma.analyticsEvent.create({
       data: {
         invitationId,
         country,
+        city,
         browser,
         device,
         operatingSystem,
@@ -33,15 +34,21 @@ export class AnalyticsService {
           views: 1,
           visitors: 1,
           countries: country ? { [country]: 1 } : {},
+          cities: city ? { [city]: 1 } : {},
+          devices: device ? { [device]: 1 } : {},
         },
       });
       return { success: true };
     }
 
     const updatedCountries = { ...(analytics.countries as Record<string, number> || {}) };
-    if (country) {
-      updatedCountries[country] = (updatedCountries[country] || 0) + 1;
-    }
+    if (country) updatedCountries[country] = (updatedCountries[country] || 0) + 1;
+
+    const updatedCities = { ...(analytics.cities as Record<string, number> || {}) };
+    if (city) updatedCities[city] = (updatedCities[city] || 0) + 1;
+
+    const updatedDevices = { ...(analytics.devices as Record<string, number> || {}) };
+    if (device) updatedDevices[device] = (updatedDevices[device] || 0) + 1;
 
     await this.prisma.analytics.update({
       where: { id: analytics.id },
@@ -49,6 +56,8 @@ export class AnalyticsService {
         views: analytics.views + 1,
         visitors: analytics.visitors + 1,
         countries: updatedCountries,
+        cities: updatedCities,
+        devices: updatedDevices,
       },
     });
 

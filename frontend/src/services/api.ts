@@ -181,8 +181,48 @@ export const statsService = {
     return data;
   },
   // Public: davet açıldığında görüntülenme kaydı (fire-and-forget)
-  recordView: (invitationId: string) => {
-    api.post('/analytics/view', { invitationId }).catch(() => {});
+  recordView: async (invitationId: string) => {
+    const ua = navigator.userAgent;
+    let device = 'Desktop';
+    if (/Mobile|Android|iPhone|iPad/i.test(ua)) device = 'Mobil';
+    else if (/Tablet|iPad/i.test(ua)) device = 'Tablet';
+    
+    let os = 'Bilinmiyor';
+    if (/Windows/i.test(ua)) os = 'Windows';
+    else if (/Mac OS/i.test(ua)) os = 'MacOS';
+    else if (/Android/i.test(ua)) os = 'Android';
+    else if (/iOS|iPhone|iPad/i.test(ua)) os = 'iOS';
+
+    let browser = 'Bilinmiyor';
+    if (/Chrome/i.test(ua)) browser = 'Chrome';
+    else if (/Safari/i.test(ua)) browser = 'Safari';
+    else if (/Firefox/i.test(ua)) browser = 'Firefox';
+    else if (/Edge/i.test(ua)) browser = 'Edge';
+
+    let city = 'Bilinmiyor';
+    let country = 'Bilinmiyor';
+    try {
+      const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+      const data = await res.json();
+      if (data.city) city = data.city;
+      if (data.country) country = data.country;
+    } catch (e) {
+      // fallback to timezone
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz) city = tz.split('/').pop()?.replace(/_/g, ' ') || city;
+      } catch(e2) {}
+    }
+
+    api.post('/analytics/view', { 
+      invitationId,
+      device,
+      browser,
+      operatingSystem: os,
+      city,
+      country,
+      referrer: document.referrer || undefined
+    }).catch(() => {});
   },
 };
 

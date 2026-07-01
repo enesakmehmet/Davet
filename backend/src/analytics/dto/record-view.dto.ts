@@ -24,4 +24,8 @@ export class RecordViewDto {
   @IsString()
   @IsOptional()
   referrer?: string;
+
+  @IsString()
+  @IsOptional()
+  city?: string;
 }

@@ -416,7 +416,10 @@ const StatsView = ({ invitations }: any) => {
 
   if (invitations.length === 0) return <div className="db-empty">Önce bir davetiye oluştur, istatistikler burada görünür.</div>;
 
-  const sum = data?.summary || { views: 0, visitors: 0 };
+  const sum = data?.summary || { views: 0, visitors: 0, cities: {}, devices: {} };
+  const cities = Object.entries(sum.cities || {}).sort((a: any, b: any) => b[1] - a[1]);
+  const devices = Object.entries(sum.devices || {}).sort((a: any, b: any) => b[1] - a[1]);
+
   return (
     <>
       <div className="db-picker">
@@ -431,10 +434,45 @@ const StatsView = ({ invitations }: any) => {
             <Stat lab="Görüntülenme" val={sum.views ?? 0} ico={<Eye size={18} />} gold />
             <Stat lab="Ziyaretçi" val={sum.visitors ?? 0} ico={<Users size={18} />} />
           </section>
-          <div className="db-panel">
-            <p className="db-empty" style={{ padding: 16 }}>
-              Görüntülenme verisi, davet linki açıldıkça artar. Davetini paylaştıkça bu sayılar yükselir.
-            </p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '24px' }}>
+            <div className="db-panel">
+              <h4 style={{ marginBottom: 16, fontSize: 15, color: 'var(--color-text-primary)' }}>Şehir Dağılımı</h4>
+              {cities.length === 0 ? <p className="db-empty" style={{ padding: 0, textAlign: 'left' }}>Henüz yeterli veri yok.</p> : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {cities.slice(0, 5).map(([city, count]: any) => (
+                    <div key={city}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                        <span style={{ color: 'var(--color-text-secondary)' }}>{city}</span>
+                        <strong>{count}</strong>
+                      </div>
+                      <div style={{ width: '100%', height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${Math.min(100, (count / sum.views) * 100)}%`, height: '100%', background: 'var(--color-accent-gold)' }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="db-panel">
+              <h4 style={{ marginBottom: 16, fontSize: 15, color: 'var(--color-text-primary)' }}>Cihaz Dağılımı</h4>
+              {devices.length === 0 ? <p className="db-empty" style={{ padding: 0, textAlign: 'left' }}>Henüz yeterli veri yok.</p> : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {devices.map(([dev, count]: any) => (
+                    <div key={dev}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                        <span style={{ color: 'var(--color-text-secondary)' }}>{dev}</span>
+                        <strong>{count}</strong>
+                      </div>
+                      <div style={{ width: '100%', height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${Math.min(100, (count / sum.views) * 100)}%`, height: '100%', background: '#5f7050' }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
