@@ -107,6 +107,10 @@
   .fab.music{bottom:16px}.fab.share{bottom:72px}
   .fab.playing{animation:spin 4s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* Otomatik oynatma tarayıcı tarafından engellendiyse müzik ikonu hafifçe titreşip
+     kullanıcıyı dokunmaya davet eder; müzik başlayınca bu sınıf otomatik kaldırılır */
+  .fab.music.needs-tap{animation:musicPulse 1.5s ease-in-out infinite}
+  @keyframes musicPulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.28)}50%{box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 0 9px rgba(255,255,255,.35)}}
 
   /* Kutlama: video + imza */
   .vid{border-radius:18px;overflow:hidden;max-width:560px;margin:0 auto;aspect-ratio:16/9;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -555,13 +559,13 @@ var musicBtn=null;
 var currentMusicUrl=null;
 function ensureMusicBtn(T){
   removeMusicBtn();
-  musicBtn=el('button','fab music','🎵');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';
+  musicBtn=el('button','fab music needs-tap','🎵');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';
   musicBtn.addEventListener('click',function(){musicState.playing?stopMusic():startMusic();});
   document.body.appendChild(musicBtn);
 }
 function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
 var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
-function setPlaying(on){var ms=musicState;ms.playing=on;if(musicBtn){if(on){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}else{musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}}
+function setPlaying(on){var ms=musicState;ms.playing=on;if(musicBtn){if(on){musicBtn.classList.add('playing');musicBtn.classList.remove('needs-tap');musicBtn.textContent='🔊';}else{musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}}
 function startMusic(silent){
   var ms=musicState;
   // MP3 varsa onu çal
@@ -586,20 +590,31 @@ function startMusic(silent){
   chord();ms.loop=setInterval(chord,1700);setPlaying(true);
 }
 function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}setPlaying(false);}
-/* Sayfa açılır açılmaz müziği otomatik başlatmayı dener; tarayıcı engellerse ilk dokunuş/tıklamada başlar */
+/* Sayfa açılır açılmaz müziği otomatik başlatmayı dener; tarayıcı engellerse ilk gerçek
+   dokunuş/tıklamada başlar. NOT: "scroll" olayı tetikleyici olarak KULLANILMAZ — mobil
+   tarayıcılarda sayfa yüklenirken adres çubuğu otomatik gizlenince sahte bir "scroll"
+   olayı tetiklenir; bu, kullanıcı hiç dokunmadan tek seferlik dinleyiciyi tüketip
+   otomatik oynatmayı sessizce kilitliyordu. */
 function attemptAutoplay(){
   startMusic(true);
+  var tries=0;
   function tryAgain(){
-    document.removeEventListener('click',tryAgain);
-    document.removeEventListener('touchstart',tryAgain);
-    document.removeEventListener('keydown',tryAgain);
-    document.removeEventListener('scroll',tryAgain);
-    if(!musicState.playing) startMusic(true);
+    if(musicState.playing){ detach(); return; }
+    if(tries++>40) return; // aşırı deneme koruması
+    startMusic(true);
+    setTimeout(function(){ if(musicState.playing) detach(); },300);
   }
-  document.addEventListener('click',tryAgain,{once:true,passive:true});
-  document.addEventListener('touchstart',tryAgain,{once:true,passive:true});
-  document.addEventListener('keydown',tryAgain,{once:true});
-  document.addEventListener('scroll',tryAgain,{once:true,passive:true});
+  function detach(){
+    document.removeEventListener('click',tryAgain,true);
+    document.removeEventListener('touchend',tryAgain,true);
+    document.removeEventListener('touchstart',tryAgain,true);
+    document.removeEventListener('keydown',tryAgain,true);
+  }
+  // capture:true -> herhangi bir iç eleman olayı durdursa (stopPropagation) bile önce burada yakalanır
+  document.addEventListener('click',tryAgain,true);
+  document.addEventListener('touchend',tryAgain,true);
+  document.addEventListener('touchstart',tryAgain,true);
+  document.addEventListener('keydown',tryAgain,true);
 }
 
 /* ==== Havai fişek ==== */
