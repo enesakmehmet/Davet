@@ -193,6 +193,12 @@ const InvitationsView = ({ invitations, onDelete, deletingId }: any) => (
 const InvCard = ({ inv, onDelete, deletingId }: any) => {
   const photoObj = inv?.config?.photos?.[0];
   const photo = typeof photoObj === 'string' ? photoObj : photoObj?.url;
+
+  const handleEdit = () => {
+    localStorage.setItem('davetim_edit_temp', JSON.stringify(inv));
+    window.location.href = '/editor?edit=1';
+  };
+
   return (
     <div className="inv-card">
       <div className="inv-thumb" style={{ background: photo ? undefined : grad(inv?.config?.theme) }}>
@@ -208,7 +214,7 @@ const InvCard = ({ inv, onDelete, deletingId }: any) => {
         </div>
         <div className="inv-actions">
           <a href={`/davet/${inv.slug}`} target="_blank" rel="noreferrer" className="db-btn"><ExternalLink size={15} /> Görüntüle</a>
-          <Link to="/editor" className="db-btn ghost"><Edit3 size={15} /> Yeni</Link>
+          <button onClick={handleEdit} className="db-btn ghost"><Edit3 size={15} /> Özelleştir</button>
           <button className="db-btn danger" onClick={() => onDelete?.(inv)} disabled={deletingId === inv.id}>
             <Trash2 size={15} /> {deletingId === inv.id ? 'Kaldırılıyor…' : 'Yayından Kaldır'}
           </button>

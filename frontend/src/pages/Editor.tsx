@@ -81,6 +81,7 @@ const CELEB_CONTENT: Partial<Cfg> = {
   videoUrl: '',
   fromName: 'Sevgiyle, Annen',
   wish: 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂🎈',
+  cakeType: 'classic',
 };
 
 type Family = { side: string; names: string };
@@ -99,6 +100,7 @@ type Cfg = {
   rsvpDeadline: string; phone: string;
   // kutlama modu
   videoUrl: string; fromName: string; wish: string;
+  cakeType?: string;
 };
 
 const DEFAULT_CFG: Cfg = {
@@ -220,6 +222,19 @@ const Editor = () => {
   // ---- Otomatik kayıt: taslak kurtarma (sayfa ilk açılışta bir kez) ----
   useEffect(() => {
     try {
+      const isEdit = new URLSearchParams(window.location.search).get('edit') === '1';
+      if (isEdit) {
+        const editRaw = localStorage.getItem('davetim_edit_temp');
+        if (editRaw) {
+          const inv = JSON.parse(editRaw);
+          if (inv.config) setCfg(normalizeCfg(inv.config));
+          if (inv.id) idRef.current = inv.id;
+          if (inv.slug) setSavedSlug(inv.slug);
+          localStorage.removeItem('davetim_edit_temp');
+          return;
+        }
+      }
+
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const draft = JSON.parse(raw);
@@ -489,6 +504,16 @@ const Editor = () => {
               <Field label={isCeleb ? 'Kutlama mesajı' : 'Davet metni'}>
                 <textarea rows={4} value={cfg.message} onChange={(e) => set('message', e.target.value)} />
               </Field>
+              {isCeleb && (
+                <Field label="Pasta Çeşidi">
+                  <select value={cfg.cakeType || 'classic'} onChange={(e) => set('cakeType', e.target.value)} style={{ width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid var(--color-border,#eae8e1)', fontSize: '14px', fontFamily: 'inherit', background: '#fff' }}>
+                    <option value="classic">Klasik (Tema Rengi)</option>
+                    <option value="chocolate">Çikolata Rüyası</option>
+                    <option value="berry">Orman Meyveli</option>
+                    <option value="rainbow">Gökkuşağı</option>
+                  </select>
+                </Field>
+              )}
             </div>
           )}
 

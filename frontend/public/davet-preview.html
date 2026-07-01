@@ -400,15 +400,21 @@ function renderCelebration(cfg, T, wrap, x){
 
   /* PASTA: mumu üfle, güller yağsın */
   var sCake=sec();
+  var ct = cfg.cakeType || 'classic';
+  var c1 = T.soft, c2 = T.accent, c3 = T.soft, cDot = T.accent;
+  if(ct === 'chocolate'){ c1='#5c3a21'; c2='#3e2723'; c3='#5c3a21'; cDot='#8d6e63'; }
+  else if(ct === 'berry'){ c1='#f48fb1'; c2='#ad1457'; c3='#f48fb1'; cDot='#fce4ec'; }
+  else if(ct === 'rainbow'){ c1='#ffeb3b'; c2='#4caf50'; c3='#2196f3'; cDot='#ff5722'; }
+
   sCake.innerHTML=titleHTML('Bir Dilek Tut','Mumu üflemek için dokun')+
     '<div class="cake-hint">👆 Mumu üflemek için dokun</div>'+
     '<div class="cake-wrap" id="cakeBtn">'+
       '<div class="cake-smoke"></div>'+
       '<div class="cake-flame"></div>'+
       '<div class="cake-candle"></div>'+
-      '<div class="cake-tier cake-tier1" style="background:'+T.soft+'"><span class="cake-dot" style="left:16px;background:'+T.accent+'"></span><span class="cake-dot" style="left:44px;background:'+T.accent+'"></span><span class="cake-dot" style="left:72px;background:'+T.accent+'"></span></div>'+
-      '<div class="cake-tier cake-tier2" style="background:'+T.accent+'"></div>'+
-      '<div class="cake-tier cake-tier3" style="background:'+T.soft+'"></div>'+
+      '<div class="cake-tier cake-tier1" style="background:'+c1+'"><span class="cake-dot" style="left:16px;background:'+cDot+'"></span><span class="cake-dot" style="left:44px;background:'+cDot+'"></span><span class="cake-dot" style="left:72px;background:'+cDot+'"></span></div>'+
+      '<div class="cake-tier cake-tier2" style="background:'+c2+'"></div>'+
+      '<div class="cake-tier cake-tier3" style="background:'+c3+'"></div>'+
     '</div>'+
     '<p class="cake-txt" style="color:'+ink+'">🎁 Dileğin tutsun, hediyen yolda…</p>';
   wrap.appendChild(sCake);
