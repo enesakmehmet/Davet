@@ -37,6 +37,7 @@
   '.dx-gal .dx-slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;background-size:cover;background-position:center}' +
   '.dx-gal .dx-slide.dx-on{opacity:1}' +
   '.dx-gal .dx-frame{padding-top:66%}' +
+  '.dx-slide-cap{position:absolute;bottom:0;left:0;right:0;padding:24px 20px 20px;background:linear-gradient(to top, rgba(0,0,0,0.7), transparent);color:#fff;font-size:15px;text-align:center;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,0.5)}' +
   '.dx-dots{display:flex;gap:8px;justify-content:center;margin-top:16px}' +
   '.dx-dots span{width:9px;height:9px;border-radius:50%;background:' + v.border + ';cursor:pointer;transition:.3s}' +
   '.dx-dots span.dx-on{background:' + v.accent + ';transform:scale(1.25)}' +
@@ -140,9 +141,12 @@
     gSec.appendChild(el('div', 'dx-sub', 'Birlikte güzel anlar'));
     var gal = el('div', 'dx-gal');
     gal.appendChild(el('div', 'dx-frame'));
-    D.photos.forEach(function (src, i) {
+    D.photos.forEach(function (srcObj, i) {
+      var u = typeof srcObj === 'string' ? srcObj : (srcObj.url || '');
+      var cap = typeof srcObj === 'string' ? '' : (srcObj.caption || '');
       var sl = el('div', 'dx-slide' + (i === 0 ? ' dx-on' : ''));
-      sl.style.backgroundImage = 'url("' + src + '")';
+      sl.style.backgroundImage = 'url("' + u + '")';
+      if(cap) sl.appendChild(el('div', 'dx-slide-cap', cap));
       gal.appendChild(sl);
     });
     gSec.appendChild(gal);

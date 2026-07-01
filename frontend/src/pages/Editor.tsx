@@ -74,9 +74,9 @@ const CELEB_CONTENT: Partial<Cfg> = {
   greeting: 'Mutlu Yıllar Sana',
   message: 'Bu özel günü seninle kutlamak, gülüşünü görmek ve mutluluğuna ortak olmak en güzel hediye. Hayatımıza neşe kattığın için teşekkürler!',
   photos: [
-    'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80',
+    { url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80', caption: 'En özel günümüzden' },
+    { url: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80', caption: 'Beraber ilk tatilimiz' },
+    { url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80', caption: '' },
   ],
   videoUrl: '',
   fromName: 'Sevgiyle, Annen',
@@ -93,7 +93,7 @@ type Cfg = {
   venueName: string; venueCity: string; mapQuery: string; reception: string;
   music: boolean;
   musicUrl: string;
-  photos: string[];
+  photos: any[]; // Backward uyumluluk için any kullanıp çalışma anında nesneye dönüştürüyoruz
   families: Family[];
   story: Story[];
   rsvpDeadline: string; phone: string;
@@ -114,9 +114,9 @@ const DEFAULT_CFG: Cfg = {
   music: true,
   musicUrl: '',
   photos: [
-    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80',
+    { url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80', caption: 'Hayatımızı birleştirdiğimiz o özel gün' },
+    { url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80', caption: 'İlk tatilimizden' },
+    { url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80', caption: '' },
   ],
   families: [
     { side: 'Gelin', names: 'Sevgi & Kemal Aydın' },
@@ -156,10 +156,18 @@ const CELEB_SECTIONS: SectionDef[] = [
 
 const DRAFT_KEY = 'davetim_editor_draft_v1';
 
+const normalizeCfg = (c: any): Cfg => {
+  if (c && Array.isArray(c.photos) && c.photos.length > 0 && typeof c.photos[0] === 'string') {
+    c.photos = c.photos.map((p: string) => ({ url: p, caption: '' }));
+  }
+  return c as Cfg;
+};
+
 const initialCfg = (): Cfg => {
   const theme = new URLSearchParams(window.location.search).get('theme');
-  if (theme && THEMES.some((t) => t.key === theme)) return { ...DEFAULT_CFG, theme };
-  return DEFAULT_CFG;
+  let base = DEFAULT_CFG;
+  if (theme && THEMES.some((t) => t.key === theme)) base = { ...DEFAULT_CFG, theme };
+  return normalizeCfg(JSON.parse(JSON.stringify(base)));
 };
 
 const Editor = () => {
@@ -218,7 +226,7 @@ const Editor = () => {
       if (!draft?.cfg) return;
       const ok = window.confirm('Kaydedilmemiş bir taslak bulundu. Kaldığın yerden devam etmek ister misin?');
       if (ok) {
-        setCfg(draft.cfg);
+        setCfg(normalizeCfg(draft.cfg));
         if (draft.id) idRef.current = draft.id;
         if (draft.slug) setSavedSlug(draft.slug);
       } else {
@@ -304,7 +312,11 @@ const Editor = () => {
     setPhotoUploadingIdx(idx); setPhotoUploadErr('');
     try {
       const r = await assetService.uploadImage(f);
-      updArr('photos', idx, r.url);
+      setCfg((c) => {
+        const arr = [...c.photos];
+        arr[idx] = { ...arr[idx], url: r.url };
+        return { ...c, photos: arr };
+      });
     } catch (err: any) {
       setPhotoUploadErr(err?.message || 'Fotoğraf yüklenemedi.');
     } finally {
@@ -317,7 +329,7 @@ const Editor = () => {
   const addPhotoFromComputer = () => {
     setCfg((c) => {
       const idx = c.photos.length;
-      const next = { ...c, photos: [...c.photos, ''] };
+      const next = { ...c, photos: [...c.photos, { url: '', caption: '' }] };
       // state güncellendikten sonra o slotun dosya seçicisini tetikle
       setTimeout(() => photoFileInputs.current[idx]?.click(), 0);
       return next;
@@ -537,10 +549,13 @@ const Editor = () => {
               {photoUploadErr && <small className="hint" style={{ color: '#b3261e', display: 'block', marginBottom: 10 }}>{photoUploadErr}</small>}
               {cfg.photos.map((p, i) => (
                 <div className="photo-row" key={i}>
-                  <div className="photo-thumb" style={{ backgroundImage: p ? `url("${p}")` : undefined }}>
+                  <div className="photo-thumb" style={{ backgroundImage: p?.url ? `url("${p.url}")` : undefined }}>
                     {photoUploadingIdx === i && <span className="photo-thumb-loading">…</span>}
                   </div>
-                  <input value={p} onChange={(e) => updArr('photos', i, e.target.value)} placeholder="https://... veya bilgisayardan yükle" />
+                  <div className="photo-inputs">
+                    <input value={p?.url || ''} onChange={(e) => updArr('photos', i, { ...p, url: e.target.value })} placeholder="https://... veya bilgisayardan yükle" />
+                    <input value={p?.caption || ''} onChange={(e) => updArr('photos', i, { ...p, caption: e.target.value })} placeholder="Açıklama (Opsiyonel)" />
+                  </div>
                   <input
                     ref={(el) => { photoFileInputs.current[i] = el; }}
                     type="file"
@@ -562,7 +577,7 @@ const Editor = () => {
               ))}
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <button className="add-btn" onClick={addPhotoFromComputer}><UploadCloud size={15} /> Bilgisayardan Yükle</button>
-                <button className="add-btn" onClick={() => addArr('photos', '')}><Plus size={15} /> Bağlantı (URL) Ekle</button>
+                <button className="add-btn" onClick={() => addArr('photos', { url: '', caption: '' })}><Plus size={15} /> Bağlantı (URL) Ekle</button>
               </div>
             </div>
           )}

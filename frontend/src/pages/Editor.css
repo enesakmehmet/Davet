@@ -74,11 +74,12 @@
 .add-btn:hover{background:#fdf8ec}
 
 /* Fotoğraf satırı */
-.photo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.photo-thumb{width:48px;height:48px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--color-border,#eae8e1);background-color:#f0f0f0;display:flex;align-items:center;justify-content:center}
+.photo-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.photo-thumb{width:48px;height:48px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--color-border,#eae8e1);background-color:#f0f0f0;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .photo-thumb-loading{font-size:11px;color:#9a9a9a}
-.photo-row input{flex:1;padding:10px 12px;border:1px solid var(--color-border,#eae8e1);border-radius:8px;font-size:13px;font-family:inherit}
-.photo-row input:focus{outline:none;border-color:#c9a14e}
+.photo-inputs{display:flex;flex-direction:column;gap:6px;flex:1}
+.photo-inputs input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--color-border,#eae8e1);border-radius:8px;font-size:13px;font-family:inherit}
+.photo-inputs input:focus{outline:none;border-color:#c9a14e}
 
 /* Switch */
 .switch-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;border:1px solid var(--color-border,#eae8e1);border-radius:12px;font-size:14px;color:#2a2a2a;cursor:pointer}

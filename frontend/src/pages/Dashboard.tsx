@@ -191,7 +191,8 @@ const InvitationsView = ({ invitations, onDelete, deletingId }: any) => (
 );
 
 const InvCard = ({ inv, onDelete, deletingId }: any) => {
-  const photo = inv?.config?.photos?.[0];
+  const photoObj = inv?.config?.photos?.[0];
+  const photo = typeof photoObj === 'string' ? photoObj : photoObj?.url;
   return (
     <div className="inv-card">
       <div className="inv-thumb" style={{ background: photo ? undefined : grad(inv?.config?.theme) }}>
