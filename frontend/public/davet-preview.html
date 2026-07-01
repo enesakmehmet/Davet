@@ -361,7 +361,7 @@ function render(cfg){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music) ensureMusicBtn(T); else removeMusicBtn();
+  if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
 }
 
 /* ============ KUTLAMA RENDER (davet değil, kişiye gönderilen kutlama) ============ */
@@ -430,7 +430,7 @@ function renderCelebration(cfg, T, wrap, x){
   setupCake();
   setupFabs(cfg, cfg.brideName||'', T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music) ensureMusicBtn(T); else removeMusicBtn();
+  if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
 }
 
 function videoEmbed(url,border){
@@ -562,28 +562,45 @@ function ensureMusicBtn(T){
 function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
 var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
 function setPlaying(on){var ms=musicState;ms.playing=on;if(musicBtn){if(on){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}else{musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}}
-function startMusic(){
+function startMusic(silent){
   var ms=musicState;
   // MP3 varsa onu çal
   if(currentMusicUrl){
     if(!ms.audio){ms.audio=new Audio();ms.audio.loop=true;ms.audio.preload='auto';ms.audio.setAttribute('playsinline','');}
     if(ms.audio.src!==currentMusicUrl){ ms.audio.src=currentMusicUrl; try{ms.audio.load();}catch(e){} }
     ms.audio.volume=1; ms.audio.muted=false;
-    ms.audio.onerror=function(){ setPlaying(false); alert('Müzik yüklenemedi. Bağlantı doğrudan bir .mp3 dosyası olmalı (YouTube/Drive/Spotify sayfa linki çalışmaz). En sağlamı: editördeki "Dosya Seç" ile mp3\'ü doğrudan yükleyin.'); };
+    ms.audio.onerror=function(){ setPlaying(false); if(!silent) alert('Müzik yüklenemedi. Bağlantı doğrudan bir .mp3 dosyası olmalı (YouTube/Drive/Spotify sayfa linki çalışmaz). En sağlamı: editördeki "Dosya Seç" ile mp3\'ü doğrudan yükleyin.'); };
     var p=ms.audio.play();
-    if(p&&p.then){ p.then(function(){ setPlaying(true); }).catch(function(err){ setPlaying(false); alert('Müzik çalınamadı: '+((err&&err.message)||'tarayıcı oynatmayı engelledi')+'. Geçerli bir .mp3 bağlantısı deneyin.'); }); }
+    if(p&&p.then){ p.then(function(){ setPlaying(true); }).catch(function(err){ setPlaying(false); if(!silent) alert('Müzik çalınamadı: '+((err&&err.message)||'tarayıcı oynatmayı engelledi')+'. Geçerli bir .mp3 bağlantısı deneyin.'); }); }
     else { setPlaying(true); }
     return;
   }
   // Aksi halde yumuşak melodi
-  ms.actx=ms.actx||new (window.AudioContext||window.webkitAudioContext)();
-  if(ms.actx.state==='suspended')ms.actx.resume();
+  try{
+    ms.actx=ms.actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(ms.actx.state==='suspended')ms.actx.resume();
+  }catch(e){ if(!silent) alert('Müzik başlatılamadı.'); return; }
   ms.master=ms.actx.createGain();ms.master.gain.value=0.5;ms.master.connect(ms.actx.destination);
   function chord(){var t=ms.actx.currentTime, ch=SEQ[ms.step%SEQ.length];ch.forEach(function(f,i){nt(f,t+i*0.16,1.6);});nt(ch[0]/2,t,1.8);ms.step++;}
   function nt(f,t,d){var o=ms.actx.createOscillator(),g=ms.actx.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ms.master);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.16,t+0.08);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.start(t);o.stop(t+d+0.05);}
-  chord();ms.loop=setInterval(chord,1700);ms.playing=true;if(musicBtn){musicBtn.classList.add('playing');musicBtn.textContent='🔊';}
+  chord();ms.loop=setInterval(chord,1700);setPlaying(true);
 }
-function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}ms.playing=false;if(musicBtn){musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}
+function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}setPlaying(false);}
+/* Sayfa açılır açılmaz müziği otomatik başlatmayı dener; tarayıcı engellerse ilk dokunuş/tıklamada başlar */
+function attemptAutoplay(){
+  startMusic(true);
+  function tryAgain(){
+    document.removeEventListener('click',tryAgain);
+    document.removeEventListener('touchstart',tryAgain);
+    document.removeEventListener('keydown',tryAgain);
+    document.removeEventListener('scroll',tryAgain);
+    if(!musicState.playing) startMusic(true);
+  }
+  document.addEventListener('click',tryAgain,{once:true,passive:true});
+  document.addEventListener('touchstart',tryAgain,{once:true,passive:true});
+  document.addEventListener('keydown',tryAgain,{once:true});
+  document.addEventListener('scroll',tryAgain,{once:true,passive:true});
+}
 
 /* ==== Havai fişek ==== */
 var fwRAF=null;
