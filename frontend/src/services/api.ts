@@ -113,6 +113,42 @@ export const authService = {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
   },
   isLoggedIn: () => !!localStorage.getItem('accessToken'),
+  forgotPassword: async (email: string) => {
+    const { data } = await api.post('/auth/forgot-password', { email });
+    return data;
+  },
+  resetPassword: async (token: string, newPassword: string) => {
+    const { data } = await api.post('/auth/reset-password', { token, newPassword });
+    return data;
+  },
+  verifyEmail: async (token: string) => {
+    const { data } = await api.post('/auth/verify-email', { token });
+    return data;
+  },
+  resendVerification: async () => {
+    const { data } = await api.post('/auth/resend-verification');
+    return data;
+  },
+};
+
+// Hesap ayarları (profil, şifre, hesap silme)
+export const settingsService = {
+  get: async () => {
+    const { data } = await api.get('/settings');
+    return data;
+  },
+  update: async (payload: { name?: string; email?: string }) => {
+    const { data } = await api.patch('/settings', payload);
+    return data;
+  },
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const { data } = await api.patch('/settings/password', { currentPassword, newPassword });
+    return data;
+  },
+  deleteAccount: async () => {
+    const { data } = await api.delete('/settings/account');
+    return data;
+  },
 };
 
 // Misafir listesi (davetiye sahibi için)

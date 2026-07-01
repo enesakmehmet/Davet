@@ -19,12 +19,12 @@ export class MailService {
     });
   }
 
-  async sendVerificationEmail(to: string, token: string) {
+  async sendVerificationEmail(to: string, verifyLink: string) {
     await this.sendMail({
       to,
       subject: 'E-posta Adresinizi Doğrulayın',
-      text: `Doğrulama kodunuz: ${token}`,
-      html: `<p>Doğrulama kodunuz: <strong>${token}</strong></p>`,
+      text: `Hoş geldiniz! E-posta adresinizi doğrulamak için şu linke tıklayın: ${verifyLink}`,
+      html: `<p>Hoş geldiniz! E-posta adresinizi doğrulamak için <a href="${verifyLink}">buraya tıklayın</a>.</p><p>Link 24 saat geçerlidir.</p>`,
     });
   }
 

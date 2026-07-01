@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
-  ExternalLink, Eye, MailOpen, Edit3, Trash2,
+  ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { invitationService, guestListService, statsService } from '../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { invitationService, guestListService, statsService, settingsService, authService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
 
-type Section = 'panel' | 'davetiyeler' | 'misafirler' | 'istatistikler';
+type Section = 'panel' | 'davetiyeler' | 'misafirler' | 'istatistikler' | 'ayarlar';
 
 const NAV: { id: Section; label: string; icon: any }[] = [
   { id: 'panel', label: 'Panel', icon: LayoutDashboard },
   { id: 'davetiyeler', label: 'Davetiyeler', icon: Mail },
   { id: 'misafirler', label: 'Misafir Listesi', icon: Users },
   { id: 'istatistikler', label: 'İstatistikler', icon: BarChart3 },
+  { id: 'ayarlar', label: 'Ayarlar', icon: SettingsIcon },
 ];
 
 const THEME_GRAD: Record<string, string> = {
@@ -46,6 +47,20 @@ const Dashboard = () => {
   const [invitations, setInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [resendMsg, setResendMsg] = useState('');
+  const [resending, setResending] = useState(false);
+
+  const resendVerification = async () => {
+    setResending(true); setResendMsg('');
+    try {
+      const r = await authService.resendVerification();
+      setResendMsg(r?.message || 'Gönderildi.');
+    } catch (err: any) {
+      setResendMsg(err?.response?.data?.message || 'Gönderilemedi, tekrar dene.');
+    } finally {
+      setResending(false);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -116,6 +131,17 @@ const Dashboard = () => {
           </div>
         </header>
 
+        {user && user.emailVerified === false && (
+          <div className="db-banner">
+            <AlertTriangle size={16} />
+            <span>E-posta adresini henüz doğrulamadın.</span>
+            <button onClick={resendVerification} disabled={resending}>
+              {resending ? 'Gönderiliyor…' : 'Doğrulama e-postasını tekrar gönder'}
+            </button>
+            {resendMsg && <span className="db-banner-msg">{resendMsg}</span>}
+          </div>
+        )}
+
         {loading && <div className="db-empty">Yükleniyor…</div>}
         {!loading && error && <div className="db-empty">{error}</div>}
 
@@ -125,6 +151,7 @@ const Dashboard = () => {
             {section === 'davetiyeler' && <InvitationsView invitations={invitations} onDelete={handleDelete} deletingId={deletingId} />}
             {section === 'misafirler' && <GuestsView invitations={invitations} />}
             {section === 'istatistikler' && <StatsView invitations={invitations} />}
+            {section === 'ayarlar' && <SettingsView />}
           </>
         )}
       </main>
@@ -288,6 +315,116 @@ const StatsView = ({ invitations }: any) => {
           </div>
         </>
       )}
+    </>
+  );
+};
+
+/* ---------- AYARLAR ---------- */
+const SettingsView = () => {
+  const { user, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [profileMsg, setProfileMsg] = useState('');
+  const [profileErr, setProfileErr] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const saveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMsg(''); setProfileErr(''); setSavingProfile(true);
+    try {
+      const r = await settingsService.update({ name, email });
+      updateUser({ name: r?.user?.name ?? name, email: r?.user?.email ?? email });
+      setProfileMsg('Profil güncellendi.');
+    } catch (err: any) {
+      setProfileErr(err?.response?.data?.message || 'Güncellenemedi.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const [curPass, setCurPass] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [passMsg, setPassMsg] = useState('');
+  const [passErr, setPassErr] = useState('');
+  const [savingPass, setSavingPass] = useState(false);
+
+  const savePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPassMsg(''); setPassErr(''); setSavingPass(true);
+    try {
+      await settingsService.changePassword(curPass, newPass);
+      setPassMsg('Şifren değiştirildi.');
+      setCurPass(''); setNewPass('');
+    } catch (err: any) {
+      setPassErr(err?.response?.data?.message || 'Şifre değiştirilemedi.');
+    } finally {
+      setSavingPass(false);
+    }
+  };
+
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccount = async () => {
+    if (!window.confirm('Hesabını ve tüm davetiyelerini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
+    if (!window.confirm('Son kez soruyoruz: hesabı tamamen sil?')) return;
+    setDeleting(true);
+    try {
+      await settingsService.deleteAccount();
+      logout();
+      navigate('/');
+    } catch {
+      alert('Hesap silinemedi. Lütfen tekrar deneyin.');
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="db-panel" style={{ marginBottom: 18 }}>
+        <div className="db-panel-head"><h3>Profil Bilgileri</h3></div>
+        <form onSubmit={saveProfile} className="settings-form">
+          <div className="settings-row">
+            <label>Ad Soyad</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="settings-row">
+            <label>E-posta</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          {profileErr && <div className="db-tag red" style={{ marginBottom: 10 }}>{profileErr}</div>}
+          {profileMsg && <div className="db-tag green" style={{ marginBottom: 10 }}>{profileMsg}</div>}
+          <button className="db-btn" disabled={savingProfile}>{savingProfile ? 'Kaydediliyor…' : 'Profili Kaydet'}</button>
+        </form>
+      </div>
+
+      <div className="db-panel" style={{ marginBottom: 18 }}>
+        <div className="db-panel-head"><h3>Şifre Değiştir</h3></div>
+        <form onSubmit={savePassword} className="settings-form">
+          <div className="settings-row">
+            <label>Mevcut şifre</label>
+            <input type="password" value={curPass} onChange={(e) => setCurPass(e.target.value)} required />
+          </div>
+          <div className="settings-row">
+            <label>Yeni şifre</label>
+            <input type="password" value={newPass} onChange={(e) => setNewPass(e.target.value)} required minLength={8} />
+            <small className="hint">En az 8 karakter, bir büyük harf, bir küçük harf ve bir rakam içermeli.</small>
+          </div>
+          {passErr && <div className="db-tag red" style={{ marginBottom: 10 }}>{passErr}</div>}
+          {passMsg && <div className="db-tag green" style={{ marginBottom: 10 }}>{passMsg}</div>}
+          <button className="db-btn" disabled={savingPass}>{savingPass ? 'Kaydediliyor…' : 'Şifreyi Değiştir'}</button>
+        </form>
+      </div>
+
+      <div className="db-panel danger-zone">
+        <div className="db-panel-head"><h3>Tehlikeli Bölge</h3></div>
+        <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 14 }}>
+          Hesabını sildiğinde tüm davetiyelerin, misafir listelerin ve verilerin kalıcı olarak silinir.
+        </p>
+        <button className="db-btn danger" onClick={deleteAccount} disabled={deleting}>
+          <Trash2 size={15} /> {deleting ? 'Siliniyor…' : 'Hesabı Sil'}
+        </button>
+      </div>
     </>
   );
 };

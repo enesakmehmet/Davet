@@ -1,16 +1,22 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../../mail/mail.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshDto } from '../dto/refresh.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -21,11 +27,27 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
+    const verifyToken = randomBytes(32).toString('hex');
+    const verifyTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 saat
+
     const user = await this.usersService.create({
       email: registerDto.email,
       passwordHash: hashedPassword,
       name: registerDto.name,
+      verifyToken,
+      verifyTokenExpires,
     });
+
+    // Doğrulama e-postası gönder (hata giriş akışını engellemesin)
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+      await this.mailService.sendVerificationEmail(
+        user.email,
+        `${frontendUrl}/verify-email?token=${verifyToken}`,
+      );
+    } catch {
+      /* e-posta gönderilemese de kayıt tamamlanmış olsun */
+    }
 
     return this.generateTokens(user);
   }
@@ -68,9 +90,83 @@ export class AuthService {
     return { success: true, message: 'Başarıyla çıkış yapıldı.' };
   }
 
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    // Kullanıcı bulunamasa da aynı mesajı dön: hangi e-postaların kayıtlı olduğu sızdırılmasın
+    if (user) {
+      const resetToken = randomBytes(32).toString('hex');
+      const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 saat
+      await this.usersService.update(user.id, { resetToken, resetTokenExpires });
+
+      try {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+        await this.mailService.sendForgotPassword(
+          user.email,
+          `${frontendUrl}/reset-password?token=${resetToken}`,
+        );
+      } catch {
+        /* mail gönderilemese de kullanıcıya aynı genel mesaj dönülür */
+      }
+    }
+
+    return { message: 'Bu e-posta kayıtlıysa şifre sıfırlama linki gönderildi.' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const user = await this.usersService.findByResetToken(dto.token);
+    if (!user) {
+      throw new BadRequestException('Geçersiz veya süresi dolmuş bağlantı. Yeniden talep edin.');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.usersService.update(user.id, {
+      passwordHash: hashedPassword,
+      resetToken: null,
+      resetTokenExpires: null,
+      refreshToken: null, // güvenlik: mevcut oturumları geçersiz kıl
+    });
+
+    return { message: 'Şifreniz başarıyla değiştirildi. Şimdi giriş yapabilirsiniz.' };
+  }
+
+  async verifyEmail(dto: VerifyEmailDto) {
+    const user = await this.usersService.findByVerifyToken(dto.token);
+    if (!user) {
+      throw new BadRequestException('Geçersiz veya süresi dolmuş doğrulama bağlantısı.');
+    }
+
+    await this.usersService.update(user.id, {
+      emailVerified: true,
+      verifyToken: null,
+      verifyTokenExpires: null,
+    });
+
+    return { message: 'E-posta adresiniz doğrulandı.' };
+  }
+
+  async resendVerification(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException('Kullanıcı bulunamadı.');
+    if (user.emailVerified) {
+      return { message: 'E-posta adresiniz zaten doğrulanmış.' };
+    }
+
+    const verifyToken = randomBytes(32).toString('hex');
+    const verifyTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await this.usersService.update(user.id, { verifyToken, verifyTokenExpires });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    await this.mailService.sendVerificationEmail(
+      user.email,
+      `${frontendUrl}/verify-email?token=${verifyToken}`,
+    );
+
+    return { message: 'Doğrulama e-postası tekrar gönderildi.' };
+  }
+
   private async generateTokens(user: any) {
     const payload = { email: user.email, sub: user.id };
-    
+
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
 
@@ -85,6 +181,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        emailVerified: !!user.emailVerified,
       }
     };
   }

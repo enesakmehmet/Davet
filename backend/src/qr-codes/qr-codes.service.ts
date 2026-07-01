@@ -19,7 +19,7 @@ export class QrCodesService {
 
     // QR kod için URL oluştur
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    const invitationUrl = `${baseUrl}/invitation/${invitation.slug}`;
+    const invitationUrl = `${baseUrl}/davet/${invitation.slug}`;
 
     // QR kod oluştur (Data URL olarak)
     try {
@@ -51,7 +51,7 @@ export class QrCodesService {
     }
 
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    const invitationUrl = `${baseUrl}/invitation/${invitation.slug}`;
+    const invitationUrl = `${baseUrl}/davet/${invitation.slug}`;
 
     try {
       const qrCodeBuffer = await QRCode.toBuffer(invitationUrl, {

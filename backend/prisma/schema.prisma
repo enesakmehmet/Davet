@@ -18,6 +18,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  emailVerified       Boolean   @default(false)
+  verifyToken         String?
+  verifyTokenExpires  DateTime?
+  resetToken          String?
+  resetTokenExpires   DateTime?
+
   templates       Template[]
   invitations     Invitation[]
   assets          Asset[]

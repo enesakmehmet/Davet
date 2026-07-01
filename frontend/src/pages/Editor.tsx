@@ -154,6 +154,8 @@ const CELEB_SECTIONS: SectionDef[] = [
   { id: 'wish', label: 'Dilek & İmza', icon: Sparkles },
 ];
 
+const DRAFT_KEY = 'davetim_editor_draft_v1';
+
 const initialCfg = (): Cfg => {
   const theme = new URLSearchParams(window.location.search).get('theme');
   if (theme && THEMES.some((t) => t.key === theme)) return { ...DEFAULT_CFG, theme };
@@ -162,6 +164,7 @@ const initialCfg = (): Cfg => {
 
 const Editor = () => {
   const [cfg, setCfg] = useState<Cfg>(initialCfg);
+  const [autoSave, setAutoSave] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [active, setActive] = useState('theme');
   const isCeleb = isCelebTheme(cfg.theme);
   const isBday = isBirthdayTheme(cfg.theme) && !isCeleb; // kutlama ayrı kategoride
@@ -202,6 +205,56 @@ const Editor = () => {
   }, []);
 
   useEffect(() => { if (readyRef.current) post(); /* eslint-disable-next-line */ }, [cfg]);
+
+  // ---- Otomatik kayıt: taslak kurtarma (sayfa ilk açılışta bir kez) ----
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft?.cfg) return;
+      const ok = window.confirm('Kaydedilmemiş bir taslak bulundu. Kaldığın yerden devam etmek ister misin?');
+      if (ok) {
+        setCfg(draft.cfg);
+        if (draft.id) idRef.current = draft.id;
+        if (draft.slug) setSavedSlug(draft.slug);
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch {
+      /* bozuk taslak varsa sessizce yok say */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---- Otomatik kayıt: her değişiklikte taslağı localStorage'a yaz (tarayıcı çökerse/sekme kapanırsa kurtarılsın) ----
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ cfg, id: idRef.current, slug: savedSlug }));
+      } catch {
+        /* localStorage dolu/erişilemez olabilir, sessizce geç */
+      }
+    }, 600);
+    return () => clearTimeout(t);
+  }, [cfg, savedSlug]);
+
+  // ---- Otomatik kayıt: davetiye zaten yayınlanmışsa arka planda sunucuya da yazsın ----
+  useEffect(() => {
+    if (!idRef.current) return; // ilk "Yayınla" yapılmadan sunucuya otomatik kayıt yok
+    setAutoSave('saving');
+    const t = setTimeout(async () => {
+      try {
+        const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? new Date(cfg.date).toISOString() : undefined;
+        await invitationService.saveInvitation(idRef.current as string, { eventDate, config: cfg });
+        setAutoSave('saved');
+      } catch {
+        setAutoSave('error');
+      }
+    }, 2500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cfg]);
 
   const set = (k: keyof Cfg, v: any) => setCfg((c) => ({ ...c, [k]: v }));
 
@@ -305,6 +358,11 @@ const Editor = () => {
           <span className="ed-doc">{isCeleb ? `${cfg.brideName} — Doğum Günü Kutlaması` : isBday ? `${cfg.brideName} — Doğum Günü Davetiyesi` : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`}</span>
         </div>
         <div className="ed-head-r">
+          {idRef.current && (
+            <span className="ed-autosave">
+              {autoSave === 'saving' ? 'Kaydediliyor…' : autoSave === 'error' ? 'Otomatik kayıt başarısız' : 'Değişiklikler kaydedildi'}
+            </span>
+          )}
           {saveError && <span className="ed-saveerr">{saveError}</span>}
           {savedSlug && (
             <a className="ed-published" href={`/davet/${savedSlug}`} target="_blank" rel="noreferrer">

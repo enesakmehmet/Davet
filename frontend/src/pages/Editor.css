@@ -12,6 +12,7 @@
 .ed-published{font-size:12px;color:#2e7d52;text-decoration:none;background:#eaf6ee;border:1px solid #bfe3cb;padding:7px 12px;border-radius:8px;font-weight:600;white-space:nowrap}
 .ed-published:hover{background:#dcf0e3}
 .ed-saveerr{font-size:12px;color:#b3261e;background:#fbecec;border:1px solid #f3c2bf;padding:7px 12px;border-radius:8px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-autosave{font-size:11.5px;color:#9a9a9a;white-space:nowrap}
 .ed-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.2s}
 .ed-btn.ghost{background:#fff;border-color:var(--color-border,#eae8e1);color:#1a1a1a}
 .ed-btn.ghost:hover{background:#f8f7f4}

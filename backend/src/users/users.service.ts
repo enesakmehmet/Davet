@@ -30,4 +30,16 @@ export class UsersService {
       data,
     });
   }
+
+  async findByVerifyToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { verifyToken: token, verifyTokenExpires: { gt: new Date() } },
+    });
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { resetToken: token, resetTokenExpires: { gt: new Date() } },
+    });
+  }
 }

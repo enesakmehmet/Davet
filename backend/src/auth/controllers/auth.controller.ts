@@ -5,6 +5,9 @@ import { AuthService } from '../services/auth.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshDto } from '../dto/refresh.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('Auth')
@@ -34,6 +37,38 @@ export class AuthController {
     return this.authService.refresh(refreshDto);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @ApiOperation({ summary: 'Şifre sıfırlama linki e-posta ile gönderir' })
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @ApiOperation({ summary: 'Token ile şifreyi sıfırlar' })
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @ApiOperation({ summary: 'E-posta adresini doğrulama tokenıyla onaylar' })
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-email')
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Doğrulama e-postasını tekrar gönderir' })
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-verification')
+  async resendVerification(@Request() req) {
+    return this.authService.resendVerification(req.user.id);
+  }
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Kullanıcıyı sistemden çıkarır (Logout)' })
@@ -53,6 +88,7 @@ export class AuthController {
       email: req.user.email,
       name: req.user.name,
       role: req.user.role,
+      emailVerified: !!req.user.emailVerified,
     };
   }
 }

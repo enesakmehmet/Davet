@@ -45,6 +45,9 @@ const Login = () => {
             <label>Şifre</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
+          <p style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
+            <Link to="/forgot-password" style={{ fontSize: 12.5, color: '#9c7a31', fontWeight: 600 }}>Şifremi unuttum</Link>
+          </p>
           <button className="auth-btn" disabled={loading}>{loading ? 'Giriş yapılıyor…' : 'Giriş Yap'}</button>
         </form>
 
