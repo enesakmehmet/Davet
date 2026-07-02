@@ -124,7 +124,20 @@ export class MailService {
     });
   }
 
-  private async sendMail(options: {
+  /** İletişim formu: mesajı site sahibine iletir */
+  async sendContactMessage(name: string, email: string, message: string) {
+    // Alıcı: CONTACT_TO env'i, yoksa MAIL_FROM içindeki adres
+    const to = process.env.CONTACT_TO || this.from.match(/<([^>]+)>/)?.[1] || this.from;
+    await this.sendMail({
+      to,
+      subject: `İletişim formu: ${name}`,
+      text: `Gönderen: ${name} <${email}>\n\n${message}`,
+      html: `<p><strong>Gönderen:</strong> ${name} &lt;${email}&gt;</p><p>${String(message).replace(/\n/g, '<br>')}</p>`,
+    });
+    return { success: true };
+  }
+
+  async sendMail(options: {
     to: string;
     subject: string;
     text: string;

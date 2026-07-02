@@ -416,6 +416,10 @@ function render(cfg){
       lblName: 'Ad Soyad',
       plcName: 'Adınız Soyadınız',
       lblCount: 'Kaç kişi?',
+      lblMeal: 'Yemek Tercihi',
+      mealOpts: ['Farketmez','Et','Tavuk','Balık','Vejetaryen'],
+      lblAllergy: 'Alerji / özel not (opsiyonel)',
+      plcAllergy: 'Örn: fıstık alerjisi',
       lblMsg: 'Mesajınız',
       plcMsg: 'Çifte not...',
       btnSend: 'Yanıtı Gönder',
@@ -455,6 +459,10 @@ function render(cfg){
       lblName: 'Full Name',
       plcName: 'Your Full Name',
       lblCount: 'Guests count',
+      lblMeal: 'Meal preference',
+      mealOpts: ['No preference','Beef','Chicken','Fish','Vegetarian'],
+      lblAllergy: 'Allergy / note (optional)',
+      plcAllergy: 'E.g. peanut allergy',
       lblMsg: 'Your Message',
       plcMsg: 'A note for the couple...',
       btnSend: 'Send Reply',
@@ -494,6 +502,10 @@ function render(cfg){
       lblName: 'Vollständiger Name',
       plcName: 'Dein Name',
       lblCount: 'Gästezahl',
+      lblMeal: 'Menüwunsch',
+      mealOpts: ['Egal','Rind','Hähnchen','Fisch','Vegetarisch'],
+      lblAllergy: 'Allergien / Hinweis (optional)',
+      plcAllergy: 'z.B. Erdnussallergie',
       lblMsg: 'Deine Nachricht',
       plcMsg: 'Eine Nachricht für das Paar...',
       btnSend: 'Antwort senden',
@@ -613,6 +625,12 @@ function render(cfg){
         '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
         '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field" id="xf">'+
+          '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
+          '<select id="gmeal" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid '+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+';font-family:inherit;font-size:15px">'+t.mealOpts.map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>';}).join('')+'</select>'+
+          '<label style="color:'+inkSoft+';margin-top:10px;display:block">'+t.lblAllergy+'</label>'+
+          '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'">'+
+        '</div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
         '<button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>'+t.btnSend+'</button></form>'+
       '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
@@ -750,6 +768,12 @@ function renderDini(cfg, T, wrap, x){
         '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
         '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
+        '<div class="field" id="xf">'+
+          '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
+          '<select id="gmeal" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid '+border+';color:'+ink+';background:#fff;font-family:inherit;font-size:15px">'+t.mealOpts.map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>';}).join('')+'</select>'+
+          '<label style="color:'+inkSoft+';margin-top:10px;display:block">'+t.lblAllergy+'</label>'+
+          '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:#fff">'+
+        '</div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:#fff"></textarea></div>'+
         '<button type="submit" class="send" id="sb" style="background:linear-gradient(120deg,#8a6420,'+T.accent+' 50%,#8a6420);color:#fff8e3;opacity:.5" disabled>'+t.btnSend+' ✦</button></form>'+
       '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
@@ -939,25 +963,34 @@ function spawnRoses(){
 function setupRSVP(cfg, couple, T){
   var phone=cfg.phone;
   var choice=null, btns=document.querySelectorAll('.choice button');
-  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.style.background='transparent';});b.style.background=T.soft;choice=b.getAttribute('data-v');document.getElementById('cf').style.display=choice==='evet'?'block':'none';var sb=document.getElementById('sb');sb.disabled=false;sb.style.opacity='1';});});
+  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.style.background='transparent';});b.style.background=T.soft;choice=b.getAttribute('data-v');
+    var show=choice==='evet'?'block':'none';
+    var cf=document.getElementById('cf'); if(cf)cf.style.display=show;
+    var xf=document.getElementById('xf'); if(xf)xf.style.display=show;
+    var sb=document.getElementById('sb');sb.disabled=false;sb.style.opacity='1';});});
   var rf=document.getElementById('rf'); if(!rf)return;
   rf.addEventListener('submit',function(e){e.preventDefault();
     var name=document.getElementById('gn').value.trim()||'Bir misafir';var count=document.getElementById('gc').value||1;var msg=document.getElementById('gm').value.trim();var coming=choice==='evet';
+    var mealEl=document.getElementById('gmeal'), alEl=document.getElementById('gallergy');
+    var meal=(coming&&mealEl)?mealEl.value:''; var allergy=(coming&&alEl)?alEl.value.trim():'';
     /* Kayıtlı davette yanıtı backend'e de yaz */
     if(cfg.invitationId && cfg.apiBase){
       try{
+        var payload={ invitationId:cfg.invitationId, name:name,
+          status: coming?'attending':'not_attending',
+          companionCount: coming?parseInt(count,10)||1:0, message:msg };
+        if(meal) payload.mealPreference=meal;
+        if(allergy) payload.allergyNote=allergy;
         fetch(cfg.apiBase.replace(/\/$/,'')+'/guests',{
           method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({ invitationId:cfg.invitationId, name:name,
-            status: coming?'attending':'not_attending',
-            companionCount: coming?parseInt(count,10)||1:0, message:msg })
+          body:JSON.stringify(payload)
         }).catch(function(){});
       }catch(err){}
     }
     rf.style.display='none';
     document.getElementById('tt').textContent=coming?'Harika, görüşmek üzere!':'Anlayışınız için teşekkürler';
     document.getElementById('tm').textContent=coming?name+', '+count+' kişilik katılımınız alındı. Sizi aramızda görmek için sabırsızlanıyoruz!':name+', katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.';
-    var waText=encodeURIComponent((coming?'Düğününüze katılıyorum ✅':'Maalesef katılamıyorum ❌')+'\nAd: '+name+(coming?'\nKişi: '+count:'')+(msg?'\nNot: '+msg:'')+'\n— '+couple);
+    var waText=encodeURIComponent((coming?'Düğününüze katılıyorum ✅':'Maalesef katılamıyorum ❌')+'\nAd: '+name+(coming?'\nKişi: '+count:'')+(meal?'\nYemek: '+meal:'')+(allergy?'\nAlerji: '+allergy:'')+(msg?'\nNot: '+msg:'')+'\n— '+couple);
     document.getElementById('wl').href='https://wa.me/'+phone+'?text='+waText;
     document.getElementById('th').classList.add('show');});
 }

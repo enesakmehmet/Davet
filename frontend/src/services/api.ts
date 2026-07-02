@@ -4,6 +4,11 @@ import axios from 'axios';
 // Geliştirmede '/api' (Vite proxy ile backend'e gider), prod'da VITE_API_URL
 const API_URL = (import.meta as any).env?.VITE_API_URL || '/api';
 
+// Mutlak API adresi (WhatsApp OG linki gibi dış paylaşımlar için)
+export const ABS_API_URL = API_URL.startsWith('http')
+  ? API_URL.replace(/\/+$/, '')
+  : `${window.location.origin}${API_URL}`.replace(/\/+$/, '');
+
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -116,6 +121,46 @@ export const invitationService = {
   deleteInvitation: async (id: string) => {
     const response = await api.delete(`/invitations/${id}`);
     return response.data;
+  },
+  // Çöp kutusu: yayından kaldırılanlar (30 gün saklanır)
+  getTrash: async () => {
+    const response = await api.get('/invitations/trash/list');
+    return Array.isArray(response.data) ? response.data : [];
+  },
+  restoreInvitation: async (id: string) => {
+    const response = await api.patch(`/invitations/${id}/restore`);
+    return response.data;
+  },
+};
+
+// QR kod (davet linki için)
+export const qrService = {
+  download: async (invitationId: string, filename = 'davet-qr.png') => {
+    const response = await api.get(`/qr-codes/${invitationId}/download`, { responseType: 'blob' });
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  },
+};
+
+// Bildirimler (panel zili)
+export const notificationService = {
+  list: async () => {
+    const { data } = await api.get('/notifications');
+    return Array.isArray(data) ? data : [];
+  },
+  markRead: async (id: string) => {
+    const { data } = await api.patch(`/notifications/${id}/read`);
+    return data;
+  },
+};
+
+// İletişim formu
+export const contactService = {
+  send: async (payload: { name: string; email: string; message: string }) => {
+    const { data } = await api.post('/mail/contact', payload);
+    return data;
   },
 };
 

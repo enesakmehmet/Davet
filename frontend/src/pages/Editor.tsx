@@ -241,6 +241,7 @@ const Editor = () => {
   
   const [isProtected, setIsProtected] = useState(false);
   const [password, setPassword] = useState('');
+  const [customSlug, setCustomSlug] = useState(''); // kullanıcı kendi linkini seçebilsin
 
   const post = () => {
     iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg: { ...cfgRef.current, __showIntroPreview: true } }, '*');
@@ -260,7 +261,9 @@ const Editor = () => {
   // ---- Otomatik kayıt: taslak kurtarma (sayfa ilk açılışta bir kez) ----
   useEffect(() => {
     try {
-      const isEdit = new URLSearchParams(window.location.search).get('edit') === '1';
+      const params = new URLSearchParams(window.location.search);
+      const isEdit = params.get('edit') === '1';
+      const editId = params.get('id');
       if (isEdit) {
         const editRaw = localStorage.getItem('davetim_edit_temp');
         if (editRaw) {
@@ -270,6 +273,20 @@ const Editor = () => {
           if (inv.slug) setSavedSlug(inv.slug);
           if (inv.isPasswordProtected) setIsProtected(true);
           localStorage.removeItem('davetim_edit_temp');
+          return;
+        }
+        // Sekme yenilendi / doğrudan link ile gelindi: daveti id ile sunucudan yükle
+        if (editId) {
+          invitationService.getUserInvitations()
+            .then((list: any[]) => {
+              const inv = Array.isArray(list) ? list.find((x) => x.id === editId) : null;
+              if (!inv) return;
+              if (inv.config) setCfg(normalizeCfg(inv.config));
+              idRef.current = inv.id;
+              setSavedSlug(inv.slug);
+              if (inv.isPasswordProtected) setIsProtected(true);
+            })
+            .catch(() => { /* giriş yoksa / hata olursa varsayılanla devam */ });
           return;
         }
       }
@@ -430,9 +447,12 @@ const Editor = () => {
       if (!isProtected) payload.password = ''; // clear password
 
       if (idRef.current) {
-        await invitationService.saveInvitation(idRef.current, payload);
+        // Özel bağlantı girildiyse ve değiştiyse güncelle
+        if (customSlug && customSlug !== savedSlug) payload.slug = customSlug;
+        const inv = await invitationService.saveInvitation(idRef.current, payload);
+        if (inv?.slug) setSavedSlug(inv.slug);
       } else {
-        const slug = `${slugify(`${cfg.brideName}-${cfg.groomName}`)}-${Math.random().toString(36).slice(2, 6)}`;
+        const slug = customSlug || `${slugify(`${cfg.brideName}-${cfg.groomName}`)}-${Math.random().toString(36).slice(2, 6)}`;
         payload.slug = slug;
         const inv = await invitationService.createInvitation(payload);
         idRef.current = inv.id;
@@ -762,6 +782,18 @@ const Editor = () => {
                   <option value="de">Deutsch (Almanca)</option>
                 </select>
                 <small className="hint">Davetiyedeki sabit metinlerin (Tarih, Saat, Katılıyorum vb.) hangi dilde görüneceğini seçin.</small>
+              </Field>
+
+              <Field label="Özel Bağlantı (opsiyonel)">
+                <input
+                  value={customSlug}
+                  onChange={(e) => setCustomSlug(slugify(e.target.value))}
+                  placeholder={savedSlug || 'ornek: elifveemre'}
+                />
+                <small className="hint">
+                  Davetin linki <b>/davet/{customSlug || savedSlug || '...'}</b> olur. Boş bırakırsan otomatik oluşturulur.
+                  {customSlug && savedSlug && customSlug !== savedSlug ? ' Kaydetmek için "Güncelle"ye bas.' : ''}
+                </small>
               </Field>
 
               <div className="settings-row" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, marginTop: 24 }}>

@@ -28,4 +28,12 @@ export class CreateGuestDto {
   @IsString()
   @IsOptional()
   message?: string;
+
+  @IsString()
+  @IsOptional()
+  mealPreference?: string; // farketmez | et | tavuk | balik | vejetaryen
+
+  @IsString()
+  @IsOptional()
+  allergyNote?: string;
 }

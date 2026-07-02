@@ -9,16 +9,43 @@ export class AssetsService {
     private storageService: StorageService
   ) {}
 
+  /**
+   * Görselleri kaydetmeden önce küçültüp WebP'ye çevirir (DB şişmesini ve
+   * davet sayfasının yavaş açılmasını önler). sharp kurulu değilse ya da
+   * işlem başarısız olursa orijinal dosya aynen kaydedilir.
+   */
+  private async tryOptimizeImage(file: Express.Multer.File): Promise<{ buffer: Buffer; mime: string; filename: string; size: number }> {
+    const original = { buffer: file.buffer, mime: file.mimetype, filename: file.originalname, size: file.size };
+    if (!/^image\/(jpe?g|png|webp)$/i.test(file.mimetype)) return original;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const sharp = require('sharp');
+      const out: Buffer = await sharp(file.buffer)
+        .rotate() // EXIF yönünü düzelt
+        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
+      // Optimizasyon kazanç sağlamadıysa orijinali kullan
+      if (out.length >= file.buffer.length) return original;
+      const filename = file.originalname.replace(/\.[^.]+$/, '') + '.webp';
+      return { buffer: out, mime: 'image/webp', filename, size: out.length };
+    } catch {
+      return original;
+    }
+  }
+
   async create(file: Express.Multer.File, type: string, userId: string) {
+    const processed = await this.tryOptimizeImage(file);
+
     // Dosya içeriğini DB'de sakla (Railway disk'i kalıcı olmadığı için).
     const asset = await this.prisma.asset.create({
       data: {
         url: '',
         type,
-        filename: file.originalname,
-        size: file.size,
-        mime: file.mimetype,
-        data: file.buffer,
+        filename: processed.filename,
+        size: processed.size,
+        mime: processed.mime,
+        data: processed.buffer,
         userId,
       },
     });
@@ -26,7 +53,7 @@ export class AssetsService {
     // Global prefix 'api' ile birlikte gerçek route /api/assets/file/:id'dir.
     const url = `${base.replace(/\/+$/, '')}/api/assets/file/${asset.id}`;
     await this.prisma.asset.update({ where: { id: asset.id }, data: { url } });
-    return { id: asset.id, url, type, filename: file.originalname, size: file.size };
+    return { id: asset.id, url, type, filename: processed.filename, size: processed.size };
   }
 
   // Public: dosya içeriğini DB'den getir (davet görüntüleyici çalabilsin)

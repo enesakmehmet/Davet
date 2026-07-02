@@ -141,6 +141,8 @@ model Guest {
   status         String // attending, not_attending, maybe, pending
   companionCount Int      @default(0)
   message        String?
+  mealPreference String? // farketmez, et, tavuk, balik, vejetaryen
+  allergyNote    String?
   createdAt      DateTime @default(now())
 
   invitationId String
