@@ -281,27 +281,51 @@
 
 @media (max-width: 860px) {
   .dashboard-layout { flex-direction: column; height: auto; }
-  .dashboard-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 16px; gap: 10px; }
-  .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
-  .sidebar-footer { margin-top: 0; border-top: none; padding-top: 0; }
-  .db-new { margin: 0; }
-  .dashboard-main { padding: 20px; }
-  .db-hero { padding: 20px; }
-  .db-count > div { min-width: 56px; padding: 9px 8px; }
-  .db-count b { font-size: 21px; }
+
+  /* Üst bar: satır 1 = marka + yeni oluştur + kullanıcı, satır 2 = yatay kayan menü */
+  .dashboard-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; position: sticky; top: 0; z-index: 50; }
+  .sidebar-brand { margin: 0; }
+  .db-brand { font-size: 20px; }
+  .db-brand-sub { display: none; }
+  .db-new { margin: 0 0 0 auto; padding: 9px 14px; font-size: 13px; order: 2; }
+  .sidebar-footer { order: 3; margin: 0; border: 0; padding: 0; }
+  .user-profile { gap: 8px; }
+  .db-user-name { font-size: 13px; }
+  .sidebar-nav { order: 4; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; width: 100%; gap: 6px; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+  .nav-item { padding: 9px 13px; font-size: 13px; white-space: nowrap; flex: 0 0 auto; width: auto; }
+  .nav-item.active { box-shadow: inset 0 -2px 0 #e6c65c; }
+
+  .dashboard-main { padding: 18px 14px 28px; }
+  .db-head { margin-bottom: 18px; }
+
+  /* Geri sayım hero: alt alta, kutular tam genişlik */
+  .db-hero { flex-direction: column; align-items: flex-start; padding: 18px; gap: 14px; }
+  .db-hero h2 { font-size: 20px; }
+  .db-count { width: 100%; gap: 8px; }
+  .db-count > div { flex: 1 1 0; min-width: 0; padding: 9px 4px; }
+  .db-count b { font-size: 20px; }
 }
 
 @media (max-width: 560px) {
-  .dashboard-main { padding: 16px; }
+  .dashboard-main { padding: 14px 12px 24px; }
   .db-title { font-size: 22px; }
+  .db-sub { font-size: 13px; }
   .content-section { padding: 20px; border-radius: 16px; }
-  .db-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .db-stat { padding: 16px; }
-  .db-stat b { font-size: 26px; }
+  .db-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .db-stat { padding: 14px; }
+  .db-stat b { font-size: 24px; }
+  .db-stat-top { font-size: 10.5px; margin-bottom: 8px; }
+  .db-stat-top i { width: 28px; height: 28px; border-radius: 8px; }
+  .db-panel { padding: 16px; border-radius: 14px; }
   .inv-grid { grid-template-columns: 1fr; }
+  .inv-meta { gap: 14px; }
   .inv-actions { gap: 8px; }
-  .db-btn { flex: 1 1 auto; justify-content: center; }
+  .db-btn { flex: 1 1 auto; justify-content: center; padding: 9px 10px; font-size: 12.5px; }
   .db-picker { flex-wrap: wrap; }
   .db-picker select { min-width: 0; flex: 1 1 100%; }
-  .nav-item span { display: inline; }
+  .db-recent-item small { max-width: 150px; }
+  .db-hero h2 { font-size: 18px; }
+  .db-banner { font-size: 12.5px; padding: 10px 12px; }
+  .settings-form { max-width: 100%; }
 }

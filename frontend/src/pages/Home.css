@@ -211,19 +211,46 @@ section { padding: 96px 0; }
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
   section { padding: 72px 0; }
+  .hero-section { min-height: auto; padding: 56px 0 64px; }
   .hero-container { grid-template-columns: 1fr; text-align: center; gap: 48px; }
   .hero-content { margin: 0 auto; }
   .hero-actions, .hero-trust { justify-content: center; }
   .hero-subtitle { margin-left: auto; margin-right: auto; }
+  .hero-visuals::before { width: 360px; height: 360px; }
   .features-grid, .steps-grid, .reviews-grid { grid-template-columns: 1fr; }
   .showcase-grid { grid-template-columns: repeat(2,1fr); }
   .single-price { grid-template-columns: 1fr; max-width: 480px; }
   .floating-card { display: none; }
 }
 @media (max-width: 560px) {
-  .hero-title { font-size: 42px; }
-  .section-header h2 { font-size: 30px; }
+  section { padding: 56px 0; }
+  .hero-section { padding: 40px 0 56px; }
+  .hero-title { font-size: 38px; letter-spacing: -1px; }
+  .hero-subtitle { font-size: 16px; }
+  .badge { font-size: 11.5px; padding: 7px 14px; }
+  .hero-actions { width: 100%; gap: 10px; }
+  .btn-primary-large, .btn-outline-large { flex: 1 1 100%; text-align: center; padding: 14px 18px; font-size: 15px; }
+  .hero-trust { flex-wrap: wrap; justify-content: center; font-size: 12.5px; }
+  .mockup-frame { width: 260px; height: 530px; border-radius: 36px; }
+  .mockup-screen { border-radius: 28px; }
+  .m-title { font-size: 38px; }
+  .m-countdown { gap: 7px; }
+  .m-countdown span { padding: 7px 7px; }
+  .m-countdown b { font-size: 17px; }
+  .hero-visuals::before { width: 300px; height: 300px; }
+  .pill-row { gap: 8px 16px; }
+  .pill-row span { font-size: 12px; }
+  .section-header { margin-bottom: 36px; }
+  .section-header h2 { font-size: 28px; }
+  .section-header p { font-size: 15.5px; }
+  .f-card, .step-card, .r-card { padding: 24px 20px; }
   .showcase-grid { grid-template-columns: 1fr; }
+  .sc-card { height: 270px; }
   .sp-left, .sp-right { padding: 32px 24px; }
-  .sp-amount { font-size: 60px; }
+  .sp-amount { font-size: 56px; }
+  .sp-features li { font-size: 14px; }
+  .faq-item { padding: 16px 16px; }
+  .faq-q h4 { font-size: 15.5px; }
+  .cta-inner h2 { font-size: 27px; }
+  .cta-inner p { font-size: 16px; }
 }
