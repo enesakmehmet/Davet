@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
-  ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X
+  ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X,
+  Copy, Check, MessageCircle, CalendarClock
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, invitationService, guestListService, statsService, settingsService, authService, guestService } from '../services/api';
@@ -62,20 +63,51 @@ const Dashboard = () => {
     }
   };
 
+  const [viewsMap, setViewsMap] = useState<Record<string, number>>({});
+  const [recentGuests, setRecentGuests] = useState<any[]>([]);
+
   useEffect(() => {
     (async () => {
+      let list: any[] = [];
       try {
         const data = await invitationService.getUserInvitations();
-        setInvitations(Array.isArray(data) ? data : []);
+        list = Array.isArray(data) ? data : [];
+        setInvitations(list);
       } catch {
         setError('Davetiyeler yüklenemedi. (Giriş yaptın mı / backend açık mı?)');
       } finally {
         setLoading(false);
       }
+
+      // Panel ekstraları: görüntülenme + son RSVP'ler (hata olsa da panel çalışır)
+      if (list.length === 0) return;
+      const results = await Promise.allSettled(
+        list.map(async (inv: any) => {
+          const [stats, guests] = await Promise.allSettled([
+            statsService.byInvitation(inv.id),
+            guestListService.byInvitation(inv.id),
+          ]);
+          return { inv, stats, guests };
+        })
+      );
+      const vm: Record<string, number> = {};
+      const rg: any[] = [];
+      for (const r of results) {
+        if (r.status !== 'fulfilled') continue;
+        const { inv, stats, guests } = r.value;
+        if (stats.status === 'fulfilled') vm[inv.id] = stats.value?.summary?.views ?? 0;
+        if (guests.status === 'fulfilled' && Array.isArray(guests.value)) {
+          for (const g of guests.value) rg.push({ ...g, invTitle: inv.title });
+        }
+      }
+      rg.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setViewsMap(vm);
+      setRecentGuests(rg.slice(0, 6));
     })();
   }, []);
 
   const totalRsvp = invitations.reduce((s, i) => s + (i?._count?.guests || 0), 0);
+  const totalViews = Object.values(viewsMap).reduce((s, v) => s + (v || 0), 0);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const handleDelete = async (inv: any) => {
@@ -114,7 +146,7 @@ const Dashboard = () => {
 
         <div className="sidebar-footer">
           <div className="user-profile">
-            <UserCircle size={32} color="var(--color-text-secondary)" />
+            <UserCircle size={32} color="rgba(255,255,255,0.55)" />
             <div style={{ flex: 1, textAlign: 'left' }}>
               <p className="db-user-name">{user?.name || 'Kullanıcı'}</p>
               <button onClick={logout} className="db-logout">Çıkış yap</button>
@@ -148,8 +180,8 @@ const Dashboard = () => {
 
         {!loading && !error && (
           <>
-            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} onGo={setSection} onDelete={handleDelete} deletingId={deletingId} />}
-            {section === 'davetiyeler' && <InvitationsView invitations={invitations} onDelete={handleDelete} deletingId={deletingId} />}
+            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} totalViews={totalViews} viewsMap={viewsMap} recentGuests={recentGuests} onGo={setSection} onDelete={handleDelete} deletingId={deletingId} />}
+            {section === 'davetiyeler' && <InvitationsView invitations={invitations} viewsMap={viewsMap} onDelete={handleDelete} deletingId={deletingId} />}
             {section === 'misafirler' && <GuestsView invitations={invitations} />}
             {section === 'istatistikler' && <StatsView invitations={invitations} />}
             {section === 'ayarlar' && <SettingsView />}
@@ -161,45 +193,125 @@ const Dashboard = () => {
 };
 
 /* ---------- PANEL ---------- */
-const PanelView = ({ invitations, totalRsvp, onGo, onDelete, deletingId }: any) => (
-  <>
-    <section className="db-cards">
-      <Stat lab="Davetiyelerim" val={invitations.length} ico={<Mail size={18} />} />
-      <Stat lab="Toplam RSVP" val={totalRsvp} ico={<MailOpen size={18} />} gold />
-      <Stat lab="Yayında" val={invitations.length} ico={<Eye size={18} />} />
-    </section>
+const pad2 = (n: number) => String(Math.max(0, n)).padStart(2, '0');
 
-    <div className="db-panel">
-      <div className="db-panel-head">
-        <h3>Son Davetiyelerim</h3>
-        <button className="db-link" onClick={() => onGo('davetiyeler')}>Tümünü gör →</button>
+const Countdown = ({ inv }: any) => {
+  const target = new Date(inv.eventDate).getTime();
+  const [left, setLeft] = useState(target - Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setLeft(target - Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [target]);
+
+  if (left <= 0) return null;
+  const d = Math.floor(left / 86400000);
+  const h = Math.floor((left % 86400000) / 3600000);
+  const m = Math.floor((left % 3600000) / 60000);
+  const s = Math.floor((left % 60000) / 1000);
+
+  return (
+    <section className="db-hero">
+      <div className="db-hero-info">
+        <span className="db-hero-label"><CalendarClock size={14} /> Yaklaşan Etkinlik</span>
+        <h2>{inv.title}</h2>
+        <p className="db-hero-date">{fmtDate(inv.eventDate)}</p>
       </div>
-      {invitations.length === 0 ? (
-        <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
-      ) : (
-        <div className="inv-grid">{invitations.slice(0, 4).map((inv: any) => <InvCard key={inv.id} inv={inv} onDelete={onDelete} deletingId={deletingId} />)}</div>
-      )}
-    </div>
-  </>
-);
+      <div className="db-count">
+        <div><b>{d}</b><span>Gün</span></div>
+        <div><b>{pad2(h)}</b><span>Saat</span></div>
+        <div><b>{pad2(m)}</b><span>Dak</span></div>
+        <div><b>{pad2(s)}</b><span>San</span></div>
+      </div>
+    </section>
+  );
+};
+
+const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests, onGo, onDelete, deletingId }: any) => {
+  const next = invitations
+    .filter((i: any) => i.eventDate && new Date(i.eventDate).getTime() > Date.now())
+    .sort((a: any, b: any) => +new Date(a.eventDate) - +new Date(b.eventDate))[0];
+
+  return (
+    <>
+      {next && <Countdown inv={next} />}
+
+      <section className="db-cards">
+        <Stat lab="Davetiyelerim" val={invitations.length} ico={<Mail size={18} />} />
+        <Stat lab="Toplam RSVP" val={totalRsvp} ico={<MailOpen size={18} />} gold />
+        <Stat lab="Görüntülenme" val={totalViews} ico={<Eye size={18} />} />
+        <Stat lab="Yayında" val={invitations.length} ico={<BarChart3 size={18} />} />
+      </section>
+
+      <div className="db-panel-grid">
+        <div className="db-panel">
+          <div className="db-panel-head">
+            <h3>Son Davetiyelerim</h3>
+            <button className="db-link" onClick={() => onGo('davetiyeler')}>Tümünü gör →</button>
+          </div>
+          {invitations.length === 0 ? (
+            <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
+          ) : (
+            <div className="inv-grid">{invitations.slice(0, 4).map((inv: any) => <InvCard key={inv.id} inv={inv} views={viewsMap?.[inv.id]} onDelete={onDelete} deletingId={deletingId} />)}</div>
+          )}
+        </div>
+
+        <div className="db-panel">
+          <div className="db-panel-head">
+            <h3>Son RSVP Yanıtları</h3>
+            <button className="db-link" onClick={() => onGo('misafirler')}>Tümü →</button>
+          </div>
+          {recentGuests.length === 0 ? (
+            <div className="db-empty" style={{ padding: '24px 8px' }}>Henüz yanıt gelmedi.<br />Davet linkini paylaşınca yanıtlar burada görünür.</div>
+          ) : (
+            <div className="db-recent">
+              {recentGuests.map((g: any) => (
+                <div key={g.id} className="db-recent-item">
+                  <div>
+                    <b>{g.name}</b>
+                    {(g.companionCount ?? 0) > 1 && <em> +{g.companionCount - 1} kişi</em>}
+                    <small>{g.invTitle}</small>
+                  </div>
+                  <span className={`db-tag ${g.status === 'attending' ? 'green' : g.status === 'not_attending' ? 'red' : 'gray'}`}>
+                    {g.status === 'attending' ? 'Katılıyor' : g.status === 'not_attending' ? 'Katılmıyor' : g.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
 
 /* ---------- DAVETİYELER ---------- */
-const InvitationsView = ({ invitations, onDelete, deletingId }: any) => (
+const InvitationsView = ({ invitations, viewsMap, onDelete, deletingId }: any) => (
   invitations.length === 0
     ? <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
-    : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} onDelete={onDelete} deletingId={deletingId} />)}</div>
+    : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} views={viewsMap?.[inv.id]} onDelete={onDelete} deletingId={deletingId} />)}</div>
 );
 
-const InvCard = ({ inv, onDelete, deletingId }: any) => {
+const InvCard = ({ inv, views, onDelete, deletingId }: any) => {
+  const [copied, setCopied] = useState(false);
+  const url = `${window.location.origin}/davet/${inv.slug}`;
+
   const handleEdit = () => {
     localStorage.setItem('davetim_edit_temp', JSON.stringify(inv));
     window.location.href = '/editor?edit=1';
   };
 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch { /* clipboard erişimi yoksa sessiz geç */ }
+  };
+
   return (
     <div className="inv-card">
       <div className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
-        <iframe 
+        <iframe
           title="thumbnail"
           src={`/davet-preview.html?v=20260702a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
           style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
@@ -212,12 +324,24 @@ const InvCard = ({ inv, onDelete, deletingId }: any) => {
         <div className="inv-meta">
           <div><span>TARİH</span><b>{fmtDate(inv.eventDate)}</b></div>
           <div><span>RSVP</span><b>{inv?._count?.guests ?? 0}</b></div>
+          <div><span>GÖRÜNTÜLENME</span><b>{views ?? '—'}</b></div>
         </div>
         <div className="inv-actions">
           <a href={`/davet/${inv.slug}`} target="_blank" rel="noreferrer" className="db-btn"><ExternalLink size={15} /> Görüntüle</a>
           <button onClick={handleEdit} className="db-btn ghost"><Edit3 size={15} /> Özelleştir</button>
-          <button className="db-btn danger" onClick={() => onDelete?.(inv)} disabled={deletingId === inv.id}>
-            <Trash2 size={15} /> {deletingId === inv.id ? 'Kaldırılıyor…' : 'Yayından Kaldır'}
+        </div>
+        <div className="inv-actions">
+          <button onClick={copyLink} className={`db-btn ghost ${copied ? 'ok' : ''}`}>
+            {copied ? <Check size={15} /> : <Copy size={15} />} {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
+          </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`${inv.title} 💌 ${url}`)}`}
+            target="_blank" rel="noreferrer" className="db-btn wa"
+          >
+            <MessageCircle size={15} /> WhatsApp
+          </a>
+          <button className="db-btn danger" onClick={() => onDelete?.(inv)} disabled={deletingId === inv.id} title="Yayından Kaldır">
+            <Trash2 size={15} /> {deletingId === inv.id ? 'Kaldırılıyor…' : 'Kaldır'}
           </button>
         </div>
       </div>
