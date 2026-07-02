@@ -13,6 +13,10 @@ export function redisConnection() {
         port: Number(u.port) || 6379,
         username: u.username || undefined,
         password: u.password || undefined,
+        // Railway private network (redis.railway.internal) IPv6 kullanır;
+        // family:0 olmadan ioredis adresi çözemez ve uygulama açılışta takılabilir.
+        family: 0,
+        connectTimeout: 10000,
       };
     } catch {
       /* hatalı URL → aşağıdaki varsayılana düş */
