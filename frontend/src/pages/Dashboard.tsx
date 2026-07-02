@@ -227,9 +227,15 @@ const Countdown = ({ inv }: any) => {
   );
 };
 
+/* Geri sayım yalnızca düğün davetleri için gösterilir (doğum günü/kutlama hariç) */
+const NON_WEDDING_THEME = /^(balon|konfeti|kutlama)/;
+const isWeddingInv = (inv: any) =>
+  !NON_WEDDING_THEME.test(String(inv?.config?.theme || '')) &&
+  !/doğum|dogum|kutlama/i.test(String(inv?.title || ''));
+
 const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests, onGo, onDelete, deletingId }: any) => {
   const next = invitations
-    .filter((i: any) => i.eventDate && new Date(i.eventDate).getTime() > Date.now())
+    .filter((i: any) => isWeddingInv(i) && i.eventDate && new Date(i.eventDate).getTime() > Date.now())
     .sort((a: any, b: any) => +new Date(a.eventDate) - +new Date(b.eventDate))[0];
 
   return (
