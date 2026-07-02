@@ -1,3 +1,8 @@
+import { webcrypto } from 'crypto';
+// Node 18'de global `crypto` yok; @nestjs/schedule v6 buna ihtiyaç duyar.
+// Node 20+ kullanılsa bile zararsız bir emniyet kemeri.
+if (!(globalThis as any).crypto) (globalThis as any).crypto = webcrypto;
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
