@@ -12,7 +12,7 @@ import './Editor.css';
 
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar */
 type Cat = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama';
-const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[] = [
+const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat; isNew?: boolean }[] = [
   { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8', cat: 'dugun' },
   { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2', cat: 'dugun' },
   { key: 'minimal', label: 'Modern Minimal', c1: '#1a1a1a', c2: '#d8d8d8', cat: 'dugun' },
@@ -24,6 +24,9 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf', cat: 'dugun' },
   { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53', cat: 'dugun' },
   { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e', cat: 'dugun' },
+  { key: 'zumrut', label: 'Zümrüt Saray', c1: '#0d3b2a', c2: '#d4b455', cat: 'dugun', isNew: true },
+  { key: 'gececicek', label: 'Gece Çiçeği', c1: '#2b0d1d', c2: '#e58bb1', cat: 'dugun', isNew: true },
+  { key: 'pudra', label: 'Pudra Şıklığı', c1: '#c07f6d', c2: '#f6e3da', cat: 'dugun', isNew: true },
   // ===== Dini Düğün davetleri (besmele + kına & düğün kartları + dua) =====
   { key: 'dini', label: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', cat: 'dini' },
   { key: 'diniYesil', label: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', cat: 'dini' },
@@ -37,6 +40,9 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   { key: 'kutlamaAltin', label: 'Altın Zarafet', c1: '#b8923f', c2: '#ecd9a8', cat: 'kutlama' },
   { key: 'kutlamaCocuk', label: 'Çocuk Partisi', c1: '#ff7a3d', c2: '#ffe0b8', cat: 'kutlama' },
   { key: 'kutlamaDisko', label: 'Disko Gecesi', c1: '#0a0118', c2: '#ff2ec4', cat: 'kutlama' },
+  { key: 'kutlamaNeon', label: 'Neon Parti', c1: '#0a0a1f', c2: '#00e5ff', cat: 'kutlama', isNew: true },
+  { key: 'kutlamaSakura', label: 'Bahar Çiçeği', c1: '#e77fa1', c2: '#fde9f1', cat: 'kutlama', isNew: true },
+  { key: 'kutlamaMasal', label: 'Masal Dünyası', c1: '#8f6fd6', c2: '#efe6ff', cat: 'kutlama', isNew: true },
 ];
 
 const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'kutlama').map((t) => t.key);
@@ -522,6 +528,7 @@ const Editor = () => {
               <div className="theme-grid">
                 {THEMES.filter((t) => t.cat === themeCat).map((t) => (
                   <button key={t.key} className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`} onClick={() => pickTheme(t.key)}>
+                    {t.isNew && <span className="theme-new">YENİ</span>}
                     <span className="swatch" style={{ background: `linear-gradient(135deg, ${t.c1}, ${t.c2})` }} />
                     <span className="theme-name">{t.label}</span>
                   </button>

@@ -54,7 +54,9 @@
 /* Tema kartları */
 .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .theme-card{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--color-border,#eae8e1);border-radius:12px;
-  background:#fff;cursor:pointer;transition:.2s;font-family:inherit}
+  background:#fff;cursor:pointer;transition:.2s;font-family:inherit;position:relative}
+.theme-new{position:absolute;top:-8px;right:-6px;background:linear-gradient(120deg,#d9b64a,#b5952f);color:#fff;
+  font-size:9.5px;font-weight:800;letter-spacing:1px;padding:3px 9px;border-radius:20px;box-shadow:0 4px 10px rgba(181,149,47,.4);pointer-events:none}
 .theme-card:hover{border-color:#c9a14e;transform:translateY(-2px);box-shadow:0 6px 16px rgba(201,161,78,.14)}
 .theme-card.on{border-color:#b5952f;background:#fdf9ee;box-shadow:0 4px 14px rgba(201,161,78,.2)}
 .swatch{width:42px;height:42px;border-radius:9px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
