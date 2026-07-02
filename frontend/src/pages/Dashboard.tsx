@@ -26,6 +26,7 @@ const THEME_GRAD: Record<string, string> = {
   sonbahar: 'linear-gradient(135deg,#8a3d1c,#ecd9bf)', deniz: 'linear-gradient(135deg,#1c7484,#bfe6ec)',
   tropikal: 'linear-gradient(135deg,#136443,#2aa56c)', havai: 'linear-gradient(135deg,#070912,#cbab53)',
   sinematik: 'linear-gradient(135deg,#0b0b0d,#c9a14e)',
+  dini: 'linear-gradient(135deg,#b08a3e,#f0e2bd)', diniYesil: 'linear-gradient(135deg,#2e6b4f,#dcead9)',
   balon: 'linear-gradient(135deg,#e84393,#ffd6e8)', konfeti: 'linear-gradient(135deg,#120a24,#f5c542)',
   kutlamaPop: 'linear-gradient(135deg,#ff5e8a,#ffd1e0)', kutlamaGece: 'linear-gradient(135deg,#0f0a22,#ffd86b)',
   kutlamaPastel: 'linear-gradient(135deg,#7aa6b8,#d8ecf2)', kutlamaAltin: 'linear-gradient(135deg,#b8923f,#ecd9a8)',

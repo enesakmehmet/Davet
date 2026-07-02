@@ -11,7 +11,7 @@ import { slugify } from '../utils/format';
 import './Editor.css';
 
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar */
-type Cat = 'dugun' | 'dogumgunu' | 'kutlama';
+type Cat = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama';
 const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[] = [
   { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8', cat: 'dugun' },
   { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2', cat: 'dugun' },
@@ -24,6 +24,9 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat }[]
   { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf', cat: 'dugun' },
   { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53', cat: 'dugun' },
   { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e', cat: 'dugun' },
+  // ===== Dini Düğün davetleri (besmele + kına & düğün kartları + dua) =====
+  { key: 'dini', label: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', cat: 'dini' },
+  { key: 'diniYesil', label: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', cat: 'dini' },
   // ===== Doğum Günü davetleri =====
   { key: 'balon', label: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', cat: 'dogumgunu' },
   { key: 'konfeti', label: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', cat: 'dogumgunu' },
@@ -40,6 +43,25 @@ const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'k
 const isBirthdayTheme = (key: string) => BIRTHDAY_KEYS.includes(key);
 const CELEB_KEYS = THEMES.filter((t) => t.cat === 'kutlama').map((t) => t.key);
 const isCelebTheme = (key: string) => CELEB_KEYS.includes(key);
+const DINI_KEYS = THEMES.filter((t) => t.cat === 'dini').map((t) => t.key);
+const isDiniTheme = (key: string) => DINI_KEYS.includes(key);
+
+/* Dini düğün temasına geçilince (kullanıcı hâlâ varsayılanlardaysa) uygulanan içerik */
+const DINI_CONTENT: Partial<Cfg> = {
+  brideName: 'Dilan', groomName: 'Emre',
+  date: '2026-08-29T19:30',
+  subtitle: "Rahman ve Rahim olan Allah'ın adıyla",
+  greeting: 'Düğünümüze Davetlisiniz',
+  message: 'Sonsuz mutluluğa adım atacağımız bu özel günde, sizleri de aramızda görmekten mutluluk duyarız.',
+  venueName: 'Safir Elegant Düğün Sarayı', venueCity: 'Çankaya / Ankara',
+  mapQuery: 'Safir Elegant Düğün Sarayı Ankara',
+  reception: 'Nikah & Düğün',
+  kinaDate: '2026-08-26T19:00',
+  kinaVenueName: 'Gül Konağı Davet Salonu', kinaVenueCity: 'Çankaya / Ankara',
+  kinaMapQuery: 'Gül Konağı Davet Salonu Ankara',
+  dua: 'Rabbimiz bu beraberliği sevgi, huzur ve ömür boyu mutlulukla bereketlendirsin.',
+  rsvpDeadline: '20 Ağustos',
+};
 
 /* Doğum günü temasına geçilince (kullanıcı hâlâ düğün varsayılanlarındaysa) uygulanan içerik */
 const BDAY_CONTENT: Partial<Cfg> = {
@@ -98,6 +120,8 @@ type Cfg = {
   families: Family[];
   story: Story[];
   rsvpDeadline: string; phone: string;
+  // dini düğün modu (kına gecesi + dua)
+  kinaDate?: string; kinaVenueName?: string; kinaVenueCity?: string; kinaMapQuery?: string; dua?: string;
   // kutlama modu
   videoUrl: string; fromName: string; wish: string;
   cakeType?: string;
@@ -131,6 +155,7 @@ const DEFAULT_CFG: Cfg = {
     { when: '2025', title: 'Teklif', text: 'Mum ışığında bir evet ile yollarımızı birleştirdik.' },
   ],
   rsvpDeadline: '1 Eylül', phone: '905555555555',
+  kinaDate: '', kinaVenueName: '', kinaVenueCity: '', kinaMapQuery: '', dua: '',
   videoUrl: '', fromName: 'Sevgiyle, Annen',
   wish: 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂',
 };
@@ -181,9 +206,10 @@ const Editor = () => {
   const [active, setActive] = useState('theme');
   const isCeleb = isCelebTheme(cfg.theme);
   const isBday = isBirthdayTheme(cfg.theme) && !isCeleb; // kutlama ayrı kategoride
+  const isDini = isDiniTheme(cfg.theme);
   const visibleSections = isCeleb ? CELEB_SECTIONS : SECTIONS;
   const [themeCat, setThemeCat] = useState<Cat>(
-    isCelebTheme(cfg.theme) ? 'kutlama' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun'
+    isCelebTheme(cfg.theme) ? 'kutlama' : isDiniTheme(cfg.theme) ? 'dini' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun'
   );
   // Aktif bölüm görünür değilse temaya dön (kutlama ↔ davet geçişinde)
   useEffect(() => {
@@ -296,17 +322,20 @@ const Editor = () => {
   const isPreset = (c: Cfg) =>
     (c.subtitle === DEFAULT_CFG.subtitle && c.greeting === DEFAULT_CFG.greeting) ||
     (c.subtitle === BDAY_CONTENT.subtitle && c.greeting === BDAY_CONTENT.greeting) ||
+    (c.subtitle === DINI_CONTENT.subtitle && c.greeting === DINI_CONTENT.greeting) ||
     (c.subtitle === CELEB_CONTENT.subtitle && c.greeting === CELEB_CONTENT.greeting);
 
   // Tema seçimi — kategori değişince içerik hâlâ varsayılandaysa uygun metne çevir
   const pickTheme = (key: string) => {
     const toCeleb = isCelebTheme(key);
     const toBday = isBirthdayTheme(key) && !toCeleb;
+    const toDini = isDiniTheme(key);
     setCfg((c) => {
       const next: Cfg = { ...c, theme: key };
       if (isPreset(c)) {
         if (toCeleb) Object.assign(next, CELEB_CONTENT);
         else if (toBday) Object.assign(next, BDAY_CONTENT);
+        else if (toDini) Object.assign(next, DINI_CONTENT);
         else Object.assign(next, { ...DEFAULT_CFG, theme: key });
       }
       return next;
@@ -475,6 +504,9 @@ const Editor = () => {
                 <button className={`cat-tab ${themeCat === 'dugun' ? 'on' : ''}`} onClick={() => setThemeCat('dugun')}>
                   💍 Düğün Daveti
                 </button>
+                <button className={`cat-tab ${themeCat === 'dini' ? 'on' : ''}`} onClick={() => setThemeCat('dini')}>
+                  🕌 Dini Düğün
+                </button>
                 <button className={`cat-tab ${themeCat === 'dogumgunu' ? 'on' : ''}`} onClick={() => setThemeCat('dogumgunu')}>
                   🎂 Doğum Günü Daveti
                 </button>
@@ -517,6 +549,11 @@ const Editor = () => {
               <Field label={isCeleb ? 'Kutlama mesajı' : 'Davet metni'}>
                 <textarea rows={4} value={cfg.message} onChange={(e) => set('message', e.target.value)} />
               </Field>
+              {isDini && (
+                <Field label="Dua / kapanış cümlesi (davetiyenin en altında görünür)">
+                  <textarea rows={2} value={cfg.dua || ''} onChange={(e) => set('dua', e.target.value)} />
+                </Field>
+              )}
               {isCeleb && (
                 <Field label="Pasta Çeşidi">
                   <select value={cfg.cakeType || 'classic'} onChange={(e) => set('cakeType', e.target.value)} style={{ width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid var(--color-border,#eae8e1)', fontSize: '14px', fontFamily: 'inherit', background: '#fff' }}>
@@ -532,7 +569,7 @@ const Editor = () => {
 
           {active === 'venue' && (
             <div className="grp">
-              <h3>Mekan & Harita</h3>
+              <h3>{isDini ? 'Düğün Mekanı & Harita' : 'Mekan & Harita'}</h3>
               <Field label="Mekan adı"><input value={cfg.venueName} onChange={(e) => set('venueName', e.target.value)} /></Field>
               <Field label="Şehir / İlçe"><input value={cfg.venueCity} onChange={(e) => set('venueCity', e.target.value)} /></Field>
               <Field label="Karşılama notu"><input value={cfg.reception} onChange={(e) => set('reception', e.target.value)} /></Field>
@@ -540,6 +577,22 @@ const Editor = () => {
                 <input value={cfg.mapQuery} onChange={(e) => set('mapQuery', e.target.value)} />
                 <small className="hint">Örn: "Çırağan Sarayı İstanbul". Harita ve yol tarifi bu metne göre çalışır.</small>
               </Field>
+
+              {isDini && (
+                <>
+                  <h3 style={{ marginTop: 30 }}>🌷 Kına Gecesi</h3>
+                  <p className="grp-sub">Ayrı bir kına kartı olarak gösterilir. Tarih ve mekanı boş bırakırsan davetiyede kına bölümü görünmez.</p>
+                  <Field label="Kına tarihi & saati">
+                    <input type="datetime-local" value={cfg.kinaDate || ''} onChange={(e) => set('kinaDate', e.target.value)} />
+                  </Field>
+                  <Field label="Kına mekanı"><input value={cfg.kinaVenueName || ''} onChange={(e) => set('kinaVenueName', e.target.value)} /></Field>
+                  <Field label="Kına şehir / ilçe"><input value={cfg.kinaVenueCity || ''} onChange={(e) => set('kinaVenueCity', e.target.value)} /></Field>
+                  <Field label="Kına harita araması">
+                    <input value={cfg.kinaMapQuery || ''} onChange={(e) => set('kinaMapQuery', e.target.value)} />
+                    <small className="hint">Kına kartındaki "Yol Tarifi Al" butonu bu metne göre çalışır.</small>
+                  </Field>
+                </>
+              )}
             </div>
           )}
 

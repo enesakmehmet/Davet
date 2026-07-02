@@ -6,7 +6,7 @@
 <title>Davet Önizleme</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Monoton&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Monoton&family=Amiri:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -173,6 +173,48 @@
   .cake-txt{margin-top:16px;font-size:14px;opacity:0;transition:opacity .5s;min-height:20px}
   .cake-wrap.blown ~ .cake-txt{opacity:1}
 
+  /* ===== Dini düğün: altın kapı girişi ===== */
+  .dg-gate{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden;
+    background:radial-gradient(120% 90% at 50% 18%,#ecd9a8 0%,#cfa855 55%,#a97f35 100%);transition:opacity .9s ease,visibility .9s ease}
+  .dg-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .dg-gate .spark{position:absolute;background:#fff;border-radius:50%;animation:tw ease-in-out infinite;pointer-events:none}
+  .dg-ar{font-family:'Amiri','Cormorant Garamond',serif;font-size:24px;color:#fff8e3;text-shadow:0 2px 10px rgba(102,72,17,.55)}
+  .dg-tr{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15.5px;color:#fffdf4;opacity:.92;letter-spacing:.5px}
+  .dg-frame{width:min(72vw,290px);height:min(54vh,410px);border:2px solid rgba(255,250,232,.8);border-radius:150px 150px 12px 12px;padding:9px;display:flex;gap:5px;perspective:1100px;
+    box-shadow:0 26px 60px rgba(90,62,12,.35),inset 0 0 40px rgba(255,244,214,.25);margin:6px 0 4px}
+  .dg-door{flex:1;position:relative;transition:transform 1.7s cubic-bezier(.66,0,.22,1);
+    background:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 2px,transparent 2px 15px),repeating-linear-gradient(-45deg,rgba(255,255,255,.08) 0 2px,transparent 2px 15px),linear-gradient(200deg,#e7c47c 0%,#cf9f4b 55%,#b98a3c 100%);
+    box-shadow:inset 0 0 24px rgba(120,84,20,.35)}
+  .dg-door.left{transform-origin:left center;border-radius:140px 6px 6px 6px}
+  .dg-door.right{transform-origin:right center;border-radius:6px 140px 6px 6px}
+  .dg-door::after{content:"";position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3cf,#c19040);box-shadow:0 2px 6px rgba(90,62,12,.5)}
+  .dg-door.left::after{right:7px}
+  .dg-door.right::after{left:7px}
+  .dg-gate.open .dg-door.left{transform:rotateY(-104deg)}
+  .dg-gate.open .dg-door.right{transform:rotateY(104deg)}
+  .dg-open{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;border:none;border-radius:999px;
+    background:linear-gradient(120deg,#8a6420,#b08a3e 50%,#8a6420);color:#fff8e3;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:1px;cursor:pointer;
+    box-shadow:0 12px 28px rgba(90,62,12,.4);animation:intro-pulse 1.8s ease-in-out infinite}
+  .dg-gate.open .dg-open{opacity:0;transition:opacity .5s}
+  @media (prefers-reduced-motion: reduce){.dg-gate{display:none}}
+
+  /* Dini düğün bölümleri */
+  .dini-ar{font-family:'Amiri','Cormorant Garamond',serif;font-size:26px;line-height:1.7}
+  .dini-heart{font-size:24px;margin:2px 0}
+  .dini-msg{letter-spacing:2.5px;font-size:12.5px;line-height:2.05;text-transform:uppercase;max-width:360px;margin:14px auto 0}
+  .dini-card{max-width:430px;margin:0 auto;border-radius:20px;padding:34px 26px;box-shadow:0 16px 40px rgba(120,90,30,.12)}
+  .dini-tag{font-size:11px;letter-spacing:4px;font-weight:700;margin-bottom:10px}
+  .dini-card h3{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;margin-bottom:4px}
+  .dini-orn{font-size:13px;opacity:.65;margin-bottom:14px}
+  .dini-date{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:1px;margin-bottom:10px}
+  .dini-line{font-size:14px;margin-bottom:8px;line-height:1.55}
+  .dini-dir{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:12px 26px;border-radius:999px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:1px;transition:.25s}
+  .dini-dir:hover{filter:brightness(1.1)}
+  .dini-sky{opacity:.18;display:block;margin:0 auto}
+  .dini-moon{font-size:34px;display:block;margin:8px 0 10px}
+  .dini-dua{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.7;max-width:440px;margin:0 auto}
+  .dini-names{letter-spacing:5px;font-size:15px;font-weight:600;margin-top:18px}
+
   /* ===== Dar ekran / telefon önizleme uyumu ===== */
   @media(max-width:560px){
     section{padding:52px 18px}
@@ -217,6 +259,9 @@ var THEMES = {
   tropikal: {label:'Tropikal', accent:'#136443', soft:'#bfe6cf', dark:false, bg:'linear-gradient(160deg,#2aa56c,#1f8a5b)', page:'#f3fbf5', nameFont:'Caveat', decor:['🌺','🌿','🌴'], decorKind:'rain'},
   havai:    {label:'Gece Havai Fişek', accent:'#cbab53', soft:'#f0d27a', dark:true, bg:'radial-gradient(ellipse at 50% 80%,#141c36,#070912)', page:'#070912', nameFont:'Allura', decor:[], decorKind:'fireworks'},
   sinematik:{label:'Altın Sinematik', accent:'#c9a14e', soft:'#e7c878', dark:true, bg:'radial-gradient(ellipse at 50% 35%,#1a1726,#0b0b0d)', page:'#0b0b0d', nameFont:'Allura', decor:['✦'], decorKind:'rain'},
+  /* ===== DİNİ DÜĞÜN DAVETLERİ (besmele + kına & düğün kartları + dua) ===== */
+  dini:     {label:'Zarif Besmele', accent:'#b08a3e', soft:'#e8d6a8', dark:false, bg:'linear-gradient(170deg,#fdf9ef,#f7ecd4)', page:'#faf5e9', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
+  diniYesil:{label:'Zümrüt Dua', accent:'#2e6b4f', soft:'#cfe2d4', dark:false, bg:'linear-gradient(170deg,#f7fbf6,#e7f0e6)', page:'#f4f9f3', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
   /* ===== DOĞUM GÜNÜ TEMALARI ===== */
   balon:    {label:'Renkli Balon', accent:'#e84393', soft:'#ffd6e8', dark:false, bg:'linear-gradient(160deg,#ffffff,#ffeef6)', page:'#fff7fb', nameFont:'Pacifico', decor:['🎈','🎉','🎊','🎁','⭐'], decorKind:'rain', kind:'birthday'},
   konfeti:  {label:'Konfeti Partisi', accent:'#f5c542', soft:'#ffe79e', dark:true, bg:'radial-gradient(ellipse at 50% 75%,#2a1a4a,#120a24)', page:'#120a24', nameFont:'Pacifico', decor:['🎈','🎉','🎊'], decorKind:'fireworks', kind:'birthday'},
@@ -251,6 +296,8 @@ var DEFAULT = {
     {when:'2025',title:'Teklif',text:'Mum ışığında bir evet ile yollarımızı birleştirdik.'}
   ],
   rsvpDeadline:'1 Eylül', phone:'905555555555',
+  /* dini düğün alanları */
+  kinaDate:'', kinaVenueName:'', kinaVenueCity:'', kinaMapQuery:'', dua:'',
   /* kutlama modu alanları */
   videoUrl:'', fromName:'Sevgiyle, Annen', wish:'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂'
 };
@@ -471,10 +518,13 @@ function render(cfg){
     document.head.appendChild(s);
   }
 
-  if(!isBday && !isCeleb) showIntro(cfg, T, couple, isThumb, lang);
+  if(!isBday && !isCeleb && T.kind!=='dini') showIntro(cfg, T, couple, isThumb, lang);
 
   /* ============ KUTLAMA MODU (davet değil) ============ */
   if(isCeleb){ renderCelebration(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple, isThumb:isThumb}); return; }
+
+  /* ============ DİNİ DÜĞÜN MODU ============ */
+  if(T.kind==='dini'){ renderDini(cfg, T, wrap, {ink:ink, inkSoft:inkSoft, surface:surface, border:border, couple:couple, isThumb:isThumb, lang:lang, t:t}); return; }
 
   /* HERO */
   var hero = el('section','hero'); hero.style.background=T.bg; if(T.dark)hero.style.color='#fff';
@@ -575,6 +625,155 @@ function render(cfg){
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
   if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+}
+
+/* ============ DİNİ DÜĞÜN RENDER (besmele + kına & düğün kartları + dua) ============ */
+function showDiniGate(cfg){
+  var previewMode = !!(cfg && cfg.__showIntroPreview);
+  if((cfg && cfg.__skipIntro) || (!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  if(!previewMode) introPlayed=true;
+  document.querySelectorAll('.dg-gate').forEach(function(x){x.remove();});
+  var gate=el('div','dg-gate');
+  var sparks='';
+  for(var i=0;i<26;i++){
+    var z=1.4+Math.random()*2.4;
+    sparks+='<span class="spark" style="width:'+z+'px;height:'+z+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;animation-duration:'+(1.6+Math.random()*3)+'s;animation-delay:'+(Math.random()*4)+'s"></span>';
+  }
+  gate.innerHTML=sparks+
+    '<div class="dg-ar">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>'+
+    '<div class="dg-tr">Rahman ve Rahim olan Allah\'ın adıyla</div>'+
+    '<div class="dg-frame"><div class="dg-door left"></div><div class="dg-door right"></div></div>'+
+    '<button class="dg-open" type="button">✦ Davetiyeyi Aç ✦</button>';
+  var opened=false;
+  function open(){
+    if(opened)return; opened=true;
+    gate.classList.add('open');
+    setTimeout(function(){
+      if(previewMode) introPreviewDismissed=true;
+      gate.classList.add('done');
+      setTimeout(function(){ gate.remove(); },950);
+    },1250);
+  }
+  gate.querySelector('.dg-open').addEventListener('click',open);
+  gate.addEventListener('click',open);
+  document.body.appendChild(gate);
+}
+
+function renderDini(cfg, T, wrap, x){
+  var ink=x.ink, inkSoft=x.inkSoft, surface=x.surface, border=x.border, couple=x.couple, isThumb=x.isThumb, lang=x.lang||'tr', t=x.t;
+  var green=T.green||'#2e6b4f';
+  function sec(bg){var s=el('section','fade');if(bg)s.style.background=bg;return s;}
+  function titleHTML(ti,sub){return '<h2 class="title" style="color:'+T.accent+'">'+esc(ti)+'</h2>'+(sub?'<div class="tsub" style="color:'+inkSoft+'">'+esc(sub)+'</div>':'');}
+
+  if(!isThumb) showDiniGate(cfg);
+
+  /* HERO: besmele + isimler + davet metni */
+  var hero=el('section','hero'); hero.style.background=T.bg;
+  hero.innerHTML=
+    '<div class="dini-ar reveal" style="color:'+T.accent+'">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>'+
+    '<div class="eyebrow reveal" style="margin-top:16px;color:'+inkSoft+'">'+esc((cfg.greeting||'Düğünümüze Davetlisiniz').toLocaleUpperCase('tr-TR'))+'</div>'+
+    '<h1 class="names reveal" style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:clamp(44px,11vw,84px);color:'+T.accent+';margin-bottom:0">'+esc(cfg.brideName)+'</h1>'+
+    '<div class="dini-heart reveal">❤️</div>'+
+    '<h1 class="names reveal" style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:clamp(44px,11vw,84px);color:'+T.accent+';margin-top:0">'+esc(cfg.groomName)+'</h1>'+
+    '<p class="dini-msg reveal" style="color:'+inkSoft+'">'+esc(cfg.message)+'</p>'+
+    '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>❦<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
+    '<div class="eyebrow reveal" style="color:'+T.accent+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
+    '<div class="scroll-cue" style="color:'+T.accent+'">'+t.scrollDown+'</div>';
+  wrap.appendChild(hero);
+
+  /* GERİ SAYIM */
+  var sCd=sec(); sCd.innerHTML=titleHTML(t.cdWed, t.cdSub)+
+    '<div class="countdown">'+[t.days, t.hours, t.mins, t.secs].map(function(l,i){return '<div class="cd-box" style="background:'+surface+';border:1px solid '+border+'"><div class="cd-num" id="cd'+i+'" style="color:'+T.accent+'">00</div><div class="cd-lab" style="color:'+inkSoft+'">'+l+'</div></div>';}).join('')+'</div>';
+  wrap.appendChild(sCd);
+
+  /* ETKİNLİK KARTLARI: kına (opsiyonel) + düğün */
+  function eventCard(o){
+    return '<div class="dini-card" style="background:'+surface+';border:1px solid '+border+'">'+
+      '<div class="dini-tag" style="color:'+o.tagColor+'">'+o.tag+'</div>'+
+      '<h3 style="color:'+ink+'">'+esc(o.title)+'</h3>'+
+      '<div class="dini-orn" style="color:'+T.accent+'">✦ ─── ✦</div>'+
+      '<div class="dini-date" style="color:'+T.accent+'">'+o.date+'</div>'+
+      (o.time?'<div class="dini-line" style="color:'+ink+'">⏰ <b>Saat: '+o.time+'</b></div>':'')+
+      '<div class="dini-line" style="color:'+inkSoft+'">'+o.icon+' '+esc(o.venue)+(o.city?' · '+esc(o.city):'')+'</div>'+
+      (o.map?'<a class="dini-dir" style="background:'+green+'" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(o.map)+'">📍 Yol Tarifi Al</a>':'')+
+    '</div>';
+  }
+  var hasKina = !!(cfg.kinaVenueName || cfg.kinaDate);
+  if(hasKina){
+    var sK=sec(); sK.innerHTML=eventCard({
+      tag:'🌷 KINA GECESİ', tagColor:'#a63d4f', title:'Kına Eğlencesi',
+      date:fmtDate(cfg.kinaDate, lang)+(fmtDay(cfg.kinaDate, lang)?' '+fmtDay(cfg.kinaDate, lang):''),
+      time:fmtTime(cfg.kinaDate), icon:'🏠',
+      venue:cfg.kinaVenueName, city:cfg.kinaVenueCity,
+      map:cfg.kinaMapQuery||cfg.kinaVenueName
+    });
+    wrap.appendChild(sK);
+  }
+  var sW=sec(); sW.innerHTML=eventCard({
+    tag:'✨ NİKAH &amp; DÜĞÜN', tagColor:T.accent, title:'Düğün Merasimi',
+    date:fmtDate(cfg.date, lang)+' '+fmtDay(cfg.date, lang),
+    time:fmtTime(cfg.date), icon:'🏛',
+    venue:cfg.venueName, city:cfg.venueCity,
+    map:cfg.mapQuery||cfg.venueName
+  })+'<div class="btnrow"><button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button></div>';
+  wrap.appendChild(sW);
+
+  /* GALERİ (opsiyonel) */
+  if(cfg.photos && cfg.photos.length){
+    var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
+    cfg.photos.forEach(function(src,i){var u=typeof src==='string'?src:(src.url||'');var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
+    s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
+  }
+
+  /* AİLELER (opsiyonel) */
+  if(cfg.families && cfg.families.length){
+    var s6=sec(); var f='<div class="fam">';
+    cfg.families.forEach(function(fx){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(fx.side)+t.famSuffix+'</div><div class="n" style="color:'+ink+'">'+esc(fx.names)+'</div></div>';});
+    f+='</div>'; s6.innerHTML=titleHTML(t.famWed, t.famSub)+f; wrap.appendChild(s6);
+  }
+
+  /* RSVP */
+  var s8=sec('rgba(0,0,0,.015)');
+  s8.innerHTML=titleHTML(t.rsvpTitle, t.rsvpSub.replace('{date}', esc(cfg.rsvpDeadline)))+
+    '<div class="rsvp-card" style="background:'+surface+';border:1px solid '+border+'">'+
+      '<form id="rf"><div class="choice">'+
+        '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnYes+'</button>'+
+        '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
+        '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:#fff"></textarea></div>'+
+        '<button type="submit" class="send" id="sb" style="background:linear-gradient(120deg,#8a6420,'+T.accent+' 50%,#8a6420);color:#fff8e3;opacity:.5" disabled>'+t.btnSend+' ✦</button></form>'+
+      '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
+    '</div>';
+  wrap.appendChild(s8);
+
+  /* DUA FOOTER: silüet + hilal + dua + isimler */
+  var ftSec=sec(); ftSec.style.paddingBottom='70px';
+  ftSec.innerHTML=
+    '<svg class="dini-sky" width="300" height="60" viewBox="0 0 300 60" fill="'+T.accent+'" xmlns="http://www.w3.org/2000/svg">'+
+      '<rect x="0" y="34" width="26" height="26"/><rect x="30" y="24" width="20" height="36"/><rect x="54" y="40" width="30" height="20"/>'+
+      '<rect x="88" y="18" width="6" height="42"/><path d="M91 4 L94 18 L88 18 Z"/>'+
+      '<path d="M100 60 L100 40 Q125 16 150 40 L150 60 Z"/>'+
+      '<rect x="156" y="18" width="6" height="42"/><path d="M159 4 L162 18 L156 18 Z"/>'+
+      '<rect x="168" y="36" width="26" height="24"/><rect x="198" y="26" width="22" height="34"/><rect x="224" y="42" width="30" height="18"/><rect x="258" y="30" width="24" height="30"/>'+
+    '</svg>'+
+    '<span class="dini-moon">🌙</span>'+
+    '<div class="dini-ar" style="font-size:22px;color:'+T.accent+'">بَارَكَ اللّٰهُ لَكُمْ</div>'+
+    '<p class="dini-dua" style="color:'+ink+';margin-top:12px">'+esc(cfg.dua||'Rabbimiz bu beraberliği sevgi, huzur ve ömür boyu mutlulukla bereketlendirsin.')+'</p>'+
+    '<div class="dini-names" style="color:'+T.accent+'">✦ &nbsp;'+esc((cfg.brideName||'').toLocaleUpperCase('tr-TR'))+' &amp; '+esc((cfg.groomName||'').toLocaleUpperCase('tr-TR'))+'&nbsp; ✦</div>'+
+    '<p style="font-size:11px;letter-spacing:3px;margin-top:10px;color:'+inkSoft+'">'+fmtDate(cfg.date, lang).toLocaleUpperCase('tr-TR')+' · '+esc((cfg.venueCity||'').toLocaleUpperCase('tr-TR'))+'</p>';
+  wrap.appendChild(ftSec);
+
+  /* davranışlar */
+  startCountdown(cfg.date);
+  setupReveal();
+  setupGallery();
+  setupRSVP(cfg, couple, T);
+  setupCalendar(cfg, couple);
+  setupFabs(cfg, couple, T);
+  currentMusicUrl = cfg.musicUrl || null;
+  if(cfg.music && !isThumb){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
 }
 
 /* ============ KUTLAMA RENDER (davet değil, kişiye gönderilen kutlama) ============ */
