@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Prisma'nın ihtiyaç duyduğu OpenSSL (alpine'de eksik)
 RUN apk add --no-cache openssl
@@ -22,7 +22,7 @@ COPY . .
 RUN npm run build
 
 # --- Production image ---
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Prisma runtime için OpenSSL
 RUN apk add --no-cache openssl

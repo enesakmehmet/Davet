@@ -17,7 +17,8 @@ import { getJwtSecret } from '../config/secret.util';
       secret: getJwtSecret(),
       // Kısa ömürlü access token: çalınsa bile 1 saat içinde geçersizleşir.
       // Oturum sürekliliği refresh token (30 gün) + frontend'deki otomatik yenileme ile sağlanır.
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1h' },
+      // Not: jsonwebtoken tip tanımı env string'ini kabul etmediği için cast gerekli
+      signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '1h') as any },
     }),
   ],
   providers: [AuthService, JwtStrategy],
