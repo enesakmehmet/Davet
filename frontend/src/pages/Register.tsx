@@ -10,12 +10,14 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [website, setWebsite] = useState(''); // honeypot — insanlar görmez, botlar doldurur
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (website) return; // bot yakalandı: sessizce hiçbir şey yapma
     if (password.length < 6) { setError('Şifre en az 6 karakter olmalıdır.'); return; }
     setLoading(true);
     try {
@@ -39,6 +41,12 @@ const Register = () => {
         {error && <div className="auth-err">{error}</div>}
 
         <form onSubmit={submit}>
+          {/* Honeypot: gizli alan — otomatik form dolduran botları eler */}
+          <input
+            type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)}
+            tabIndex={-1} autoComplete="off" aria-hidden="true"
+            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+          />
           <div className="auth-field">
             <label>Ad Soyad</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Adınız Soyadınız" required />

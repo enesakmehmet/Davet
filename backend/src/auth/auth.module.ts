@@ -15,7 +15,9 @@ import { getJwtSecret } from '../config/secret.util';
     PassportModule,
     JwtModule.register({
       secret: getJwtSecret(),
-      signOptions: { expiresIn: '7d' }, // 7 gün geçerli token
+      // Kısa ömürlü access token: çalınsa bile 1 saat içinde geçersizleşir.
+      // Oturum sürekliliği refresh token (30 gün) + frontend'deki otomatik yenileme ile sağlanır.
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1h' },
     }),
   ],
   providers: [AuthService, JwtStrategy],

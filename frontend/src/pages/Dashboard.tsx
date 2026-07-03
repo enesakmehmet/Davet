@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
   ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X,
@@ -39,6 +39,24 @@ const THEME_GRAD: Record<string, string> = {
   kutlamaDisko: 'linear-gradient(135deg,#0a0118,#ff2ec4)',
 };
 const grad = (t?: string) => THEME_GRAD[t || 'altin'] || THEME_GRAD.altin;
+
+/* Eleman görünür olunca true döner — ağır iframe thumbnail'ları yalnızca
+   karta scroll edildiğinde yüklemek için (panel açılışını hızlandırır). */
+const useInView = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin: '250px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, inView };
+};
 
 const fmtDate = (d?: string) => {
   if (!d) return '—';
@@ -442,14 +460,19 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, deletingId }: any) => {
     } catch { /* clipboard erişimi yoksa sessiz geç */ }
   };
 
+  const { ref: thumbRef, inView } = useInView();
+
   return (
     <div className="inv-card">
-      <div className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
-        <iframe
-          title="thumbnail"
-          src={`/davet-preview.html?v=20260702a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
-          style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
-        />
+      <div ref={thumbRef} className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
+        {inView && (
+          <iframe
+            title="thumbnail"
+            loading="lazy"
+            src={`/davet-preview.html?v=20260702a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
+            style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
+          />
+        )}
         <span className="inv-badge" style={{ zIndex: 10 }}>Yayında</span>
       </div>
       <div className="inv-body">

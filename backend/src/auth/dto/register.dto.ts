@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, IsString, IsOptional } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail({}, { message: 'Geçerli bir e-posta adresi giriniz.' })
@@ -12,4 +12,9 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty({ message: 'İsim boş bırakılamaz.' })
   name: string;
+
+  /** Honeypot: formdaki gizli alan — insanlar boş bırakır, botlar doldurur. */
+  @IsString()
+  @IsOptional()
+  website?: string;
 }

@@ -1,11 +1,16 @@
 # Davetim — Animasyonlu Dijital Davetiye Platformu
 
-Çiftlerin dakikalar içinde animasyonlu düğün davetiyesi oluşturup paylaşabildiği bir platform.
-Canlı geri sayım, Google harita, RSVP (katılım bildirimi), arka plan müziği (MP3), fotoğraf galerisi ve daha fazlası.
+Çiftlerin dakikalar içinde animasyonlu davetiye oluşturup paylaşabildiği bir platform.
+
+**Davet türleri:** 💍 Düğün · 🕌 Dini Düğün (besmele, altın kapı açılışı, kına + düğün kartları, dua) · 🎂 Doğum Günü Daveti · 🎉 Kutlama (kişiye gönderilen tebrik)
+
+**Özellikler:** canlı geri sayım, Google harita + yol tarifi, RSVP (yemek tercihi & alerji notu dahil), arka plan müziği (MP3), fotoğraf galerisi (otomatik WebP optimizasyonu), QR kod, WhatsApp'ta görselli link önizlemesi (OG), şifre koruması, çoklu dil (tr/en/de), bildirimler, çöp kutusu (30 gün geri alma), davet kopyalama, özel bağlantı (slug) seçimi.
+
+**Otomasyonlar:** 1 yılı dolan davetler otomatik yayından kalkar; çöpte 30 günü dolanlar kalıcı silinir; etkinliğe 3 gün kala sahibine e-posta + bildirim gider.
 
 ## İçerik
 
-- **backend/** — NestJS + Prisma (PostgreSQL) + Redis API
+- **backend/** — NestJS + Prisma (PostgreSQL) + Redis API (Node **20+** gerekir)
 - **frontend/** — React + Vite (site, editör, public davet görüntüleyici)
 - **admin-panel/** — React + Vite yönetim paneli *(yalnızca lokal; GitHub'a gönderilmez)*
 - **davetler/** — Hazır animasyonlu davet şablonları (statik HTML örnekleri)
@@ -14,7 +19,7 @@ Canlı geri sayım, Google harita, RSVP (katılım bildirimi), arka plan müziğ
 
 ## Lokalde Çalıştırma
 
-Gereken: Node 18+, PostgreSQL, Redis.
+Gereken: Node 20+, PostgreSQL, Redis.
 
 ### Backend
 ```bash
@@ -38,7 +43,8 @@ cd admin-panel
 npm install
 npm run dev                     # http://localhost:3002
 ```
-Backend'de `.env`'de `ADMIN_OPEN="true"` ise panel şifresiz açılır.
+Backend'de `.env`'de `ADMIN_OPEN="true"` ise panel şifresiz açılır
+*(yalnızca geliştirmede — `NODE_ENV=production` iken bu mod kod seviyesinde kapalıdır)*.
 
 ---
 
@@ -55,31 +61,29 @@ Railway'de **tek projede** şu servisler:
      - `DATABASE_URL` → Postgres'ten referansla
      - `REDIS_URL` → Redis'ten referansla
      - `JWT_SECRET` → uzun rastgele bir değer
+     - `PORT` → `3000` *(domain'in hedef portu ile AYNI olmalı — "upstream error"un 1 numaralı sebebi)*
      - `CORS_ORIGINS` → `https://<frontend>.up.railway.app,http://localhost:3002`
-     - `PUBLIC_BACKEND_URL` → backend'in genel adresi (`https://<backend>.up.railway.app`)
+     - `PUBLIC_BACKEND_URL` → backend'in genel adresi
+     - `FRONTEND_URL` → frontend'in genel adresi (OG yönlendirmesi ve QR için)
+     - `RESEND_API_KEY` → e-posta gönderimi (Resend)
      - `ADMIN_OPEN` → `false`
-   - Deploy sonrası bir kez seed çalıştır (admin için): Railway "Run command" → `npx prisma db seed`
+   - Deploy sonrası bir kez seed çalıştır: Railway "Run command" → `npx prisma db seed`
 4. **Frontend servisi** (aynı repo, Root Directory: `frontend`)
-   - Build: `npm install && npm run build`
-   - Start command: `npx vite preview --host --port $PORT`
-   - Variables:
-     - `VITE_API_URL` → `https://<backend>.up.railway.app/api`
+   - Variables: `VITE_API_URL` → `https://<backend>.up.railway.app/api`
+   - Domain hedef portu build çıktısını sunan sunucuya göre ayarlanır (Caddy: 8080).
 
-Her iki servis için Railway "Generate Domain" ile `*.up.railway.app` adresi alırsın.
-Sonra alan adı (davetim.com) alınca: her servise Custom Domain ekleyip env'leri `https://davetim.com` / `https://api.davetim.com` yaparsın.
+Opsiyonel env'ler: `INVITE_LIMIT_FREE` (vars. 5), `INVITE_LIMIT_PRO` (vars. 25), `JWT_EXPIRES_IN` (vars. 1h), `CONTACT_TO` (iletişim formu alıcısı).
 
 ### Lokal admin paneli → canlı backend
-Admin paneli GitHub'a gitmez, lokalde kalır. Canlı backend'e bağlamak için
-`admin-panel/.env.local` oluştur:
-```
-VITE_API_URL=https://<backend>.up.railway.app/api
-```
-Backend `CORS_ORIGINS` içinde `http://localhost:3002` olduğundan emin ol.
-Giriş için admin hesabı gerekir (seed ile gelen `admin@davetim.com / Admin123!`).
+`admin-panel/.env.local` içine `VITE_API_URL=https://<backend>.up.railway.app/api` yaz;
+backend `CORS_ORIGINS` içinde `http://localhost:3002` olsun. Giriş: seed admin hesabı.
 
 ---
 
 ## Güvenlik notları
 - `.env` dosyaları **asla** repoya gitmez (`.gitignore`).
-- Üretimde `ADMIN_OPEN=false` ve güçlü bir `JWT_SECRET` kullan.
-- Yüklenen dosyalar (MP3/görsel) şu an yerel diske gider; Railway'de kalıcı olması için ileride S3 vb. bağlanmalı.
+- Access token 1 saat geçerlidir; oturum, refresh token (30 gün) ile frontend'te otomatik yenilenir.
+- Kayıt/giriş uçlarında IP bazlı hız limiti + kayıt formunda honeypot bot koruması vardır.
+- RSVP ucu IP başına dakikada 5 yanıtla sınırlıdır.
+- Üretimde `ADMIN_OPEN` yok sayılır (kod emniyeti); güçlü bir `JWT_SECRET` kullanın.
+- Yüklenen dosyalar (MP3/görsel) veritabanında saklanır; görseller otomatik küçültülüp WebP'ye çevrilir.

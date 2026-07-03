@@ -1,6 +1,6 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
@@ -16,13 +16,20 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // IP başına dakikada 5 kayıt denemesi
   @ApiOperation({ summary: 'Yeni kullanıcı kaydı oluşturur' })
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+    // Honeypot: gizli "website" alanını yalnızca botlar doldurur
+    if (registerDto.website) {
+      throw new BadRequestException('Geçersiz istek.');
+    }
+    const { website, ...dto } = registerDto as any;
+    return this.authService.register(dto);
   }
 
   @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // brute-force koruması
   @ApiOperation({ summary: 'Kullanıcı girişi yapar ve tokenları döner' })
   @HttpCode(HttpStatus.OK)
   @Post('login')

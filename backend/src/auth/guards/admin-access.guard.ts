@@ -10,6 +10,8 @@ import { AuthGuard } from '@nestjs/passport';
 @Injectable()
 export class AdminAccessGuard extends AuthGuard('jwt') {
   private get open() {
+    // Emniyet: üretimde ADMIN_OPEN yanlışlıkla true kalsa bile şifresiz mod ASLA açılmaz.
+    if (process.env.NODE_ENV === 'production') return false;
     return process.env.ADMIN_OPEN === 'true';
   }
 

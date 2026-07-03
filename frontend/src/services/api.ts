@@ -25,6 +25,50 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// 401 gelirse refresh token ile access token'ı sessizce yenile ve isteği tekrarla.
+// Aynı anda birden çok istek 401 alırsa tek bir refresh çağrısı paylaşılır.
+let refreshingPromise: Promise<string | null> | null = null;
+
+const doRefresh = (): Promise<string | null> => {
+  if (!refreshingPromise) {
+    const refreshToken = localStorage.getItem('refreshToken');
+    refreshingPromise = axios
+      .post(`${API_URL.replace(/\/+$/, '')}/auth/refresh`, { refreshToken })
+      .then(({ data }) => {
+        if (data?.access_token) localStorage.setItem('accessToken', data.access_token);
+        if (data?.refresh_token) localStorage.setItem('refreshToken', data.refresh_token);
+        return (data?.access_token as string) || null;
+      })
+      .catch(() => null)
+      .finally(() => { refreshingPromise = null; });
+  }
+  return refreshingPromise;
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original: any = error?.config;
+    const status = error?.response?.status;
+    const isAuthCall = String(original?.url || '').includes('/auth/');
+    if (status === 401 && original && !original._retry && !isAuthCall && localStorage.getItem('refreshToken')) {
+      original._retry = true;
+      const newToken = await doRefresh();
+      if (newToken) {
+        original.headers = { ...(original.headers || {}), Authorization: `Bearer ${newToken}` };
+        return api(original);
+      }
+      // Refresh de başarısız: oturumu temizle, korumalı sayfadaysa girişe yönlendir
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      const p = window.location.pathname;
+      if (p.startsWith('/dashboard') || p.startsWith('/editor')) window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 const WEDDING_THEMES = new Set(['altin', 'gul', 'minimal', 'bohem', 'lacivert', 'lavanta', 'sonbahar', 'deniz', 'tropikal', 'havai', 'sinematik']);
 
 const birthdayFallbackPhotos = [

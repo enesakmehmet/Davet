@@ -16,6 +16,20 @@ export class InvitationsService {
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto, userId: string) {
+    // Plan bazlı davet limiti (DB'nin kontrolsüz şişmesini önler)
+    const activeSub = await this.prisma.subscription.findFirst({
+      where: { userId, status: 'active' },
+      orderBy: { endDate: 'desc' },
+    });
+    const plan = activeSub?.plan || 'free';
+    const limit = plan === 'premium' ? Infinity : plan === 'pro'
+      ? Number(process.env.INVITE_LIMIT_PRO || 25)
+      : Number(process.env.INVITE_LIMIT_FREE || 5);
+    const currentCount = await this.prisma.invitation.count({ where: { userId, deletedAt: null } });
+    if (currentCount >= limit) {
+      throw new ForbiddenException(`Davet limitine ulaştınız (${limit}). Yeni davet için eskilerinden birini kaldırabilirsiniz.`);
+    }
+
     const existing = await this.prisma.invitation.findUnique({ where: { slug: createInvitationDto.slug } });
     if (existing) {
       throw new ConflictException('Bu bağlantı (slug) zaten kullanımda.');

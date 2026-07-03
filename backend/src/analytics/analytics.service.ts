@@ -6,8 +6,35 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
 
-  async recordView(recordViewDto: RecordViewDto) {
-    const { invitationId, country, browser, device, operatingSystem, referrer, city } = recordViewDto;
+  /**
+   * IP'den şehir/ülke tespiti (best-effort, 1.5 sn zaman aşımı).
+   * Tarayıcı tarafındaki geo isteği adblocker'a takıldığında devreye girer;
+   * başarısız olursa istatistik konum olmadan kaydedilir, akışı asla bozmaz.
+   */
+  private async geoFromIp(ip: string): Promise<{ city?: string; country?: string }> {
+    if (!ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('10.') || ip.startsWith('192.168.')) return {};
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 1500);
+      const res = await fetch(`https://get.geojs.io/v1/ip/geo/${encodeURIComponent(ip)}.json`, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) return {};
+      const g: any = await res.json().catch(() => ({}));
+      return { city: g?.city || undefined, country: g?.country_code || g?.country || undefined };
+    } catch {
+      return {};
+    }
+  }
+
+  async recordView(recordViewDto: RecordViewDto, ip?: string) {
+    let { invitationId, country, browser, device, operatingSystem, referrer, city } = recordViewDto;
+
+    // Konum tarayıcıdan gelmediyse IP'den doldur
+    if (!city && ip) {
+      const geo = await this.geoFromIp(ip);
+      city = city || geo.city;
+      country = country || geo.country;
+    }
 
     // Ayrıntılı logları kaydet
     await this.prisma.analyticsEvent.create({
