@@ -157,9 +157,30 @@ export class AnalyticsService {
       throw new NotFoundException('Davetiye bulunamadı veya yetkiniz yok.');
     }
 
+    // Son 14 günün günlük görüntülenme serisi (çizgi grafik için)
+    const since = new Date();
+    since.setDate(since.getDate() - 13);
+    since.setHours(0, 0, 0, 0);
+    const recentEvents = await this.prisma.analyticsEvent.findMany({
+      where: { invitationId, viewedAt: { gte: since } },
+      select: { viewedAt: true },
+    });
+    const daily: { date: string; views: number }[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(since);
+      d.setDate(since.getDate() + i);
+      daily.push({ date: d.toISOString().slice(0, 10), views: 0 });
+    }
+    const byDate = new Map(daily.map((row) => [row.date, row]));
+    recentEvents.forEach((e) => {
+      const row = byDate.get(e.viewedAt.toISOString().slice(0, 10));
+      if (row) row.views++;
+    });
+
     return {
       summary: invitation.analytics[0] || { views: 0, visitors: 0, countries: {} },
-      events: invitation.analyticsEvents || []
+      events: invitation.analyticsEvents || [],
+      daily,
     };
   }
 }

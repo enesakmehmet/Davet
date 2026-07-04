@@ -215,6 +215,47 @@
   .dini-dua{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.7;max-width:440px;margin:0 auto}
   .dini-names{letter-spacing:5px;font-size:15px;font-weight:600;margin-top:18px}
 
+  /* ===== Zarf açılış introsu ===== */
+  .env-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .8s ease,visibility .8s ease}
+  .env-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .env-wrap{position:relative;width:min(78vw,340px);aspect-ratio:4/3;perspective:1000px}
+  .env-body{position:absolute;inset:0;border-radius:10px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+  .env-flap{position:absolute;left:0;right:0;top:0;height:52%;transform-origin:top center;border-radius:10px 10px 0 0;
+    clip-path:polygon(0 0,100% 0,50% 100%);transition:transform 1.1s cubic-bezier(.6,0,.3,1);z-index:3}
+  .env-card{position:absolute;left:6%;right:6%;top:8%;bottom:8%;background:#fffdf6;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    box-shadow:0 8px 26px rgba(0,0,0,.22);z-index:2;transition:transform 1.1s cubic-bezier(.5,0,.2,1) .5s}
+  .env-card .ec-names{font-size:clamp(24px,7vw,38px);line-height:1.1;text-align:center;padding:0 12px}
+  .env-card .ec-date{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.7}
+  .env-gate.open .env-flap{transform:rotateX(-175deg)}
+  .env-gate.open .env-card{transform:translateY(-46%) scale(1.06)}
+  .env-hint{position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;opacity:.85;white-space:nowrap;animation:intro-pulse 1.8s ease-in-out infinite;padding:9px 18px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+  .env-gate.open .env-hint{opacity:0;transition:opacity .4s}
+
+  /* ===== Çiçek patlaması introsu ===== */
+  .fl-gate{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;overflow:hidden;transition:opacity .8s ease,visibility .8s ease}
+  .fl-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .fl-names{font-size:clamp(34px,9vw,64px);text-align:center;line-height:1.1;padding:0 16px;z-index:2}
+  .fl-hint{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;padding:10px 22px;border-radius:999px;border:1px solid currentColor;opacity:.85;animation:intro-pulse 1.8s ease-in-out infinite;z-index:2}
+  .fl-gate.open .fl-hint{opacity:0;transition:opacity .3s}
+  .fl-petal{position:absolute;left:50%;top:50%;font-size:22px;opacity:0;pointer-events:none;transition:transform 1.6s cubic-bezier(.2,.6,.3,1),opacity 1.6s ease}
+  .fl-gate.open .fl-petal{opacity:1}
+
+  /* ===== Lightbox (galeri + anı albümü) ===== */
+  .lb{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s}
+  .lb.on{opacity:1;visibility:visible}
+  .lb img{max-width:92vw;max-height:84vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .lb-btn{position:absolute;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+  .lb-close{top:18px;right:18px}
+  .lb-prev{left:14px;top:50%;transform:translateY(-50%)}
+  .lb-next{right:14px;top:50%;transform:translateY(-50%)}
+  .lb-cap{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;opacity:.85;max-width:86vw;text-align:center}
+  .gal .sl .fg{cursor:zoom-in}
+  .ga-item{cursor:zoom-in}
+
+  /* ===== Paralaks ===== */
+  .plx{will-change:transform}
+  @media (prefers-reduced-motion: reduce){.plx{transform:none !important}}
+
   /* ===== Anı Albümü (misafir fotoğrafları) ===== */
   .ga-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:520px;margin:18px auto 0}
   .ga-item{position:relative;padding-top:100%;border-radius:12px;overflow:hidden;background:rgba(0,0,0,.06)}
@@ -334,7 +375,76 @@ function firstPhoto(cfg){
 function initials(name){
   return String(name||'').split(/\s+/).filter(function(x){return x && x!=='&';}).slice(0,2).map(function(x){return x.charAt(0).toUpperCase();}).join('');
 }
+/* İstenen açılış stilini seçip uygular: perde (varsayılan) | zarf | cicek */
 function showIntro(cfg,T,couple,isThumb,lang){
+  var style = String((cfg&&cfg.introStyle)||'perde');
+  if(style==='zarf') return showEnvelopeIntro(cfg,T,couple,isThumb,lang);
+  if(style==='cicek') return showFlowerIntro(cfg,T,couple,isThumb,lang);
+  return showCurtainIntro(cfg,T,couple,isThumb,lang);
+}
+
+function introAllowed(cfg,isThumb){
+  var previewMode = !!(cfg && cfg.__showIntroPreview);
+  if((cfg && cfg.__skipIntro) || (!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return false;
+  if(!previewMode) introPlayed=true;
+  return true;
+}
+
+/* Zarf açılışı: mühürlü zarf, dokununca kapak açılır ve kart yükselir */
+function showEnvelopeIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode = !!(cfg && cfg.__showIntroPreview);
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate').forEach(function(x){x.remove();});
+  var gate=el('div','env-gate');
+  gate.style.background='radial-gradient(120% 100% at 50% 25%,'+T.soft+'33,transparent 60%),'+(T.dark?T.page:'#2c2418');
+  gate.innerHTML=
+    '<div class="env-wrap">'+
+      '<div class="env-card"><div class="ec-names" style="font-family:\''+(cfg.nameFont||T.nameFont)+'\',cursive;color:'+T.accent+'">'+esc(couple)+'</div><div class="ec-date" style="color:#7c6a4a">'+esc(fmtDate(cfg.date,lang))+'</div></div>'+
+      '<div class="env-flap" style="background:linear-gradient(180deg,'+T.accent+','+T.soft+')"></div>'+
+      '<div class="env-body" style="background:linear-gradient(160deg,'+T.soft+','+T.accent+')"></div>'+
+      '<div class="env-hint">DAVETİYEYİ AÇ</div>'+
+    '</div>';
+  var opened=false;
+  function open(){
+    if(opened)return; opened=true;
+    gate.classList.add('open');
+    setTimeout(function(){ if(previewMode) introPreviewDismissed=true; gate.classList.add('done'); setTimeout(function(){gate.remove();},850); },1400);
+  }
+  gate.addEventListener('click',open);
+  gate.addEventListener('touchend',open);
+  document.body.appendChild(gate);
+  if(!previewMode) setTimeout(open,4500);
+}
+
+/* Çiçek patlaması: isimler ortada, dokununca yapraklar dört yana saçılır */
+function showFlowerIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode = !!(cfg && cfg.__showIntroPreview);
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate').forEach(function(x){x.remove();});
+  var gate=el('div','fl-gate');
+  gate.style.background=T.bg; gate.style.color=T.dark?'#fff':T.accent;
+  var petals='';
+  for(var i=0;i<36;i++){ petals+='<span class="fl-petal">'+(['🌸','🌺','🌷','💮','✿'][i%5])+'</span>'; }
+  gate.innerHTML=petals+
+    '<div class="fl-names" style="font-family:\''+(cfg.nameFont||T.nameFont)+'\',cursive">'+esc(couple)+'</div>'+
+    '<div class="fl-hint">✿ DOKUN, ÇİÇEKLER AÇSIN ✿</div>';
+  var opened=false;
+  function open(){
+    if(opened)return; opened=true;
+    gate.classList.add('open');
+    gate.querySelectorAll('.fl-petal').forEach(function(p){
+      var a=Math.random()*Math.PI*2, d=140+Math.random()*Math.max(window.innerWidth,window.innerHeight)*0.55;
+      p.style.transform='translate('+(Math.cos(a)*d)+'px,'+(Math.sin(a)*d)+'px) rotate('+(Math.random()*720-360)+'deg) scale('+(0.8+Math.random()*1.6)+')';
+    });
+    setTimeout(function(){ if(previewMode) introPreviewDismissed=true; gate.classList.add('done'); setTimeout(function(){gate.remove();},850); },1500);
+  }
+  gate.addEventListener('click',open);
+  gate.addEventListener('touchend',open);
+  document.body.appendChild(gate);
+  if(!previewMode) setTimeout(open,4500);
+}
+
+function showCurtainIntro(cfg,T,couple,isThumb,lang){
   var previewMode = !!(cfg && cfg.__showIntroPreview);
   if((cfg && cfg.__skipIntro) || (!previewMode && introPlayed) || (previewMode && introPreviewDismissed) || isThumb || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
   if(!previewMode) introPlayed=true;
@@ -383,6 +493,8 @@ function render(cfg){
   cfg = Object.assign({}, DEFAULT, cfg||{});
   var isCelebKey = /^kutlama/.test(String(cfg.theme||''));
   var T = THEMES[cfg.theme] || (isCelebKey ? THEMES.kutlamaPop : THEMES.altin);
+  // Kullanıcı isim yazı tipini seçtiyse tema varsayılanını ez (tüm türlerde geçerli)
+  if (cfg.nameFont) T = Object.assign({}, T, { nameFont: String(cfg.nameFont) });
   var isBday = (T.kind==='birthday');
   var isCeleb = (T.mode==='celebration') || isCelebKey;
   var couple = isBday ? (cfg.brideName||'') : ((cfg.brideName||'')+' & '+(cfg.groomName||''));
@@ -420,6 +532,10 @@ function render(cfg){
       mapTitle: 'Mekan & Yol Tarifi',
       dirBtn: '🧭 Yol Tarifi',
       calBtn: '📅 Takvime Ekle',
+      gcalBtn: '📆 Google Takvim',
+      xtraTitle: 'Faydalı Bilgiler',
+      xtraSub: 'Misafirlerimiz için',
+      lblDress: 'Kıyafet Kodu', lblTransport: 'Ulaşım', lblStay: 'Konaklama', lblLive: 'Canlı Yayın', lblLiveBtn: 'Yayını izle →',
       rsvpTitle: 'Katılım Bildirimi',
       rsvpSub: 'Lütfen {date}\'e kadar bildirin',
       btnYes: '💛 Katılıyorum',
@@ -463,6 +579,10 @@ function render(cfg){
       mapTitle: 'Venue & Directions',
       dirBtn: '🧭 Get Directions',
       calBtn: '📅 Add to Calendar',
+      gcalBtn: '📆 Google Calendar',
+      xtraTitle: 'Good to Know',
+      xtraSub: 'For our guests',
+      lblDress: 'Dress Code', lblTransport: 'Transport', lblStay: 'Accommodation', lblLive: 'Live Stream', lblLiveBtn: 'Watch live →',
       rsvpTitle: 'RSVP',
       rsvpSub: 'Please reply by {date}',
       btnYes: '💛 I will attend',
@@ -506,6 +626,10 @@ function render(cfg){
       mapTitle: 'Ort & Anfahrt',
       dirBtn: '🧭 Wegbeschreibung',
       calBtn: '📅 Zum Kalender',
+      gcalBtn: '📆 Google Kalender',
+      xtraTitle: 'Gut zu wissen',
+      xtraSub: 'Für unsere Gäste',
+      lblDress: 'Dresscode', lblTransport: 'Anfahrt', lblStay: 'Unterkunft', lblLive: 'Livestream', lblLiveBtn: 'Live ansehen →',
       rsvpTitle: 'Zusagen',
       rsvpSub: 'Bitte bis {date} antworten',
       btnYes: '💛 Ich nehme teil',
@@ -605,6 +729,17 @@ function render(cfg){
   wrap.appendChild(s4);
   function card(ic,ti,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+ti+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
 
+  /* EK BİLGİLER (kıyafet kodu, ulaşım, konaklama, canlı yayın) */
+  var extras=[];
+  if(cfg.dressCode) extras.push(card('👗',t.lblDress,esc(cfg.dressCode)));
+  if(cfg.transport) extras.push(card('🚌',t.lblTransport,esc(cfg.transport)));
+  if(cfg.accommodation) extras.push(card('🏨',t.lblStay,esc(cfg.accommodation)));
+  if(cfg.liveStreamUrl) extras.push(card('📺',t.lblLive,'<a href="'+esc(cfg.liveStreamUrl)+'" target="_blank" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
+  if(extras.length){
+    var sx=sec(); sx.innerHTML=titleHTML(t.xtraTitle,t.xtraSub)+'<div class="cards">'+extras.join('')+'</div>';
+    wrap.appendChild(sx);
+  }
+
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
@@ -624,7 +759,8 @@ function render(cfg){
   var s7=sec(); s7.innerHTML=titleHTML(t.mapTitle,cfg.venueName)+
     '<div class="map-frame" style="border:1px solid '+border+'"><iframe loading="lazy" src="https://www.google.com/maps?q='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'&output=embed"></iframe></div>'+
     '<div class="btnrow"><a class="btn" target="_blank" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';border-color:'+T.accent+'" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(cfg.mapQuery||cfg.venueName)+'">'+t.dirBtn+'</a>'+
-    '<button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button></div>';
+    '<button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button>'+
+    (gcalUrl(cfg,couple)?'<a class="btn" target="_blank" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'" href="'+gcalUrl(cfg,couple)+'">'+t.gcalBtn+'</a>':'')+'</div>';
   wrap.appendChild(s7);
 
   /* RSVP */
@@ -660,6 +796,7 @@ function render(cfg){
   startCountdown(cfg.date);
   setupReveal();
   setupGallery();
+  if(!isThumb) setupParallax();
   setupRSVP(cfg, couple, T);
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
@@ -755,8 +892,21 @@ function renderDini(cfg, T, wrap, x){
     time:fmtTime(cfg.date), icon:'🏛',
     venue:cfg.venueName, city:cfg.venueCity,
     map:cfg.mapQuery||cfg.venueName
-  })+'<div class="btnrow"><button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button></div>';
+  })+'<div class="btnrow"><button class="btn" id="calBtn" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'">'+t.calBtn+'</button>'+
+    (gcalUrl(cfg,couple)?'<a class="btn" target="_blank" style="background:transparent;color:'+T.accent+';border-color:'+T.accent+'" href="'+gcalUrl(cfg,couple)+'">'+t.gcalBtn+'</a>':'')+'</div>';
   wrap.appendChild(sW);
+
+  /* EK BİLGİLER (kıyafet kodu, ulaşım, konaklama, canlı yayın) */
+  function xcard(ic,ti,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+ti+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
+  var extras=[];
+  if(cfg.dressCode) extras.push(xcard('👗',t.lblDress,esc(cfg.dressCode)));
+  if(cfg.transport) extras.push(xcard('🚌',t.lblTransport,esc(cfg.transport)));
+  if(cfg.accommodation) extras.push(xcard('🏨',t.lblStay,esc(cfg.accommodation)));
+  if(cfg.liveStreamUrl) extras.push(xcard('📺',t.lblLive,'<a href="'+esc(cfg.liveStreamUrl)+'" target="_blank" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
+  if(extras.length){
+    var sxd=sec(); sxd.innerHTML=titleHTML(t.xtraTitle,t.xtraSub)+'<div class="cards">'+extras.join('')+'</div>';
+    wrap.appendChild(sxd);
+  }
 
   /* GALERİ (opsiyonel) */
   if(cfg.photos && cfg.photos.length){
@@ -818,6 +968,7 @@ function renderDini(cfg, T, wrap, x){
   startCountdown(cfg.date);
   setupReveal();
   setupGallery();
+  if(!isThumb) setupParallax();
   setupRSVP(cfg, couple, T);
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
@@ -925,9 +1076,12 @@ function setupGuestAlbum(cfg, T, wrap, x){
     grid.innerHTML='';
     if(!list || !list.length){ empty.style.display='block'; return; }
     empty.style.display='none';
-    list.forEach(function(p){
+    var urls=list.map(function(p){return p.url;});
+    var caps=list.map(function(p){return p.guestName||'';});
+    list.forEach(function(p,i){
       var d=el('div','ga-item');
       d.innerHTML='<img loading="lazy" src="'+esc(p.url)+'" alt="">'+(p.guestName?'<span class="ga-name">'+esc(p.guestName)+'</span>':'');
+      d.addEventListener('click',function(){ openLightbox(urls,caps,i); });
       grid.appendChild(d);
     });
   }
@@ -960,6 +1114,75 @@ function setupGuestAlbum(cfg, T, wrap, x){
       .catch(function(e){ status.textContent=(e&&e.message)||'Yüklenemedi, tekrar deneyin.'; })
       .finally(function(){ btn.disabled=false; fileIn.value=''; });
   });
+}
+
+/* ===== Lightbox: galeri ve anı albümü fotoğrafları tam ekran ===== */
+var lbState={urls:[],caps:[],idx:0,elm:null};
+function openLightbox(urls,caps,idx){
+  if(!urls || !urls.length) return;
+  lbState.urls=urls; lbState.caps=caps||[]; lbState.idx=idx||0;
+  if(!lbState.elm){
+    var lb=el('div','lb');
+    lb.innerHTML='<img alt=""><button class="lb-btn lb-close">✕</button><button class="lb-btn lb-prev">‹</button><button class="lb-btn lb-next">›</button><div class="lb-cap"></div>';
+    lb.addEventListener('click',function(e){ if(e.target===lb) closeLightbox(); });
+    lb.querySelector('.lb-close').addEventListener('click',closeLightbox);
+    lb.querySelector('.lb-prev').addEventListener('click',function(){ lbShow(lbState.idx-1); });
+    lb.querySelector('.lb-next').addEventListener('click',function(){ lbShow(lbState.idx+1); });
+    document.addEventListener('keydown',function(e){
+      if(!lbState.elm || !lbState.elm.classList.contains('on')) return;
+      if(e.key==='Escape') closeLightbox();
+      if(e.key==='ArrowLeft') lbShow(lbState.idx-1);
+      if(e.key==='ArrowRight') lbShow(lbState.idx+1);
+    });
+    document.body.appendChild(lb);
+    lbState.elm=lb;
+  }
+  lbShow(lbState.idx);
+  lbState.elm.classList.add('on');
+}
+function lbShow(i){
+  var n=lbState.urls.length;
+  lbState.idx=((i%n)+n)%n;
+  lbState.elm.querySelector('img').src=lbState.urls[lbState.idx];
+  lbState.elm.querySelector('.lb-cap').textContent=lbState.caps[lbState.idx]||'';
+  var multi=n>1?'flex':'none';
+  lbState.elm.querySelector('.lb-prev').style.display=multi;
+  lbState.elm.querySelector('.lb-next').style.display=multi;
+}
+function closeLightbox(){ if(lbState.elm) lbState.elm.classList.remove('on'); }
+
+/* ===== Paralaks: kaydırırken hafif derinlik (reduced-motion'da kapalı) ===== */
+function setupParallax(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var targets=[];
+  document.querySelectorAll('.gal').forEach(function(e){ targets.push({el:e,f:0.05}); });
+  document.querySelectorAll('h2.title').forEach(function(e){ targets.push({el:e,f:0.025}); });
+  if(!targets.length) return;
+  var ticking=false;
+  function frame(){
+    ticking=false;
+    var vh=window.innerHeight;
+    targets.forEach(function(t){
+      var r=t.el.getBoundingClientRect();
+      if(r.bottom<0 || r.top>vh) return;
+      var off=(r.top + r.height/2 - vh/2) * t.f;
+      t.el.classList.add('plx');
+      t.el.style.transform='translateY('+(-off).toFixed(1)+'px)';
+    });
+  }
+  window.addEventListener('scroll',function(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } },{passive:true});
+  frame();
+}
+
+/* Google Calendar "tek tık ekle" bağlantısı */
+function gcalUrl(cfg,couple){
+  var start=new Date(cfg.date); if(isNaN(start.getTime())) return '';
+  var end=new Date(start.getTime()+5*3600000);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent(couple+' Düğünü')+
+    '&dates='+fmtICS(start)+'/'+fmtICS(end)+
+    '&location='+encodeURIComponent((cfg.venueName||'')+' '+(cfg.venueCity||''))+
+    '&details='+encodeURIComponent('Davetiye: '+location.href.split('#')[0]);
 }
 
 function videoEmbed(url,border){
@@ -997,12 +1220,22 @@ function setupGallery(){
   dots.forEach(function(d,i){ d.style.cursor='pointer'; d.addEventListener('click',function(){ show(i); restart(); }); });
   /* elle kaydırma: parmak (touch) ve fare (mouse) ile sola/sağa sürükleyip resim değiştirme */
   gal.style.touchAction='pan-y'; gal.style.cursor='grab';
+  /* tıklayınca tam ekran (lightbox) — sürükleme değilse */
+  var lbUrls=[], lbCaps=[];
+  sl.forEach(function(s){
+    var fg=s.querySelector('.fg');
+    var m=fg && fg.style.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+    lbUrls.push(m?m[1]:'');
+    var cap=s.querySelector('.sl-cap');
+    lbCaps.push(cap?cap.textContent:'');
+  });
   var startX=0, dx=0, dragging=false;
   gal.addEventListener('pointerdown',function(e){ dragging=true; startX=e.clientX; dx=0; gal.style.cursor='grabbing'; try{gal.setPointerCapture(e.pointerId);}catch(_){} });
   gal.addEventListener('pointermove',function(e){ if(!dragging)return; dx=e.clientX-startX; });
   function endDrag(){
     if(!dragging)return; dragging=false; gal.style.cursor='grab';
     if(Math.abs(dx)>40){ show(cur+(dx<0?1:-1)); restart(); }
+    else if(Math.abs(dx)<8){ openLightbox(lbUrls,lbCaps,cur); }
     dx=0;
   }
   gal.addEventListener('pointerup',endDrag);

@@ -220,6 +220,15 @@ export const notificationService = {
   },
 };
 
+// Misafir albümü yönetimi (davet sahibi için)
+export const guestPhotoService = {
+  byInvitation: async (invitationId: string) => {
+    const { data } = await api.get(`/guest-photos/invitation/${invitationId}`);
+    return Array.isArray(data) ? data : [];
+  },
+  remove: async (id: string) => (await api.delete(`/guest-photos/${id}`)).data,
+};
+
 // İletişim formu
 export const contactService = {
   send: async (payload: { name: string; email: string; message: string }) => {
@@ -326,6 +335,18 @@ export const settingsService = {
   deleteAccount: async () => {
     const { data } = await api.delete('/settings/account');
     return data;
+  },
+  // KVKK: kullanıcının tüm verilerini JSON olarak indirir
+  exportData: async () => {
+    const { data } = await api.get('/settings/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `davetim-verilerim-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    return true;
   },
 };
 

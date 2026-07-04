@@ -57,6 +57,15 @@
   background:#fff;cursor:pointer;transition:.2s;font-family:inherit;position:relative}
 .theme-new{position:absolute;top:-8px;right:-6px;background:linear-gradient(120deg,#d9b64a,#b5952f);color:#fff;
   font-size:9.5px;font-weight:800;letter-spacing:1px;padding:3px 9px;border-radius:20px;box-shadow:0 4px 10px rgba(181,149,47,.4);pointer-events:none}
+
+/* Tema hover canlı önizleme balonu */
+.theme-hover-preview{position:fixed;right:calc(420px + 24px);top:80px;width:225px;height:400px;z-index:70;
+  border-radius:22px;overflow:hidden;background:#fff;border:2px solid rgba(212,175,55,.55);
+  box-shadow:0 24px 60px rgba(19,26,43,.35);pointer-events:none;animation:thp-in .22s ease-out}
+@keyframes thp-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.thp-label{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(19,26,43,.85);color:#e6c65c;
+  font-size:11px;font-weight:700;letter-spacing:.5px;padding:5px 14px;border-radius:20px;white-space:nowrap}
+@media(max-width:1100px){.theme-hover-preview{display:none}}
 .theme-card:hover{border-color:#c9a14e;transform:translateY(-2px);box-shadow:0 6px 16px rgba(201,161,78,.14)}
 .theme-card.on{border-color:#b5952f;background:#fdf9ee;box-shadow:0 4px 14px rgba(201,161,78,.2)}
 .swatch{width:42px;height:42px;border-radius:9px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}

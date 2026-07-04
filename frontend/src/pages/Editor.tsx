@@ -128,6 +128,11 @@ type Cfg = {
   rsvpDeadline: string; phone: string;
   // dini düğün modu (kına gecesi + dua)
   kinaDate?: string; kinaVenueName?: string; kinaVenueCity?: string; kinaMapQuery?: string; dua?: string;
+  // görsel kişiselleştirme
+  introStyle?: string; // perde | zarf | cicek
+  nameFont?: string; // boş = tema varsayılanı
+  // ek bilgi kartları
+  liveStreamUrl?: string; accommodation?: string; dressCode?: string; transport?: string;
   // kutlama modu
   videoUrl: string; fromName: string; wish: string;
   cakeType?: string;
@@ -162,6 +167,8 @@ const DEFAULT_CFG: Cfg = {
   ],
   rsvpDeadline: '1 Eylül', phone: '905555555555',
   kinaDate: '', kinaVenueName: '', kinaVenueCity: '', kinaMapQuery: '', dua: '',
+  introStyle: 'perde', nameFont: '',
+  liveStreamUrl: '', accommodation: '', dressCode: '', transport: '',
   videoUrl: '', fromName: 'Sevgiyle, Annen',
   wish: 'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂',
 };
@@ -223,6 +230,23 @@ const Editor = () => {
   const [themeCat, setThemeCat] = useState<Cat>(
     isCelebTheme(cfg.theme) ? 'kutlama' : isDiniTheme(cfg.theme) ? 'dini' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun'
   );
+  // Tema kartı hover canlı önizlemesi (sadece fare olan cihazlarda)
+  const [hoverTheme, setHoverTheme] = useState<string | null>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canHover = typeof window !== 'undefined' && window.matchMedia?.('(hover: hover)').matches;
+  const onThemeEnter = (key: string) => {
+    if (!canHover) return;
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => setHoverTheme(key), 350);
+  };
+  const onThemeLeave = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setHoverTheme(null);
+  };
+  const hoverCfgUrl = (key: string) => {
+    const preview = { ...cfgRef.current, theme: key, __skipIntro: true };
+    return `/davet-preview.html?thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(preview))))}`;
+  };
   // Aktif bölüm görünür değilse temaya dön (kutlama ↔ davet geçişinde)
   useEffect(() => {
     if (!visibleSections.some((s) => s.id === active)) setActive('theme');
@@ -551,9 +575,25 @@ const Editor = () => {
                   Kutlama, davet değildir: kişiye özel hazırlayıp gönderirsiniz. Resim, müzik, video ve dilek içerir; RSVP/harita yoktur.
                 </p>
               )}
+              {hoverTheme && (
+                <div className="theme-hover-preview">
+                  <iframe
+                    title="tema-onizleme"
+                    src={hoverCfgUrl(hoverTheme)}
+                    style={{ width: 750, height: 1334, transform: 'scale(0.30)', transformOrigin: 'top left', border: 0, pointerEvents: 'none' }}
+                  />
+                  <span className="thp-label">{THEMES.find((t) => t.key === hoverTheme)?.label}</span>
+                </div>
+              )}
               <div className="theme-grid">
                 {THEMES.filter((t) => t.cat === themeCat).map((t) => (
-                  <button key={t.key} className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`} onClick={() => pickTheme(t.key)}>
+                  <button
+                    key={t.key}
+                    className={`theme-card ${cfg.theme === t.key ? 'on' : ''}`}
+                    onClick={() => pickTheme(t.key)}
+                    onMouseEnter={() => onThemeEnter(t.key)}
+                    onMouseLeave={onThemeLeave}
+                  >
                     {t.isNew && <span className="theme-new">YENİ</span>}
                     <span className="swatch" style={{ background: `linear-gradient(135deg, ${t.c1}, ${t.c2})` }} />
                     <span className="theme-name">{t.label}</span>
@@ -575,6 +615,30 @@ const Editor = () => {
                   <input type="datetime-local" value={cfg.date} onChange={(e) => set('date', e.target.value)} />
                 </Field>
               )}
+              <Field label="İsim yazı tipi">
+                <select value={cfg.nameFont || ''} onChange={(e) => set('nameFont', e.target.value)}>
+                  <option value="">Tema varsayılanı</option>
+                  <option value="Great Vibes" style={{ fontFamily: 'Great Vibes' }}>Great Vibes — zarif el yazısı</option>
+                  <option value="Parisienne" style={{ fontFamily: 'Parisienne' }}>Parisienne — romantik</option>
+                  <option value="Allura" style={{ fontFamily: 'Allura' }}>Allura — akıcı</option>
+                  <option value="Sacramento" style={{ fontFamily: 'Sacramento' }}>Sacramento — ince</option>
+                  <option value="Italianno" style={{ fontFamily: 'Italianno' }}>Italianno — kaligrafi</option>
+                  <option value="Cormorant Garamond" style={{ fontFamily: 'Cormorant Garamond' }}>Cormorant — klasik serif</option>
+                </select>
+                <small className="hint">Davetiyedeki isimlerin yazı tipi. Önizlemede anında görürsün.</small>
+              </Field>
+
+              {!isCeleb && !isBday && !isDini && (
+                <Field label="Açılış animasyonu">
+                  <select value={cfg.introStyle || 'perde'} onChange={(e) => set('introStyle', e.target.value)}>
+                    <option value="perde">🎬 Sinematik Perde (varsayılan)</option>
+                    <option value="zarf">💌 Zarf Açılışı</option>
+                    <option value="cicek">🌸 Çiçek Patlaması</option>
+                  </select>
+                  <small className="hint">Misafir daveti ilk açtığında oynayan giriş animasyonu.</small>
+                </Field>
+              )}
+
               <Field label="Üst yazı (isim altındaki cümle)">
                 <input value={cfg.subtitle} onChange={(e) => set('subtitle', e.target.value)} />
               </Field>
@@ -610,6 +674,26 @@ const Editor = () => {
                 <input value={cfg.mapQuery} onChange={(e) => set('mapQuery', e.target.value)} />
                 <small className="hint">Örn: "Çırağan Sarayı İstanbul". Harita ve yol tarifi bu metne göre çalışır.</small>
               </Field>
+
+              {!isCeleb && (
+                <>
+                  <h3 style={{ marginTop: 30 }}>ℹ️ Ek Bilgiler (opsiyonel)</h3>
+                  <p className="grp-sub">Doldurduğun alanlar davetiyede "Faydalı Bilgiler" kartları olarak görünür; boş bırakılanlar görünmez.</p>
+                  <Field label="Kıyafet kodu">
+                    <input value={cfg.dressCode || ''} onChange={(e) => set('dressCode', e.target.value)} placeholder="Örn: Şık günlük / Koyu renk takım" />
+                  </Field>
+                  <Field label="Ulaşım / servis bilgisi">
+                    <input value={cfg.transport || ''} onChange={(e) => set('transport', e.target.value)} placeholder="Örn: Taksim'den 17:00'de servis kalkacaktır" />
+                  </Field>
+                  <Field label="Konaklama önerisi">
+                    <input value={cfg.accommodation || ''} onChange={(e) => set('accommodation', e.target.value)} placeholder="Örn: Anlaşmalı otel: Grand Otel (%20 indirim)" />
+                  </Field>
+                  <Field label="Canlı yayın linki">
+                    <input value={cfg.liveStreamUrl || ''} onChange={(e) => set('liveStreamUrl', e.target.value)} placeholder="https://youtube.com/live/..." />
+                    <small className="hint">Gelemeyecek misafirler töreni buradan izleyebilir.</small>
+                  </Field>
+                </>
+              )}
 
               {isDini && (
                 <>

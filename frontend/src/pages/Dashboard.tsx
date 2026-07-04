@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
   ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X,
-  Copy, Check, MessageCircle, CalendarClock, QrCode, CopyPlus, Bell, Undo2, ChevronRight
+  Copy, Check, MessageCircle, CalendarClock, QrCode, CopyPlus, Bell, Undo2, ChevronRight, Images, Megaphone
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api, invitationService, guestListService, statsService, settingsService, authService, guestService, qrService, notificationService, ABS_API_URL } from '../services/api';
+import { api, invitationService, guestListService, statsService, settingsService, authService, guestService, qrService, notificationService, guestPhotoService, ABS_API_URL } from '../services/api';
 import { slugify } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
 import './Dashboard.css';
@@ -39,6 +39,17 @@ const THEME_GRAD: Record<string, string> = {
   kutlamaDisko: 'linear-gradient(135deg,#0a0118,#ff2ec4)',
 };
 const grad = (t?: string) => THEME_GRAD[t || 'altin'] || THEME_GRAD.altin;
+
+/* Boş durum illüstrasyonu: altın çizgisel zarf + yüzükler */
+const EmptyArt = () => (
+  <svg width="120" height="88" viewBox="0 0 120 88" fill="none" style={{ display: 'block', margin: '0 auto 14px', opacity: 0.9 }}>
+    <rect x="18" y="22" width="84" height="54" rx="8" stroke="#d4af37" strokeWidth="2" fill="rgba(212,175,55,0.06)" />
+    <path d="M20 26 L60 54 L100 26" stroke="#d4af37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <circle cx="48" cy="14" r="8" stroke="#b5952f" strokeWidth="2" fill="none" />
+    <circle cx="62" cy="14" r="8" stroke="#d4af37" strokeWidth="2" fill="none" />
+    <path d="M55 5 l3 -4 l3 4" stroke="#d4af37" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+  </svg>
+);
 
 /* Eleman görünür olunca true döner — ağır iframe thumbnail'ları yalnızca
    karta scroll edildiğinde yüklemek için (panel açılışını hızlandırır). */
@@ -163,6 +174,38 @@ const Dashboard = () => {
     }
   };
 
+  // Misafir albümü yönetimi
+  const [albumInv, setAlbumInv] = useState<any>(null);
+  const [albumPhotos, setAlbumPhotos] = useState<any[]>([]);
+  const [albumLoading, setAlbumLoading] = useState(false);
+  const openAlbum = async (inv: any) => {
+    setAlbumInv(inv); setAlbumLoading(true); setAlbumPhotos([]);
+    try {
+      setAlbumPhotos(await guestPhotoService.byInvitation(inv.id));
+    } catch { /* boş kalır */ } finally {
+      setAlbumLoading(false);
+    }
+  };
+  const deletePhoto = async (photo: any) => {
+    if (!window.confirm('Bu fotoğraf albümden kalıcı olarak silinsin mi?')) return;
+    try {
+      await guestPhotoService.remove(photo.id);
+      setAlbumPhotos((l) => l.filter((p) => p.id !== photo.id));
+    } catch {
+      alert('Silinemedi, tekrar deneyin.');
+    }
+  };
+  const downloadAllPhotos = async () => {
+    // Sırayla indir (tarayıcı ZIP olmadan en pratik yol)
+    for (let i = 0; i < albumPhotos.length; i++) {
+      const p = albumPhotos[i];
+      const a = document.createElement('a');
+      a.href = p.url; a.download = `album-${i + 1}.webp`;
+      a.click();
+      await new Promise((r) => setTimeout(r, 350));
+    }
+  };
+
   // Bildirimler (zil)
   const [notifs, setNotifs] = useState<any[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -262,12 +305,50 @@ const Dashboard = () => {
 
         {!loading && !error && (
           <>
-            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} totalViews={totalViews} viewsMap={viewsMap} recentGuests={recentGuests} onGo={setSection} onDelete={handleDelete} onDuplicate={handleDuplicate} deletingId={deletingId} />}
-            {section === 'davetiyeler' && <InvitationsView invitations={invitations} viewsMap={viewsMap} onDelete={handleDelete} onDuplicate={handleDuplicate} onRestore={(inv: any) => setInvitations((l) => [{ ...inv }, ...l])} deletingId={deletingId} />}
+            {section === 'panel' && <PanelView invitations={invitations} totalRsvp={totalRsvp} totalViews={totalViews} viewsMap={viewsMap} recentGuests={recentGuests} onGo={setSection} onDelete={handleDelete} onDuplicate={handleDuplicate} onAlbum={openAlbum} deletingId={deletingId} />}
+            {section === 'davetiyeler' && <InvitationsView invitations={invitations} viewsMap={viewsMap} onDelete={handleDelete} onDuplicate={handleDuplicate} onAlbum={openAlbum} onRestore={(inv: any) => setInvitations((l) => [{ ...inv }, ...l])} deletingId={deletingId} />}
             {section === 'misafirler' && <GuestsView invitations={invitations} />}
             {section === 'istatistikler' && <StatsView invitations={invitations} />}
             {section === 'ayarlar' && <SettingsView />}
           </>
+        )}
+
+        {/* Misafir Albümü yönetimi */}
+        {albumInv && (
+          <div className="db-album-overlay" onClick={(e) => { if (e.target === e.currentTarget) setAlbumInv(null); }}>
+            <div className="db-album">
+              <div className="db-album-head">
+                <div>
+                  <h3><Images size={18} /> Anı Albümü</h3>
+                  <small>{albumInv.title} · {albumPhotos.length} fotoğraf</small>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {albumPhotos.length > 0 && (
+                    <button className="db-btn ghost" onClick={downloadAllPhotos}><Download size={14} /> Tümünü İndir</button>
+                  )}
+                  <button className="db-btn ghost" onClick={() => setAlbumInv(null)}><X size={14} /> Kapat</button>
+                </div>
+              </div>
+              {albumLoading ? (
+                <div className="db-empty">Yükleniyor…</div>
+              ) : albumPhotos.length === 0 ? (
+                <div className="db-empty"><EmptyArt />Albüm henüz boş. Misafirler davet sayfasının altından fotoğraf yükleyebilir.</div>
+              ) : (
+                <div className="db-album-grid">
+                  {albumPhotos.map((p) => (
+                    <div key={p.id} className="db-album-item">
+                      <img src={p.url} alt="" loading="lazy" />
+                      {p.guestName && <span className="db-album-name">{p.guestName}</span>}
+                      <div className="db-album-actions">
+                        <a href={p.url} download className="db-album-btn" title="İndir"><Download size={14} /></a>
+                        <button className="db-album-btn danger" onClick={() => deletePhoto(p)} title="Sil"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </main>
     </div>
@@ -314,7 +395,7 @@ const isWeddingInv = (inv: any) =>
   !NON_WEDDING_THEME.test(String(inv?.config?.theme || '')) &&
   !/doğum|dogum|kutlama/i.test(String(inv?.title || ''));
 
-const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests, onGo, onDelete, onDuplicate, deletingId }: any) => {
+const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests, onGo, onDelete, onDuplicate, onAlbum, deletingId }: any) => {
   const next = invitations
     .filter((i: any) => isWeddingInv(i) && i.eventDate && new Date(i.eventDate).getTime() > Date.now())
     .sort((a: any, b: any) => +new Date(a.eventDate) - +new Date(b.eventDate))[0];
@@ -337,7 +418,7 @@ const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests,
             <button className="db-link" onClick={() => onGo('davetiyeler')}>Tümünü gör →</button>
           </div>
           {invitations.length === 0 ? (
-            <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
+            <div className="db-empty"><EmptyArt />Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
           ) : (
             <div className="db-quick">
               {invitations.slice(0, 5).map((inv: any) => (
@@ -388,7 +469,7 @@ const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests,
 };
 
 /* ---------- DAVETİYELER (+ çöp kutusu) ---------- */
-const InvitationsView = ({ invitations, viewsMap, onDelete, onDuplicate, onRestore, deletingId }: any) => {
+const InvitationsView = ({ invitations, viewsMap, onDelete, onDuplicate, onAlbum, onRestore, deletingId }: any) => {
   const [trash, setTrash] = useState<any[]>([]);
   const [trashOpen, setTrashOpen] = useState(false);
   const [restoringId, setRestoringId] = useState<string | null>(null);
@@ -414,8 +495,8 @@ const InvitationsView = ({ invitations, viewsMap, onDelete, onDuplicate, onResto
   return (
     <>
       {invitations.length === 0
-        ? <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
-        : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} views={viewsMap?.[inv.id]} onDelete={onDelete} onDuplicate={onDuplicate} deletingId={deletingId} />)}</div>}
+        ? <div className="db-empty"><EmptyArt />Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
+        : <div className="inv-grid">{invitations.map((inv: any) => <InvCard key={inv.id} inv={inv} views={viewsMap?.[inv.id]} onDelete={onDelete} onDuplicate={onDuplicate} onAlbum={onAlbum} deletingId={deletingId} />)}</div>}
 
       {trash.length > 0 && (
         <div className="db-panel" style={{ marginTop: 18 }}>
@@ -444,7 +525,7 @@ const InvitationsView = ({ invitations, viewsMap, onDelete, onDuplicate, onResto
   );
 };
 
-const InvCard = ({ inv, views, onDelete, onDuplicate, deletingId }: any) => {
+const InvCard = ({ inv, views, onDelete, onDuplicate, onAlbum, deletingId }: any) => {
   const [copied, setCopied] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
   const url = `${window.location.origin}/davet/${inv.slug}`;
@@ -502,6 +583,7 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, deletingId }: any) => {
           <a href={`/davet/${inv.slug}`} target="_blank" rel="noreferrer" className="db-btn"><ExternalLink size={15} /> Görüntüle</a>
           <button onClick={handleEdit} className="db-btn ghost"><Edit3 size={15} /> Özelleştir</button>
           <button onClick={() => onDuplicate?.(inv)} className="db-btn ghost" title="Aynı içerikle yeni davet oluştur"><CopyPlus size={15} /> Kopyala</button>
+          <button onClick={() => onAlbum?.(inv)} className="db-btn ghost" title="Misafirlerin yüklediği fotoğraflar"><Images size={15} /> Albüm</button>
         </div>
         <div className="inv-actions">
           <button onClick={copyLink} className={`db-btn ghost ${copied ? 'ok' : ''}`}>
@@ -625,9 +707,19 @@ const GuestsView = ({ invitations }: any) => {
             {invitations.map((i: any) => <option key={i.id} value={i.id}>{i.title}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button className="db-btn" onClick={() => setIsAdding(true)}><Plus size={16} /> Misafir Ekle</button>
           <button className="db-btn" onClick={exportCSV} disabled={list.length === 0}><Download size={16} /> Excel (CSV)</button>
+          {(() => {
+            const inv = invitations.find((i: any) => i.id === sel);
+            if (!inv) return null;
+            const text = `Merhaba! 💌 "${inv.title}" davetimize henüz yanıt vermediyseniz linkten katılım durumunuzu bildirebilir misiniz? ${window.location.origin}/davet/${inv.slug}`;
+            return (
+              <a className="db-btn wa" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noreferrer" title="Yanıt vermeyenlere WhatsApp'tan hatırlatma gönder">
+                <Megaphone size={15} /> Hatırlatma Gönder
+              </a>
+            );
+          })()}
         </div>
       </div>
       
@@ -735,7 +827,14 @@ const StatsView = ({ invitations }: any) => {
             <Stat lab="Görüntülenme" val={sum.views ?? 0} ico={<Eye size={18} />} gold />
             <Stat lab="Ziyaretçi" val={sum.visitors ?? 0} ico={<Users size={18} />} />
           </section>
-          
+
+          {Array.isArray(data?.daily) && data.daily.some((d: any) => d.views > 0) && (
+            <div className="db-panel" style={{ marginBottom: 20 }}>
+              <h4 style={{ marginBottom: 16, fontSize: 15, color: 'var(--color-text-primary)' }}>Son 14 Gün — Günlük Görüntülenme</h4>
+              <DailyChart daily={data.daily} />
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '24px' }}>
             <div className="db-panel">
               <h4 style={{ marginBottom: 16, fontSize: 15, color: 'var(--color-text-primary)' }}>Şehir Dağılımı</h4>
@@ -878,6 +977,16 @@ const SettingsView = () => {
         </form>
       </div>
 
+      <div className="db-panel" style={{ marginBottom: 18 }}>
+        <div className="db-panel-head"><h3>Verilerim (KVKK)</h3></div>
+        <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 14 }}>
+          Hesabına ait tüm verileri (profil, davetiyeler, misafir listeleri) JSON dosyası olarak indirebilirsin.
+        </p>
+        <button className="db-btn ghost" onClick={() => settingsService.exportData().catch(() => alert('İndirilemedi, tekrar deneyin.'))}>
+          <Download size={15} /> Verilerimi İndir (JSON)
+        </button>
+      </div>
+
       <div className="db-panel danger-zone">
         <div className="db-panel-head"><h3>Tehlikeli Bölge</h3></div>
         <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 14 }}>
@@ -888,6 +997,37 @@ const SettingsView = () => {
         </button>
       </div>
     </>
+  );
+};
+
+/* Kütüphanesiz mini çizgi grafik (son 14 gün) */
+const DailyChart = ({ daily }: { daily: { date: string; views: number }[] }) => {
+  const W = 640, H = 150, PAD = 24;
+  const max = Math.max(1, ...daily.map((d) => d.views));
+  const x = (i: number) => PAD + (i * (W - PAD * 2)) / (daily.length - 1);
+  const y = (v: number) => H - PAD - (v / max) * (H - PAD * 2);
+  const points = daily.map((d, i) => `${x(i)},${y(d.views)}`).join(' ');
+  const area = `${PAD},${H - PAD} ${points} ${W - PAD},${H - PAD}`;
+  return (
+    <div style={{ width: '100%', overflowX: 'auto' }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', minWidth: 460, display: 'block' }}>
+        <polygon points={area} fill="rgba(212,175,55,0.14)" />
+        <polyline points={points} fill="none" stroke="#d4af37" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {daily.map((d, i) => (
+          <g key={d.date}>
+            <circle cx={x(i)} cy={y(d.views)} r={d.views > 0 ? 3.5 : 2} fill={d.views > 0 ? '#b5952f' : '#e5ddc8'}>
+              <title>{`${d.date}: ${d.views} görüntülenme`}</title>
+            </circle>
+            {(i === 0 || i === daily.length - 1 || i === Math.floor(daily.length / 2)) && (
+              <text x={x(i)} y={H - 6} textAnchor="middle" fontSize="10" fill="#8a8a8a">
+                {d.date.slice(5).replace('-', '.')}
+              </text>
+            )}
+          </g>
+        ))}
+        <text x={PAD - 4} y={y(max) + 4} textAnchor="end" fontSize="10" fill="#8a8a8a">{max}</text>
+      </svg>
+    </div>
   );
 };
 
