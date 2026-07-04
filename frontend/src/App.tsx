@@ -16,6 +16,7 @@ import DavetView from './pages/DavetView';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageTracker from './components/PageTracker';
+import WhatsappButton from './components/WhatsappButton';
 import './index.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
     <AuthProvider>
       <Router>
         <PageTracker />
+        <WhatsappButton />
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />

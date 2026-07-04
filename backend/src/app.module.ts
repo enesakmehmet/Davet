@@ -30,6 +30,7 @@ import { MarketplaceModule } from './marketplace/marketplace.module';
 import { HealthModule } from './health/health.module';
 import { AdminModule } from './admin/admin.module';
 import { SettingsModule } from './settings/settings.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { SettingsModule } from './settings/settings.module';
     AdminModule,
     SettingsModule,
     GuestPhotosModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
   providers: [

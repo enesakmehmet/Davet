@@ -49,6 +49,16 @@ model PageView {
   @@index([createdAt])
 }
 
+// WhatsApp destek butonuna tıklayan ziyaretçi kaydı (admin panelde "kim ne zaman yazmak istedi" listesi için)
+model WhatsappClick {
+  id        String   @id @default(uuid())
+  path      String // hangi sayfadan tıklandı
+  sessionId String? // anonim ziyaretçi oturum kimliği (PageView ile aynı mantık)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model TemplateCategory {
   id        String     @id @default(uuid())
   name      String     @unique

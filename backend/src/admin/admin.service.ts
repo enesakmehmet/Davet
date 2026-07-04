@@ -1,17 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly analytics: AnalyticsService,
+    private readonly whatsapp: WhatsappService,
   ) {}
 
   // Site sayfa görüntüleme özeti (dahili analytics)
   async getPageViewStats() {
     return this.analytics.getPageViewStats();
+  }
+
+  // WhatsApp destek butonuna kim ne zaman tıkladı (admin panel takibi)
+  async getWhatsappClicks(page: number = 1, limit: number = 20) {
+    return this.whatsapp.getClicks(page, limit);
   }
 
   async getDashboardStats() {
@@ -20,6 +27,7 @@ export class AdminService {
       totalInvitations,
       totalTemplates,
       totalPayments,
+      mobileUsers,
       recentUsers,
       recentPayments,
     ] = await Promise.all([
@@ -27,6 +35,7 @@ export class AdminService {
       this.prisma.invitation.count(),
       this.prisma.template.count(),
       this.prisma.payment.count(),
+      this.prisma.user.count({ where: { lastPlatform: 'mobile' } }),
       this.prisma.user.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -35,6 +44,8 @@ export class AdminService {
           email: true,
           name: true,
           createdAt: true,
+          lastPlatform: true,
+          lastActiveAt: true,
         },
       }),
       this.prisma.payment.findMany({
@@ -61,6 +72,7 @@ export class AdminService {
       totalInvitations,
       totalTemplates,
       totalPayments,
+      mobileUsers, // en son mobil uygulamadan giriş/refresh yapmış kullanıcı sayısı
       totalRevenue: totalRevenue._sum.amount || 0,
       recentUsers,
       recentPayments,
@@ -91,6 +103,8 @@ export class AdminService {
           role: true,
           status: true,
           createdAt: true,
+          lastPlatform: true,
+          lastActiveAt: true,
           _count: {
             select: {
               invitations: true,
