@@ -16,6 +16,8 @@ model User {
   status       String   @default("active") // "active" | "suspended"
   refreshToken String?
   expoPushToken String? // mobil push bildirimleri (Expo)
+  lastPlatform String? // son giriş yapılan platform: "web" | "mobile"
+  lastActiveAt DateTime? // son giriş/refresh anı (admin panelde takip için)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

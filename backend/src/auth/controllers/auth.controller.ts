@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request, Headers, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
@@ -19,13 +19,16 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // IP başına dakikada 5 kayıt denemesi
   @ApiOperation({ summary: 'Yeni kullanıcı kaydı oluşturur' })
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Headers('x-client-platform') platform?: string,
+  ) {
     // Honeypot: gizli "website" alanını yalnızca botlar doldurur
     if (registerDto.website) {
       throw new BadRequestException('Geçersiz istek.');
     }
     const { website, ...dto } = registerDto as any;
-    return this.authService.register(dto);
+    return this.authService.register(dto, platform);
   }
 
   @UseGuards(ThrottlerGuard)
@@ -33,15 +36,21 @@ export class AuthController {
   @ApiOperation({ summary: 'Kullanıcı girişi yapar ve tokenları döner' })
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Headers('x-client-platform') platform?: string,
+  ) {
+    return this.authService.login(loginDto, platform);
   }
 
   @ApiOperation({ summary: 'Refresh token kullanarak yeni access token döner' })
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Body() refreshDto: RefreshDto) {
-    return this.authService.refresh(refreshDto);
+  async refresh(
+    @Body() refreshDto: RefreshDto,
+    @Headers('x-client-platform') platform?: string,
+  ) {
+    return this.authService.refresh(refreshDto, platform);
   }
 
   @UseGuards(ThrottlerGuard)

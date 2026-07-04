@@ -19,7 +19,7 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, platform?: string) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('Bu e-posta adresi zaten kullanımda.');
@@ -49,10 +49,10 @@ export class AuthService {
       /* e-posta gönderilemese de kayıt tamamlanmış olsun */
     }
 
-    return this.generateTokens(user);
+    return this.generateTokens(user, platform);
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, platform?: string) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Geçersiz e-posta veya şifre.');
@@ -63,10 +63,10 @@ export class AuthService {
       throw new UnauthorizedException('Geçersiz e-posta veya şifre.');
     }
 
-    return this.generateTokens(user);
+    return this.generateTokens(user, platform);
   }
 
-  async refresh(refreshDto: RefreshDto) {
+  async refresh(refreshDto: RefreshDto, platform?: string) {
     const payload = this.jwtService.decode(refreshDto.refreshToken) as any;
     if (!payload || !payload.sub) {
       throw new UnauthorizedException('Geçersiz refresh token.');
@@ -82,7 +82,7 @@ export class AuthService {
       throw new UnauthorizedException('Geçersiz refresh token.');
     }
 
-    return this.generateTokens(user);
+    return this.generateTokens(user, platform);
   }
 
   async logout(userId: string) {
@@ -161,14 +161,20 @@ export class AuthService {
     return { message: 'Doğrulama e-postası tekrar gönderildi.' };
   }
 
-  private async generateTokens(user: any) {
+  private async generateTokens(user: any, platform?: string) {
     const payload = { email: user.email, sub: user.id };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
 
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.usersService.update(user.id, { refreshToken: hashedRefreshToken });
+    // Admin panelde takip için: bu isteğin geldiği platform (mobil uygulama "mobile" gönderir, aksi halde web sayılır)
+    const normalizedPlatform = String(platform || '').toLowerCase() === 'mobile' ? 'mobile' : 'web';
+    await this.usersService.update(user.id, {
+      refreshToken: hashedRefreshToken,
+      lastPlatform: normalizedPlatform,
+      lastActiveAt: new Date(),
+    });
 
     return {
       access_token: accessToken,
