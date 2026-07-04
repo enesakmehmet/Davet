@@ -6,7 +6,7 @@
 <title>Davet Önizleme</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Monoton&family=Amiri:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Monoton&family=Amiri:ital,wght@0,400;0,700&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=IBM+Plex+Mono:wght@400;600&family=Shadows+Into+Light&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -215,6 +215,50 @@
   .dini-dua{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.7;max-width:440px;margin:0 auto}
   .dini-names{letter-spacing:5px;font-size:15px;font-weight:600;margin-top:18px}
 
+  /* ===== Tema bazlı yerleşim kimlikleri ===== */
+  /* Yıldız Haritası: cam efektli kutular, ışıldayan kenarlar */
+  body[data-theme="yildizharitasi"] .cd-box{background:rgba(155,184,255,.07)!important;border:1px solid rgba(155,184,255,.3)!important;backdrop-filter:blur(6px);border-radius:50%!important;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:86px!important}
+  body[data-theme="yildizharitasi"] .card,body[data-theme="yildizharitasi"] .rsvp-card,body[data-theme="yildizharitasi"] .fam .fc{backdrop-filter:blur(8px);box-shadow:0 0 30px rgba(155,184,255,.08)}
+  body[data-theme="yildizharitasi"] h2.title{letter-spacing:4px;text-transform:uppercase;font-size:24px!important}
+  body[data-theme="yildizharitasi"] .gal{border-radius:50% 50% 16px 16px/60px 60px 16px 16px!important}
+  /* Gazete: köşeli, çizgili, siyah-beyaz baskı hissi */
+  body[data-theme="gazete"] section{text-align:left}
+  body[data-theme="gazete"] section>*{text-align:left}
+  body[data-theme="gazete"] h2.title{border-bottom:3px double #1a1a1a;padding-bottom:8px;font-family:'Playfair Display',serif!important;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+  body[data-theme="gazete"] .tsub{font-style:italic;text-transform:none!important;letter-spacing:.5px!important}
+  body[data-theme="gazete"] .cd-box,body[data-theme="gazete"] .card,body[data-theme="gazete"] .fam .fc,body[data-theme="gazete"] .rsvp-card,body[data-theme="gazete"] .gal{border-radius:0!important;border:1.5px solid #1a1a1a!important;box-shadow:4px 4px 0 #1a1a1a!important}
+  body[data-theme="gazete"] .lead{column-count:1;font-style:normal!important;font-size:17px!important;text-align:justify}
+  body[data-theme="gazete"] .btn,body[data-theme="gazete"] .send,body[data-theme="gazete"] .choice button{border-radius:0!important}
+  body[data-theme="gazete"] .countdown{justify-content:flex-start}
+  body[data-theme="gazete"] .tl::before{background:#1a1a1a!important;opacity:1}
+  /* Biniş kartı: mono etiketler, bilet kenarları */
+  body[data-theme="biniskarti"] h2.title{font-family:'IBM Plex Mono',monospace!important;letter-spacing:2px;text-transform:uppercase;font-size:22px!important}
+  body[data-theme="biniskarti"] .cd-box{border-radius:10px!important;border:2px dashed #9cc0d8!important;font-family:'IBM Plex Mono',monospace}
+  body[data-theme="biniskarti"] .cd-num{font-family:'IBM Plex Mono',monospace!important}
+  body[data-theme="biniskarti"] .card,body[data-theme="biniskarti"] .rsvp-card,body[data-theme="biniskarti"] .fam .fc{border:2px dashed #9cc0d8!important;border-radius:14px!important}
+  body[data-theme="biniskarti"] .btn,body[data-theme="biniskarti"] .send{border-radius:8px!important;font-family:'IBM Plex Mono',monospace;letter-spacing:1px}
+  /* Mum ışığı: sıcak hale, yumuşak parlayan kenarlar */
+  body[data-theme="mumisigi"] .cd-box{border-radius:18px!important;border:1px solid rgba(232,180,90,.35)!important;box-shadow:0 0 24px rgba(232,180,90,.12),inset 0 0 18px rgba(232,180,90,.06)}
+  body[data-theme="mumisigi"] h2.title{text-shadow:0 0 22px rgba(232,180,90,.4)}
+  body[data-theme="mumisigi"] .card,body[data-theme="mumisigi"] .rsvp-card,body[data-theme="mumisigi"] .fam .fc{box-shadow:0 0 30px rgba(232,180,90,.1)!important;border-color:rgba(232,180,90,.3)!important}
+  body[data-theme="mumisigi"] .gal{box-shadow:0 0 40px rgba(232,180,90,.18)!important}
+  /* Sakura zen: ince çizgiler, bol boşluk, minimal */
+  body[data-theme="sakurazen"] section{padding:84px 24px}
+  body[data-theme="sakurazen"] h2.title{font-weight:500;letter-spacing:6px;text-transform:uppercase;font-size:20px!important}
+  body[data-theme="sakurazen"] h2.title::after{content:"";display:block;width:34px;height:1.5px;background:#c96f87;margin:12px auto 0}
+  body[data-theme="sakurazen"] .cd-box{background:transparent!important;border:none!important;border-bottom:1.5px solid #eccdd6!important;border-radius:0!important}
+  body[data-theme="sakurazen"] .card,body[data-theme="sakurazen"] .fam .fc{border:none!important;border-top:2px solid #c96f87!important;border-radius:0!important;box-shadow:0 10px 30px rgba(201,111,135,.08)}
+  body[data-theme="sakurazen"] .rsvp-card{border-radius:0!important}
+  body[data-theme="sakurazen"] .btn,body[data-theme="sakurazen"] .send{border-radius:0!important;letter-spacing:3px}
+  /* Aşk mektubu: kâğıt dokusu, el yazısı, dikişli kenar */
+  body[data-theme="askmektubu"]{background-image:repeating-linear-gradient(0deg,rgba(138,90,59,.025) 0 1px,transparent 1px 28px)}
+  body[data-theme="askmektubu"] .lead{font-family:'Shadows Into Light',cursive!important;font-style:normal!important;font-size:20px!important}
+  body[data-theme="askmektubu"] .cd-box{border-radius:4px!important;border:1px dashed #c8a87e!important;background:#fffdf4!important}
+  body[data-theme="askmektubu"] .card,body[data-theme="askmektubu"] .rsvp-card,body[data-theme="askmektubu"] .fam .fc{border-radius:4px!important;border:1px dashed #c8a87e!important;background:#fffdf4!important;box-shadow:0 8px 24px rgba(120,90,50,.12)}
+  body[data-theme="askmektubu"] .gal{border-radius:4px!important;transform:rotate(-.6deg)}
+  body[data-theme="askmektubu"] .tl .it h4{font-family:'Shadows Into Light',cursive;font-size:22px}
+  body[data-theme="askmektubu"] .btn,body[data-theme="askmektubu"] .send{border-radius:4px!important}
+
   /* ===== Zarf açılış introsu ===== */
   .env-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .8s ease,visibility .8s ease}
   .env-gate.done{opacity:0;visibility:hidden;pointer-events:none}
@@ -315,6 +359,13 @@ var THEMES = {
   zumrut:   {label:'Zümrüt Saray', accent:'#d4b455', soft:'#a8d8bf', dark:true, bg:'radial-gradient(circle at 50% 30%,#12503a,#07271c)', page:'#07271c', nameFont:'Cinzel', decor:[], decorKind:'stars'},
   gececicek:{label:'Gece Çiçeği', accent:'#e58bb1', soft:'#f3c3d8', dark:true, bg:'radial-gradient(circle at 50% 28%,#3a1226,#150711)', page:'#150711', nameFont:'Parisienne', decor:['🌸','🌺','✿'], decorKind:'rain'},
   pudra:    {label:'Pudra Şıklığı', accent:'#c07f6d', soft:'#f0d5cb', dark:false, bg:'linear-gradient(165deg,#fdf7f4,#f6e3da)', page:'#fdf7f4', nameFont:'Italianno', decor:['🤍','✨'], decorKind:'rain'},
+  /* ===== FARKLI YERLEŞİMLİ PREMIUM TEMALAR (hero: özel açılış varyantı) ===== */
+  yildizharitasi:{label:'Yıldız Haritası', accent:'#9bb8ff', soft:'#5a6a9a', dark:true, bg:'radial-gradient(ellipse at 50% 20%,#16203f,#080b18)', page:'#080b18', nameFont:'Cormorant Garamond', decor:[], decorKind:'stars', hero:'stars'},
+  gazete:   {label:'Düğün Gazetesi', accent:'#1a1a1a', soft:'#c9c2b0', dark:false, bg:'#f6f2e6', page:'#f6f2e6', nameFont:'Playfair Display', decor:[], decorKind:'none', hero:'gazete'},
+  biniskarti:{label:'Biniş Kartı', accent:'#0e5a8a', soft:'#bcd7e8', dark:false, bg:'linear-gradient(170deg,#eef4f8,#dce9f2)', page:'#eef4f8', nameFont:'IBM Plex Mono', decor:['✈️'], decorKind:'rain', hero:'bilet'},
+  mumisigi: {label:'Mum Işığı', accent:'#e8b45a', soft:'#8a6a3a', dark:true, bg:'radial-gradient(ellipse at 50% 30%,#2e1f0f,#120a04)', page:'#120a04', nameFont:'Italianno', decor:['✦'], decorKind:'rain', hero:'mum'},
+  sakurazen:{label:'Sakura Zen', accent:'#c96f87', soft:'#f0d5dd', dark:false, bg:'#faf7f4', page:'#faf7f4', nameFont:'Cormorant Garamond', decor:['🌸'], decorKind:'rain', hero:'zen'},
+  askmektubu:{label:'Aşk Mektubu', accent:'#8a5a3b', soft:'#e5d5bc', dark:false, bg:'linear-gradient(170deg,#f9f3e6,#f1e6d0)', page:'#f9f3e6', nameFont:'Shadows Into Light', decor:['💌'], decorKind:'rain', hero:'mektup'},
   /* ===== DİNİ DÜĞÜN DAVETLERİ (besmele + kına & düğün kartları + dua) ===== */
   dini:     {label:'Zarif Besmele', accent:'#b08a3e', soft:'#e8d6a8', dark:false, bg:'linear-gradient(170deg,#fdf9ef,#f7ecd4)', page:'#faf5e9', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
   diniYesil:{label:'Zümrüt Dua', accent:'#2e6b4f', soft:'#cfe2d4', dark:false, bg:'linear-gradient(170deg,#f7fbf6,#e7f0e6)', page:'#f4f9f3', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
@@ -654,6 +705,8 @@ function render(cfg){
 
   document.body.style.background = T.page;
   document.body.style.color = ink;
+  // Tema bazlı yerleşim/stil geçersiz kılmaları için (CSS: body[data-theme="..."])
+  document.body.setAttribute('data-theme', String(cfg.theme || ''));
 
   var app = document.getElementById('app');
   app.innerHTML='';
@@ -691,7 +744,7 @@ function render(cfg){
   var ageHTML = (isBday && cfg.groomName)
     ? '<div class="eyebrow reveal" style="margin-top:8px;font-size:17px;letter-spacing:2px;color:'+(T.dark?T.soft:T.accent)+'">🎈 '+esc(cfg.groomName)+ t.yearsOld +' 🎈</div>'
     : '';
-  hero.innerHTML =
+  var defaultHeroHTML =
     '<div class="eyebrow reveal" style="color:'+(T.dark?T.soft:T.accent)+'">'+heroEyebrow+'</div>'+
     '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(56px,13vw,104px);color:'+(T.dark?'#fff':T.accent)+'">'+namesHTML+'</h1>'+
     ageHTML+
@@ -699,6 +752,9 @@ function render(cfg){
     '<p class="subtitle reveal" style="color:'+inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
     '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
     '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">'+t.scrollDown+'</div>';
+  hero.innerHTML = buildHeroVariant(T, cfg, {
+    couple: couple, heroEyebrow: heroEyebrow, inkSoft: inkSoft, ink: ink, lang: lang, scrollTxt: t.scrollDown,
+  }) || defaultHeroHTML;
   wrap.appendChild(hero);
 
   function sec(bg){var s=el('section','fade');if(bg)s.style.background=bg;return s;}
@@ -1114,6 +1170,86 @@ function setupGuestAlbum(cfg, T, wrap, x){
       .catch(function(e){ status.textContent=(e&&e.message)||'Yüklenemedi, tekrar deneyin.'; })
       .finally(function(){ btn.disabled=false; fileIn.value=''; });
   });
+}
+
+/* ===== Tema bazlı özel hero yerleşimleri (varsayılan hero'yu bozmaz) ===== */
+function buildHeroVariant(T, cfg, x){
+  var v = T.hero;
+  if(!v) return null;
+  var names = esc(cfg.brideName)+' <span style="opacity:.6">&amp;</span> '+esc(cfg.groomName);
+  var dateLine = fmtDate(cfg.date, x.lang)+' · '+fmtDay(cfg.date, x.lang);
+  var cue = '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">'+x.scrollTxt+'</div>';
+
+  if(v==='stars'){
+    // Yıldız haritası: takımyıldız çizgileri + parlayan isimler
+    return '<svg class="reveal" width="240" height="120" viewBox="0 0 240 120" style="opacity:.85">'+
+        '<polyline points="20,90 60,40 110,60 150,20 200,50 225,95" fill="none" stroke="'+T.accent+'" stroke-width="1" stroke-dasharray="3 4" opacity=".7"/>'+
+        '<g fill="#fff">'+[[20,90],[60,40],[110,60],[150,20],[200,50],[225,95]].map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6"><animate attributeName="opacity" values="1;.3;1" dur="'+(2+Math.random()*2)+'s" repeatCount="indefinite"/></circle>';}).join('')+'</g></svg>'+
+      '<div class="eyebrow reveal" style="color:'+T.accent+';letter-spacing:7px">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',serif;font-size:clamp(48px,11vw,92px);color:#fff;text-shadow:0 0 26px '+T.accent+'66">'+names+'</h1>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="reveal" style="margin-top:22px;display:inline-block;padding:11px 26px;border:1px solid '+T.accent+'55;border-radius:999px;color:'+T.accent+';font-size:12px;letter-spacing:3px;background:rgba(255,255,255,.03)">✦ '+dateLine.toUpperCase()+' ✦</div>'+cue;
+  }
+  if(v==='gazete'){
+    // Gazete manşeti: başlık kuşağı + dev serif manşet + tarih satırı
+    return '<div class="reveal" style="width:min(92%,620px);border-top:3.5px double '+T.accent+';border-bottom:1px solid '+T.accent+';padding:8px 0;display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:2px;color:'+x.inkSoft+'"><span>SAYI: 1</span><span>DÜĞÜN GAZETESİ</span><span>ÜCRETSİZ</span></div>'+
+      '<div class="eyebrow reveal" style="margin-top:26px;color:'+x.inkSoft+'">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\'Playfair Display\',serif;font-weight:900;font-size:clamp(44px,10vw,86px);line-height:1.04;color:'+T.accent+';max-width:640px">'+names.toUpperCase()+'</h1>'+
+      '<h2 class="reveal" style="font-family:\'Playfair Display\',serif;font-style:italic;font-weight:500;font-size:clamp(17px,3vw,24px);color:'+x.ink+';margin-top:10px">EVLENİYOR!</h2>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+';max-width:520px;border-top:1px solid '+T.soft+';padding-top:14px;margin-top:16px">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="reveal" style="margin-top:18px;font-size:12px;letter-spacing:2px;color:'+x.ink+';font-weight:700">'+dateLine.toUpperCase()+' — '+esc((cfg.venueCity||'').toUpperCase())+'</div>'+cue;
+  }
+  if(v==='bilet'){
+    // Biniş kartı: perforeli bilet kartı, FROM/TO isimler
+    return '<div class="reveal" style="width:min(94%,560px);background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(14,90,138,.22);overflow:hidden;text-align:left">'+
+        '<div style="background:'+T.accent+';color:#fff;padding:13px 22px;display:flex;justify-content:space-between;font-family:\'IBM Plex Mono\',monospace;font-size:11.5px;letter-spacing:1.5px"><span>DAVETIM AIR ✈</span><span>BOARDING PASS</span></div>'+
+        '<div style="padding:22px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap">'+
+          '<div><div style="font-size:10px;letter-spacing:2px;color:#8aa4b8">GELİN</div><div style="font-family:\''+T.nameFont+'\',monospace;font-size:clamp(22px,5vw,34px);font-weight:600;color:'+T.accent+'">'+esc(cfg.brideName)+'</div></div>'+
+          '<div style="color:'+T.accent+';font-size:22px">✈</div>'+
+          '<div style="text-align:right"><div style="font-size:10px;letter-spacing:2px;color:#8aa4b8">DAMAT</div><div style="font-family:\''+T.nameFont+'\',monospace;font-size:clamp(22px,5vw,34px);font-weight:600;color:'+T.accent+'">'+esc(cfg.groomName)+'</div></div>'+
+        '</div>'+
+        '<div style="border-top:2px dashed '+T.soft+';margin:0 14px"></div>'+
+        '<div style="padding:16px 22px;display:flex;gap:18px;flex-wrap:wrap;font-family:\'IBM Plex Mono\',monospace">'+
+          '<div><div style="font-size:9.5px;letter-spacing:1.5px;color:#8aa4b8">TARİH</div><div style="font-size:14px;font-weight:600;color:#20303c">'+fmtDate(cfg.date,x.lang)+'</div></div>'+
+          '<div><div style="font-size:9.5px;letter-spacing:1.5px;color:#8aa4b8">SAAT</div><div style="font-size:14px;font-weight:600;color:#20303c">'+fmtTime(cfg.date)+'</div></div>'+
+          '<div><div style="font-size:9.5px;letter-spacing:1.5px;color:#8aa4b8">KAPI</div><div style="font-size:14px;font-weight:600;color:#20303c">'+esc(cfg.venueName||'')+'</div></div>'+
+        '</div>'+
+        '<div style="height:34px;margin:4px 22px 18px;background:repeating-linear-gradient(90deg,#20303c 0 2px,transparent 2px 5px,#20303c 5px 6px,transparent 6px 11px)"></div>'+
+      '</div>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+';margin-top:22px">'+esc(cfg.subtitle)+'</p>'+cue;
+  }
+  if(v==='mum'){
+    // Mum ışığı: alev + sıcak hale içinde isimler
+    return '<div class="reveal" style="position:relative;width:14px;height:64px;margin-bottom:8px">'+
+        '<div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:16px;height:26px;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:radial-gradient(circle at 50% 30%,#fff6d8,#ffb300 55%,#ff6d00);filter:drop-shadow(0 0 18px rgba(255,170,60,.9));animation:flicker 1.4s ease-in-out infinite"></div>'+
+        '<div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:9px;height:36px;border-radius:4px;background:linear-gradient(180deg,#f4e4c2,#d9c194)"></div>'+
+      '</div>'+
+      '<div class="eyebrow reveal" style="color:'+T.accent+'">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(58px,13vw,108px);color:#f7e7c3;text-shadow:0 0 34px rgba(232,180,90,.55)">'+names+'</h1>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="eyebrow reveal" style="margin-top:20px;color:'+T.accent+'">'+dateLine+'</div>'+cue;
+  }
+  if(v==='zen'){
+    // Sakura zen: mühür + ince dikey çizgi + geniş boşluk
+    return '<div class="reveal" style="width:52px;height:52px;border-radius:50%;background:'+T.accent+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 8px 22px '+T.accent+'44">🌸</div>'+
+      '<div class="reveal" style="width:1.5px;height:46px;background:'+T.accent+';opacity:.5;margin:16px 0"></div>'+
+      '<div class="eyebrow reveal" style="color:'+x.inkSoft+';letter-spacing:8px">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',serif;font-weight:500;font-size:clamp(40px,9vw,72px);letter-spacing:3px;color:#3a3330;margin-top:10px">'+names+'</h1>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+';letter-spacing:1px">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="reveal" style="margin-top:26px;padding:9px 22px;border:1px solid '+T.accent+'66;color:'+T.accent+';font-size:12px;letter-spacing:4px">'+dateLine.toUpperCase()+'</div>'+cue;
+  }
+  if(v==='mektup'){
+    // Aşk mektubu: kâğıt kart + balmumu mühür
+    var seal = (String(cfg.brideName||'D').charAt(0)+String(cfg.groomName||' ').charAt(0)).toUpperCase();
+    return '<div class="reveal" style="position:relative;width:min(92%,540px);background:#fffdf4;border-radius:6px;padding:44px 28px 36px;box-shadow:0 20px 50px rgba(120,90,50,.22);border:1px solid '+T.soft+'">'+
+        '<div style="position:absolute;top:-24px;left:50%;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c4574e,#8e2f28);color:#f7e3d5;display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:700;box-shadow:0 6px 16px rgba(142,47,40,.5)">'+esc(seal)+'</div>'+
+        '<div class="eyebrow" style="color:'+x.inkSoft+'">'+esc(x.heroEyebrow)+'</div>'+
+        '<h1 class="names" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(40px,9vw,66px);color:'+T.accent+';margin:12px 0">'+names+'</h1>'+
+        '<p style="font-family:\'Shadows Into Light\',cursive;font-size:17px;line-height:1.7;color:#6a5642">'+esc(cfg.subtitle)+'</p>'+
+        '<div style="margin-top:18px;font-size:12px;letter-spacing:2.5px;color:'+T.accent+';font-weight:700">'+dateLine.toUpperCase()+'</div>'+
+      '</div>'+cue;
+  }
+  return null;
 }
 
 /* ===== Lightbox: galeri ve anı albümü fotoğrafları tam ekran ===== */

@@ -21,6 +21,12 @@ const TEMPLATES = [
   { key: 'zumrut', name: 'Zümrüt Saray', category: 'Düğün', c1: '#0d3b2a', c2: '#d4b455', dark: true, isNew: true },
   { key: 'gececicek', name: 'Gece Çiçeği', category: 'Düğün', c1: '#2b0d1d', c2: '#e58bb1', dark: true, isNew: true },
   { key: 'pudra', name: 'Pudra Şıklığı', category: 'Düğün', c1: '#c07f6d', c2: '#f6e3da', dark: false, isNew: true },
+  { key: 'yildizharitasi', name: 'Yıldız Haritası', category: 'Düğün', c1: '#080b18', c2: '#9bb8ff', dark: true, isNew: true },
+  { key: 'gazete', name: 'Düğün Gazetesi', category: 'Düğün', c1: '#f6f2e6', c2: '#8a8578', dark: false, isNew: true },
+  { key: 'biniskarti', name: 'Biniş Kartı', category: 'Düğün', c1: '#0e5a8a', c2: '#dce9f2', dark: true, isNew: true },
+  { key: 'mumisigi', name: 'Mum Işığı', category: 'Düğün', c1: '#120a04', c2: '#e8b45a', dark: true, isNew: true },
+  { key: 'sakurazen', name: 'Sakura Zen', category: 'Düğün', c1: '#c96f87', c2: '#faf7f4', dark: false, isNew: true },
+  { key: 'askmektubu', name: 'Aşk Mektubu', category: 'Düğün', c1: '#8a5a3b', c2: '#f9f3e6', dark: false, isNew: true },
   // Dini Düğün
   { key: 'dini', name: 'Zarif Besmele', category: 'Dini Düğün', c1: '#b08a3e', c2: '#f0e2bd', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', category: 'Dini Düğün', c1: '#2e6b4f', c2: '#dcead9', dark: false, isNew: true },
