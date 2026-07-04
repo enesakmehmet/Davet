@@ -27,6 +27,12 @@ const TEMPLATES = [
   { key: 'mumisigi', name: 'Mum Işığı', category: 'Düğün', c1: '#120a04', c2: '#e8b45a', dark: true, isNew: true },
   { key: 'sakurazen', name: 'Sakura Zen', category: 'Düğün', c1: '#c96f87', c2: '#faf7f4', dark: false, isNew: true },
   { key: 'askmektubu', name: 'Aşk Mektubu', category: 'Düğün', c1: '#8a5a3b', c2: '#f9f3e6', dark: false, isNew: true },
+  { key: 'filmseridi', name: 'Film Şeridi', category: 'Düğün', c1: '#101010', c2: '#e8c15a', dark: true, isNew: true },
+  { key: 'muze', name: 'Müze', category: 'Düğün', c1: '#7a6a4f', c2: '#f4f1ea', dark: false, isNew: true },
+  { key: 'parsomen', name: 'Parşömen', category: 'Düğün', c1: '#7a4a1f', c2: '#f3e6c8', dark: false, isNew: true },
+  { key: 'denizalti', name: 'Deniz Altı', category: 'Düğün', c1: '#062430', c2: '#5fd4d0', dark: true, isNew: true },
+  { key: 'sinemaafisi', name: 'Sinema Afişi', category: 'Düğün', c1: '#0c0a08', c2: '#d4af37', dark: true, isNew: true },
+  { key: 'kristal', name: 'Kristal', category: 'Düğün', c1: '#6f93c9', c2: '#f8fafd', dark: false, isNew: true },
   // Dini Düğün
   { key: 'dini', name: 'Zarif Besmele', category: 'Dini Düğün', c1: '#b08a3e', c2: '#f0e2bd', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', category: 'Dini Düğün', c1: '#2e6b4f', c2: '#dcead9', dark: false, isNew: true },
