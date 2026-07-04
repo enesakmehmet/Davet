@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
+import { LeadsService } from '../leads/leads.service';
 
 @Injectable()
 export class AdminService {
@@ -9,6 +10,7 @@ export class AdminService {
     private readonly prisma: PrismaService,
     private readonly analytics: AnalyticsService,
     private readonly whatsapp: WhatsappService,
+    private readonly leads: LeadsService,
   ) {}
 
   // Site sayfa görüntüleme özeti (dahili analytics)
@@ -19,6 +21,11 @@ export class AdminService {
   // WhatsApp destek butonuna kim ne zaman tıkladı (admin panel takibi)
   async getWhatsappClicks(page: number = 1, limit: number = 20) {
     return this.whatsapp.getClicks(page, limit);
+  }
+
+  // Anasayfada e-posta bırakan ilgilenenler (admin panel takibi)
+  async getLeads(page: number = 1, limit: number = 20) {
+    return this.leads.getAll(page, limit);
   }
 
   async getDashboardStats() {

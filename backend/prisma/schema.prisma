@@ -49,6 +49,14 @@ model PageView {
   @@index([createdAt])
 }
 
+// Anasayfada "e-posta bırak" formunu dolduran, henüz üye olmamış ilgilenen ziyaretçiler
+model Lead {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  source    String? // hangi bölümden bırakıldı (ör. "homepage-cta")
+  createdAt DateTime @default(now())
+}
+
 // WhatsApp destek butonuna tıklayan ziyaretçi kaydı (admin panelde "kim ne zaman yazmak istedi" listesi için)
 model WhatsappClick {
   id        String   @id @default(uuid())

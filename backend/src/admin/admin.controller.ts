@@ -36,6 +36,14 @@ export class AdminController {
     return this.adminService.getWhatsappClicks(page, limit);
   }
 
+  @Get('leads')
+  async getLeads(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    return this.adminService.getLeads(page, limit);
+  }
+
   @Get('users')
   async getAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

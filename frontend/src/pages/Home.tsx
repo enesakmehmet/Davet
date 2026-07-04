@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Clock, MapPin, MailOpen, Music, Image as ImageIcon,
-  LayoutTemplate, CreditCard, Share2, Check, ChevronDown, Star, Heart
+  LayoutTemplate, CreditCard, Share2, Check, ChevronDown, Star, Heart,
+  Globe, Lock, Link2, QrCode, Eye, Bell
 } from 'lucide-react';
+import { api } from '../services/api';
 import './Home.css';
 
 const PRICE = '59,90';
@@ -20,13 +22,35 @@ const stagger = {
   visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
 };
 
-const SHOWCASE = [
-  { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026', targetDate: '2026-09-12T18:00:00+03:00' },
-  { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026', targetDate: '2026-10-03T18:00:00+03:00' },
-  { key: 'lacivert', name: 'Lacivert Gece', g: 'linear-gradient(150deg,#0e1a33,#c9a14e)', font: 'Allura', accent: '#9c7a31', couple: 'Naz & Mert', date: '9 MAYIS 2027', targetDate: '2027-05-09T18:00:00+03:00' },
-  { key: 'tropikal', name: 'Tropikal', g: 'linear-gradient(150deg,#136443,#2aa56c)', font: 'Caveat', accent: '#136443', couple: 'Sıla & Efe', date: '5 EYLÜL 2026', targetDate: '2026-09-05T18:00:00+03:00' },
-  { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026', targetDate: '2026-10-17T18:00:00+03:00' },
-  { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027', targetDate: '2027-06-06T18:00:00+03:00' },
+type Category = 'dugun' | 'kina' | 'dogumgunu' | 'kutlama';
+type RsvpPhase = 'idle' | 'asking' | 'tapped' | 'thanked';
+const RSVP_ORDER: RsvpPhase[] = ['idle', 'asking', 'tapped', 'thanked'];
+const RSVP_TIMING: Record<RsvpPhase, number> = { idle: 1400, asking: 1600, tapped: 500, thanked: 2000 };
+
+const CATEGORY_LABEL: Record<Category, string> = {
+  dugun: '💍 Düğün',
+  kina: '🕌 Kına Gecesi',
+  dogumgunu: '🎂 Doğum Günü',
+  kutlama: '🎉 Kutlama',
+};
+
+const CATEGORY_PRETITLE: Record<Category, string> = {
+  dugun: 'AİLELERİYLE BİRLİKTE',
+  kina: 'KINA GECESİNE DAVETLİSİNİZ',
+  dogumgunu: 'DOĞUM GÜNÜ KUTLAMASI',
+  kutlama: 'BİRLİKTE KUTLAYALIM',
+};
+
+const SHOWCASE: { key: string; name: string; g: string; font: string; accent: string; couple: string; date: string; targetDate: string; category: Category }[] = [
+  { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026', targetDate: '2026-09-12T18:00:00+03:00', category: 'dugun' },
+  { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026', targetDate: '2026-10-03T18:00:00+03:00', category: 'dugun' },
+  { key: 'kina', name: 'Kına Gecesi', g: 'linear-gradient(150deg,#8a3a1c,#e8b98a)', font: 'Dancing Script', accent: '#8a3a1c', couple: "Selin'in Kınası", date: '20 AĞUSTOS 2026', targetDate: '2026-08-20T19:00:00+03:00', category: 'kina' },
+  { key: 'lacivert', name: 'Lacivert Gece', g: 'linear-gradient(150deg,#0e1a33,#c9a14e)', font: 'Allura', accent: '#9c7a31', couple: 'Naz & Mert', date: '9 MAYIS 2027', targetDate: '2027-05-09T18:00:00+03:00', category: 'dugun' },
+  { key: 'konfeti', name: 'Konfeti Şenlik', g: 'linear-gradient(150deg,#ff7a59,#ffd166)', font: 'Pacifico', accent: '#d6336c', couple: 'Mira • 7 Yaş', date: '2 AĞUSTOS 2026', targetDate: '2026-08-02T16:00:00+03:00', category: 'dogumgunu' },
+  { key: 'tropikal', name: 'Tropikal', g: 'linear-gradient(150deg,#136443,#2aa56c)', font: 'Caveat', accent: '#136443', couple: 'Sıla & Efe', date: '5 EYLÜL 2026', targetDate: '2026-09-05T18:00:00+03:00', category: 'dugun' },
+  { key: 'havaifisek', name: 'Gece Havai Fişek', g: 'linear-gradient(150deg,#1b1035,#ffd166)', font: 'Pacifico', accent: '#e8a53d', couple: 'Yeni Yıl Kutlaması', date: '31 ARALIK 2026', targetDate: '2026-12-31T20:00:00+03:00', category: 'kutlama' },
+  { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026', targetDate: '2026-10-17T18:00:00+03:00', category: 'dugun' },
+  { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027', targetDate: '2027-06-06T18:00:00+03:00', category: 'dugun' },
 ];
 
 const Home = () => {
@@ -37,7 +61,14 @@ const Home = () => {
     return () => clearInterval(id);
   }, []);
   const current = SHOWCASE[scIdx];
-  const [firstName, secondName] = current.couple.split(' & ');
+  const nameParts = current.couple.split(' & ');
+  const isCouple = nameParts.length === 2;
+
+  // Gerçek kullanım sayıları (kimlik doğrulama gerektirmeyen genel istatistik) — sahte sayı yok
+  const [publicStats, setPublicStats] = useState<{ totalInvitations: number; totalGuests: number } | null>(null);
+  useEffect(() => {
+    api.get('/stats/public').then(({ data }) => setPublicStats(data)).catch(() => {});
+  }, []);
 
   return (
     <div className="home-page">
@@ -47,12 +78,18 @@ const Home = () => {
           <motion.div className="hero-content" initial="hidden" animate="visible" variants={stagger}>
             <motion.div variants={fadeIn} className="badge">{FREE ? '🎉 Tüm davetler şu an ÜCRETSİZ' : `Tek davet · ${PRICE} ₺ · Abonelik yok`}</motion.div>
             <motion.h1 variants={fadeIn} className="hero-title">
-              Düğün davetinizi <span className="text-gold">dakikalar</span> içinde tasarlayın.
+              Özel gününüzü <span className="text-gold">dakikalar</span> içinde davete dönüştürün.
             </motion.h1>
             <motion.p variants={fadeIn} className="hero-subtitle">
-              Animasyonlu, mobil uyumlu dijital düğün davetiyesi. Canlı geri sayım, Google harita,
-              katılım bildirimi (RSVP), arka plan müziği ve fotoğraf galerisi — hepsi tek bir linkte.
+              Düğün, kına gecesi, doğum günü veya özel kutlamalarınız için animasyonlu, mobil uyumlu
+              dijital davetiye. Canlı geri sayım, Google harita, katılım bildirimi (RSVP), arka plan
+              müziği ve fotoğraf galerisi — hepsi tek bir linkte.
             </motion.p>
+            <motion.div variants={fadeIn} className="hero-occasions">
+              {(Object.keys(CATEGORY_LABEL) as Category[]).map((c) => (
+                <span key={c} className="occasion-pill">{CATEGORY_LABEL[c]}</span>
+              ))}
+            </motion.div>
             <motion.div variants={fadeIn} className="hero-actions">
               <Link to="/editor" className="btn-primary-large">Hemen Tasarla</Link>
               <a href="/davet-preview.html" target="_blank" rel="noreferrer" className="btn-outline-large">▶ Örnek Daveti Aç</a>
@@ -75,11 +112,14 @@ const Home = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.6, ease: 'easeInOut' as const }}
                   >
-                    <p className="m-pretitle">AİLELERİYLE BİRLİKTE</p>
-                    <h2 className="m-title">{firstName}<span>&amp;</span>{secondName}</h2>
+                    <p className="m-pretitle">{CATEGORY_PRETITLE[current.category]}</p>
+                    <h2 className="m-title">
+                      {isCouple ? (<>{nameParts[0]}<span>&amp;</span>{nameParts[1]}</>) : nameParts[0]}
+                    </h2>
                     <div className="m-rule" />
                     <p className="m-date">{current.date}</p>
                     <MockCountdown target={current.targetDate} />
+                    <MockRsvpDemo />
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -106,6 +146,8 @@ const Home = () => {
         <div className="container pill-row">
           <span>✦ Animasyonlu</span><span>✦ Mobil uyumlu</span><span>✦ Geri sayım</span>
           <span>✦ Google harita</span><span>✦ RSVP</span><span>✦ Arka plan müziği</span><span>✦ Fotoğraf galerisi</span>
+          <span>✦ Çoklu dil (TR/EN/DE)</span><span>✦ Şifre koruması</span><span>✦ Özel bağlantı</span>
+          <span>✦ QR kod</span><span>✦ Görselli link önizleme</span><span>✦ Bildirimler</span>
         </div>
       </div>
 
@@ -113,7 +155,10 @@ const Home = () => {
       <section className="stats-band">
         <motion.div className="container stats-row" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
           {[
-            { b: '21+', s: 'Hazır Tema' },
+            // Yeterli veri birikene kadar (ör. ilk haftalarda) sahte/boş görünmesin diye eşik konuldu
+            publicStats && publicStats.totalInvitations >= 20
+              ? { b: `${publicStats.totalInvitations}+`, s: 'Oluşturulan Davet' }
+              : { b: '21+', s: 'Hazır Tema' },
             { b: '%100', s: 'Mobil Uyumlu' },
             { b: '~3 dk', s: 'Hazır Olur' },
             { b: 'Ücretsiz', s: 'Tüm Özellikler' },
@@ -140,6 +185,12 @@ const Home = () => {
             <Feature icon={<MailOpen size={28} />} title="RSVP (Katılım)" desc="Katılıyorum / katılamıyorum yanıtları toplanır, panelinizde listelenir." />
             <Feature icon={<Music size={28} />} title="Arka Plan Müziği" desc="İsteğe bağlı yumuşak bir melodi; misafir dokununca çalar." />
             <Feature icon={<ImageIcon size={28} />} title="Fotoğraf Galerisi" desc="Çift fotoğraflarınızı otomatik dönen şık bir slaytta sergileyin." />
+            <Feature icon={<Globe size={28} />} title="Çoklu Dil" desc="Davetiniz Türkçe, İngilizce ve Almanca dillerinde misafirlerinize sunulur." />
+            <Feature icon={<Lock size={28} />} title="Şifre Koruması" desc="İsterseniz davetinizi şifreyle koruyun; yalnızca linki ve şifreyi bilenler görsün." />
+            <Feature icon={<Link2 size={28} />} title="Özel Bağlantı" desc="davetim.com/davet/senin-linkin gibi kendi seçtiğiniz özel bir bağlantı adresi alın." />
+            <Feature icon={<QrCode size={28} />} title="QR Kod" desc="Daveti anında QR koda dönüştürün; baskı davetiyeye veya panoya ekleyin." />
+            <Feature icon={<Eye size={28} />} title="Görselli Link Önizleme" desc="WhatsApp'ta paylaştığınızda davetiniz görselli, şık bir link kartı olarak görünür." />
+            <Feature icon={<Bell size={28} />} title="Bildirimler" desc="Yeni bir RSVP yanıtı geldiğinde anında bildirim alırsınız, hiçbir yanıtı kaçırmazsınız." />
           </motion.div>
         </div>
       </section>
@@ -163,21 +214,27 @@ const Home = () => {
       <section className="showcase-section bg-light">
         <div className="container text-center">
           <div className="section-header">
-            <h2>Birbirinden farklı temalar</h2>
-            <p>Onlarca hazır tasarım; hepsini kendine göre özelleştir.</p>
+            <h2>Düğün, kına, doğum günü ve kutlama için birbirinden farklı temalar</h2>
+            <p>Hangi anınız için olursa olsun, onlarca hazır tasarımdan birini seç ve kendine göre özelleştir.</p>
           </div>
           <div className="showcase-grid">
-            {SHOWCASE.map((t) => (
-              <Link key={t.key} to={`/editor?theme=${t.key}`} className="sc-card" style={{ background: t.g }}>
-                <div className="sc-invite">
-                  <span className="sc-eyebrow">EVLENİYORUZ</span>
-                  <span className="sc-couple" style={{ fontFamily: `'${t.font}', cursive`, color: t.accent }}>{t.couple}</span>
-                  <span className="sc-div" style={{ background: t.accent }} />
-                  <span className="sc-date">{t.date}</span>
-                </div>
-                <span className="sc-name">{t.name}</span>
-              </Link>
-            ))}
+            {SHOWCASE.map((t) => {
+              const parts = t.couple.split(' & ');
+              return (
+                <Link key={t.key} to={`/editor?theme=${t.key}`} className="sc-card" style={{ background: t.g }}>
+                  <span className="sc-tag">{CATEGORY_LABEL[t.category]}</span>
+                  <div className="sc-invite">
+                    <span className="sc-eyebrow">{t.category === 'dugun' ? 'EVLENİYORUZ' : CATEGORY_PRETITLE[t.category]}</span>
+                    <span className="sc-couple" style={{ fontFamily: `'${t.font}', cursive`, color: t.accent }}>
+                      {parts.length === 2 ? <>{parts[0]} &amp; {parts[1]}</> : parts[0]}
+                    </span>
+                    <span className="sc-div" style={{ background: t.accent }} />
+                    <span className="sc-date">{t.date}</span>
+                  </div>
+                  <span className="sc-name">{t.name}</span>
+                </Link>
+              );
+            })}
           </div>
           <Link to="/templates" className="btn-outline-large" style={{ marginTop: 40, display: 'inline-block' }}>Tüm Şablonları Gör →</Link>
         </div>
@@ -221,11 +278,19 @@ const Home = () => {
       {/* ===== YORUMLAR ===== */}
       <section className="reviews-section bg-light">
         <div className="container text-center">
-          <div className="section-header"><h2>Çiftlerin yorumları</h2></div>
+          <div className="section-header">
+            <h2>Kullananların yorumları</h2>
+            {publicStats && publicStats.totalInvitations >= 20 && (
+              <p>Şimdiye kadar {publicStats.totalInvitations}+ davet oluşturuldu, {publicStats.totalGuests}+ RSVP yanıtı toplandı.</p>
+            )}
+          </div>
           <div className="reviews-grid">
-            <Review name="Aylin & Can" text="Üstelik ücretsiz! Bu kadar şık bir davet beklemiyorduk. Misafirler bayıldı." />
-            <Review name="Zeynep & Murat" text="Geri sayım ve harita çok hoş. Linki WhatsApp'tan attık, RSVP'ler panele düştü." />
-            <Review name="Elif & Burak" text="Abonelik derdi yok, ücretsiz. Tasarımı dakikalar içinde bitirdik." />
+            <Review name="Aylin & Can · Düğün" text="Üstelik ücretsiz! Bu kadar şık bir davet beklemiyorduk. Misafirler bayıldı." />
+            <Review name="Zeynep & Murat · Düğün" text="Geri sayım ve harita çok hoş. Linki WhatsApp'tan attık, RSVP'ler panele düştü." />
+            <Review name="Selin'in Ailesi · Kına" text="Kına gecemiz için özel bir tema bulduk, misafirler linkten kolayca yol tarifi aldı." />
+            <Review name="Ayşe Hanım · Doğum Günü" text="Oğlumun doğum günü daveti için hazırladım, herkes animasyonlu geri sayıma bayıldı." />
+            <Review name="Burak K. · Kutlama" text="Yeni yıl daveti için kullandık, QR kod ve şifre koruması çok işime yaradı." />
+            <Review name="Elif & Burak · Düğün" text="Abonelik derdi yok, ücretsiz. Tasarımı dakikalar içinde bitirdik." />
           </div>
         </div>
       </section>
@@ -253,6 +318,62 @@ const Home = () => {
           <span className="cta-mini">{FREE ? 'Tamamen ücretsiz · saniyeler içinde paylaş' : 'Tasarım ücretsiz · yalnızca yayınlarken ödersin'}</span>
         </div>
       </section>
+
+      {/* ===== E-POSTA BIRAK ===== */}
+      <section className="lead-section bg-light">
+        <div className="container">
+          <LeadCapture />
+        </div>
+      </section>
+    </div>
+  );
+};
+
+/* Henüz tasarlamaya hazır olmayan ziyaretçi için e-posta bırakma bloğu */
+const LeadCapture = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus('loading');
+    try {
+      await api.post('/leads', { email: email.trim(), source: 'homepage-cta' });
+      setStatus('done');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'done') {
+    return (
+      <div className="lead-box lead-done">
+        <Check size={20} className="text-gold" />
+        <p>Teşekkürler! Hazır olduğunda seni haberdar edeceğiz.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="lead-box">
+      <div>
+        <h3>Henüz tasarlamaya hazır değil misin?</h3>
+        <p>E-postanı bırak, yeni temalar ve ipuçlarından haberdar olalım — spam yok.</p>
+      </div>
+      <form className="lead-form" onSubmit={submit}>
+        <input
+          type="email"
+          required
+          placeholder="e-posta adresin"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button className="btn-primary-large" type="submit" disabled={status === 'loading'}>
+          {status === 'loading' ? 'Gönderiliyor…' : 'Haberdar Et'}
+        </button>
+      </form>
+      {status === 'error' && <p className="lead-error">Bir şeyler ters gitti, tekrar dener misin?</p>}
     </div>
   );
 };
@@ -283,6 +404,42 @@ const MockCountdown = ({ target }: { target: string }) => {
       <span><b>{pad(t.h)}</b>saat</span>
       <span><b>{pad(t.m)}</b>dk</span>
       <span><b>{pad(t.s)}</b>sn</span>
+    </div>
+  );
+};
+
+/* Hero telefon mockup'ında döngüyle oynayan, "canlı" hissi veren mini RSVP demosu (gerçek video yerine) */
+const MockRsvpDemo = () => {
+  const [phase, setPhase] = useState<RsvpPhase>('idle');
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const i = RSVP_ORDER.indexOf(phase);
+      setPhase(RSVP_ORDER[(i + 1) % RSVP_ORDER.length]);
+    }, RSVP_TIMING[phase]);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
+  return (
+    <div className="m-rsvp-demo">
+      <AnimatePresence mode="wait">
+        {phase === 'asking' && (
+          <motion.div key="asking" className="m-rsvp-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
+            <span>Katılacak mısınız?</span>
+            <span className="m-rsvp-btn">Katılıyorum</span>
+          </motion.div>
+        )}
+        {phase === 'tapped' && (
+          <motion.div key="tapped" className="m-rsvp-card" initial={{ scale: 1 }} animate={{ scale: [1, 0.9, 1] }} transition={{ duration: 0.4 }}>
+            <span>Katılacak mısınız?</span>
+            <span className="m-rsvp-btn active">Katılıyorum ✓</span>
+          </motion.div>
+        )}
+        {phase === 'thanked' && (
+          <motion.div key="thanked" className="m-rsvp-thanks" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
+            <Check size={14} /> Katılımınız alındı!
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

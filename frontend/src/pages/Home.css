@@ -41,7 +41,12 @@ section { padding: 96px 0; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   font-style: italic;
 }
-.hero-subtitle { font-size: 18px; color: var(--color-text-secondary); margin-bottom: 34px; line-height: 1.65; max-width: 520px; }
+.hero-subtitle { font-size: 18px; color: var(--color-text-secondary); margin-bottom: 24px; line-height: 1.65; max-width: 520px; }
+.hero-occasions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.occasion-pill {
+  font-size: 12.5px; font-weight: 500; padding: 6px 13px; border-radius: 20px;
+  background: rgba(19,26,43,.04); border: 1px solid rgba(19,26,43,.08); color: var(--color-text-secondary);
+}
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 .hero-trust { margin-top: 22px; font-size: 13.5px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 8px; }
 .hero-trust svg { color: #3aa15f; }
@@ -86,6 +91,22 @@ section { padding: 96px 0; }
 .m-countdown { display: flex; gap: 10px; margin-top: 26px; }
 .m-countdown span { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #e8d6a8; border-radius: 10px; padding: 8px 9px; font-size: 9px; letter-spacing: 1px; color: var(--mock-accent, #9c7a31); }
 .m-countdown b { font-family: var(--font-serif); font-size: 20px; line-height: 1; margin-bottom: 3px; color: var(--mock-accent, #8c5a2a); }
+
+.m-rsvp-demo { margin-top: 24px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.m-rsvp-card {
+  display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid rgba(0,0,0,.08);
+  border-radius: 30px; padding: 7px 8px 7px 16px; font-size: 11.5px; color: #4a3f2a;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+.m-rsvp-btn {
+  border: none; background: var(--mock-accent, #9c7a31); color: #fff; font-size: 11px; font-weight: 600;
+  padding: 7px 14px; border-radius: 20px; white-space: nowrap;
+}
+.m-rsvp-btn.active { background: #2f9e58; }
+.m-rsvp-thanks {
+  display: flex; align-items: center; gap: 6px; background: #eafaf0; color: #1f8a4c;
+  border: 1px solid #bfe8cf; border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 600;
+}
 
 .floating-card {
   position: absolute; padding: 14px 20px; display: flex; align-items: center; gap: 14px; border-radius: 16px;
@@ -154,6 +175,12 @@ section { padding: 96px 0; }
 .sc-div { width: 46px; height: 1px; opacity: .55; }
 .sc-date { font-family: 'Cormorant Garamond', serif; font-size: 12px; letter-spacing: 2px; color: #6a6a6a; }
 .sc-name { color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: .5px; background: rgba(10,14,24,.4); padding: 6px 16px; border-radius: 20px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.22); }
+.sc-tag {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  color: #fff; font-size: 11.5px; font-weight: 600; letter-spacing: .3px;
+  background: rgba(10,14,24,.42); padding: 5px 11px; border-radius: 20px;
+  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.22);
+}
 
 /* Fiyat (tek) — sol panel panelle aynı koyu lacivert */
 .single-price { display: grid; grid-template-columns: 1fr 1.1fr; gap: 0; max-width: 880px; margin: 0 auto; background: #fff; border: 1px solid var(--color-border); border-radius: 26px; overflow: hidden; box-shadow: 0 26px 60px rgba(19,26,43,.10); }
@@ -181,6 +208,29 @@ section { padding: 96px 0; }
 .stars { display: flex; gap: 4px; margin-bottom: 18px; justify-content: center; }
 .r-card p { font-size: 15.5px; line-height: 1.6; font-style: italic; margin-bottom: 18px; color: var(--color-text-secondary); }
 .r-card h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+
+/* E-posta bırak */
+.lead-section { padding: 64px 0; }
+.lead-box {
+  display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;
+  background: #fff; border: 1px solid var(--color-border-light); border-radius: 22px; padding: 34px 40px;
+  max-width: 900px; margin: 0 auto;
+}
+.lead-box h3 { font-size: 21px; margin-bottom: 6px; }
+.lead-box p { color: var(--color-text-secondary); font-size: 14.5px; }
+.lead-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.lead-form input {
+  padding: 13px 18px; border-radius: 26px; border: 1px solid var(--color-border); font-size: 14.5px;
+  min-width: 240px; outline: none;
+}
+.lead-form input:focus { border-color: #c9a14e; }
+.lead-form .btn-primary-large { padding: 13px 26px; font-size: 14.5px; white-space: nowrap; }
+.lead-error { color: #c0392b; font-size: 13px; margin-top: 8px; width: 100%; }
+.lead-done {
+  justify-content: center; gap: 12px; text-align: left;
+  background: #fbf7ec; border-color: rgba(212,175,55,.35);
+}
+.lead-done p { color: var(--color-text-primary); font-size: 15px; }
 
 /* SSS — kart görünümü */
 .faq-container { max-width: 800px; }
@@ -253,4 +303,7 @@ section { padding: 96px 0; }
   .faq-q h4 { font-size: 15.5px; }
   .cta-inner h2 { font-size: 27px; }
   .cta-inner p { font-size: 16px; }
+  .lead-box { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+  .lead-form { width: 100%; }
+  .lead-form input { flex: 1; min-width: 0; }
 }
