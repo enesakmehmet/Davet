@@ -33,6 +33,12 @@ const TEMPLATES = [
   { key: 'denizalti', name: 'Deniz Altı', category: 'Düğün', c1: '#062430', c2: '#5fd4d0', dark: true, isNew: true },
   { key: 'sinemaafisi', name: 'Sinema Afişi', category: 'Düğün', c1: '#0c0a08', c2: '#d4af37', dark: true, isNew: true },
   { key: 'kristal', name: 'Kristal', category: 'Düğün', c1: '#6f93c9', c2: '#f8fafd', dark: false, isNew: true },
+  { key: 'pusula', name: 'Pusula & Seyahat', category: 'Düğün', c1: '#3d6b5c', c2: '#f2ead8', dark: false, isNew: true },
+  { key: 'sato', name: 'Masal Şatosu', category: 'Düğün', c1: '#120c22', c2: '#c9a86e', dark: true, isNew: true },
+  { key: 'notakagidi', name: 'Nota Kağıdı', category: 'Düğün', c1: '#4a4440', c2: '#faf7f0', dark: false, isNew: true },
+  { key: 'gunbatimi', name: 'Gün Batımı Plajı', category: 'Düğün', c1: '#f2825e', c2: '#7a4a78', dark: false, isNew: true },
+  { key: 'yagliboya', name: 'Yağlı Boya', category: 'Düğün', c1: '#8a4a5e', c2: '#f5efe4', dark: false, isNew: true },
+  { key: 'ayna', name: 'Gümüş Ayna', category: 'Düğün', c1: '#7a8294', c2: '#f5f6f8', dark: false, isNew: true },
   // Dini Düğün
   { key: 'dini', name: 'Zarif Besmele', category: 'Dini Düğün', c1: '#b08a3e', c2: '#f0e2bd', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', category: 'Dini Düğün', c1: '#2e6b4f', c2: '#dcead9', dark: false, isNew: true },

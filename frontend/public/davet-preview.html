@@ -299,6 +299,45 @@
   body[data-theme="kristal"] h2.title{letter-spacing:4px;background:linear-gradient(100deg,#6f93c9,#a8c4e8);-webkit-background-clip:text;background-clip:text;color:transparent!important}
   body[data-theme="kristal"] .gal{border-radius:0!important;clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 26px,100% calc(100% - 26px),calc(100% - 26px) 100%,26px 100%,0 calc(100% - 26px),0 26px)}
 
+  /* Pusula & seyahat: pul kenarlı kartlar, yol işareti geri sayım */
+  @keyframes mirror-shine{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+  body[data-theme="pusula"] .cd-box{border-radius:8px!important;background:#fbf6ea!important;border:2px solid #3d6b5c!important;border-bottom-width:5px!important}
+  body[data-theme="pusula"] .card,body[data-theme="pusula"] .fam .fc,body[data-theme="pusula"] .rsvp-card{border-radius:10px!important;background:#fbf6ea!important;border:1px dashed #a89a78!important;outline:4px solid #fbf6ea;outline-offset:-8px}
+  body[data-theme="pusula"] h2.title{letter-spacing:3px}
+  body[data-theme="pusula"] .tsub{font-family:'IBM Plex Mono',monospace;letter-spacing:2px!important;font-size:10.5px!important}
+  body[data-theme="pusula"] .btn,body[data-theme="pusula"] .send{border-radius:8px!important}
+  /* Masal şatosu: mazgallı kule kutuları, taş hissi */
+  body[data-theme="sato"] .cd-box{border-radius:0!important;border:1px solid rgba(201,168,110,.4)!important;clip-path:polygon(0 12px,14% 12px,14% 0,32% 0,32% 12px,68% 12px,68% 0,86% 0,86% 12px,100% 12px,100% 100%,0 100%);padding-top:22px!important}
+  body[data-theme="sato"] .card,body[data-theme="sato"] .fam .fc,body[data-theme="sato"] .rsvp-card{border-radius:14px 14px 0 0!important;border:1px solid rgba(201,168,110,.3)!important;background:rgba(255,255,255,.045)!important}
+  body[data-theme="sato"] h2.title{letter-spacing:4px;text-shadow:0 0 18px rgba(201,168,110,.3)}
+  body[data-theme="sato"] .gal{border-radius:160px 160px 14px 14px!important}
+  /* Nota kağıdı: porte çizgili bölümler, metronom butonlar */
+  body[data-theme="notakagidi"] section.fade{background-image:repeating-linear-gradient(180deg,transparent 0 118px,rgba(74,68,64,.08) 118px 119px)}
+  body[data-theme="notakagidi"] h2.title{font-style:italic;font-weight:700}
+  body[data-theme="notakagidi"] h2.title::after{content:" ♪";color:#8a827a}
+  body[data-theme="notakagidi"] .cd-box{border-radius:12px 12px 50% 50%!important;border:1.5px solid #4a4440!important;background:#fff!important}
+  body[data-theme="notakagidi"] .card,body[data-theme="notakagidi"] .fam .fc,body[data-theme="notakagidi"] .rsvp-card{border-radius:6px!important;border:1.5px solid #4a4440!important;box-shadow:3px 3px 0 rgba(74,68,64,.25)!important}
+  body[data-theme="notakagidi"] .btn,body[data-theme="notakagidi"] .send{border-radius:6px!important}
+  /* Gün batımı: sıcak degrade kenarlıklar, güneş geri sayımı */
+  body[data-theme="gunbatimi"] .cd-box{border-radius:50%!important;aspect-ratio:1;min-width:84px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#fde3c0,#fbd0a8)!important;border:2px solid #f2825e!important}
+  body[data-theme="gunbatimi"] .card,body[data-theme="gunbatimi"] .fam .fc,body[data-theme="gunbatimi"] .rsvp-card{border:none!important;border-radius:18px!important;background:linear-gradient(#fffaf2,#fffaf2) padding-box,linear-gradient(140deg,#f9b46c,#b65a7c) border-box!important;border:2px solid transparent!important}
+  body[data-theme="gunbatimi"] h2.title{background:linear-gradient(100deg,#e8734a,#b65a7c);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+  body[data-theme="gunbatimi"] .gal{border-radius:22px!important;box-shadow:0 18px 44px rgba(182,90,124,.28)!important}
+  body[data-theme="gunbatimi"] .btn,body[data-theme="gunbatimi"] .send{border-radius:999px!important}
+  /* Yağlı boya: fırça darbesi kartlar, asimetrik köşeler */
+  body[data-theme="yagliboya"]{background-image:repeating-linear-gradient(45deg,rgba(138,74,94,.02) 0 2px,transparent 2px 6px),repeating-linear-gradient(-45deg,rgba(90,60,40,.02) 0 2px,transparent 2px 6px)}
+  body[data-theme="yagliboya"] .cd-box{border-radius:58% 42% 55% 45%/50% 55% 45% 50%!important;border:2px solid #8a4a5e!important;background:#fbf7ec!important;aspect-ratio:1;min-width:86px!important;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  body[data-theme="yagliboya"] .card,body[data-theme="yagliboya"] .fam .fc{border-radius:38px 10px 34px 12px!important;border:1.5px solid #c9a88e!important;background:#fbf7ec!important}
+  body[data-theme="yagliboya"] .rsvp-card{border-radius:26px 8px 26px 8px!important;background:#fbf7ec!important}
+  body[data-theme="yagliboya"] h2.title{font-family:'Italianno',cursive!important;font-size:38px!important;text-transform:none;letter-spacing:0}
+  body[data-theme="yagliboya"] .btn,body[data-theme="yagliboya"] .send{border-radius:24px 6px 24px 6px!important}
+  /* Gümüş ayna: metalik kenarlar, oval formlar */
+  body[data-theme="ayna"] .cd-box{border-radius:50%/42%!important;background:linear-gradient(160deg,#fdfdfe,#e9ecf2)!important;border:1.5px solid #b8bfcc!important;box-shadow:inset 0 1px 3px #fff,0 6px 16px rgba(122,130,148,.18)!important}
+  body[data-theme="ayna"] .card,body[data-theme="ayna"] .fam .fc,body[data-theme="ayna"] .rsvp-card{border-radius:22px!important;background:linear-gradient(#fdfdfe,#fdfdfe) padding-box,linear-gradient(140deg,#d8dce4,#9aa2b2,#e8ebf0) border-box!important;border:2px solid transparent!important}
+  body[data-theme="ayna"] h2.title{letter-spacing:5px;color:#5a6174!important}
+  body[data-theme="ayna"] .gal{border-radius:50%/16%!important;border:8px solid #e4e7ed!important}
+  body[data-theme="ayna"] .btn,body[data-theme="ayna"] .send{border-radius:999px!important}
+
   /* ===== Zarf açılış introsu ===== */
   .env-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .8s ease,visibility .8s ease}
   .env-gate.done{opacity:0;visibility:hidden;pointer-events:none}
@@ -412,6 +451,12 @@ var THEMES = {
   denizalti:{label:'Deniz Altı', accent:'#5fd4d0', soft:'#2a6a78', dark:true, bg:'radial-gradient(ellipse at 50% 0%,#0e4a5c,#062430 70%)', page:'#062430', nameFont:'Cormorant Garamond', decor:['🫧','🐠','🐚'], decorKind:'rain', hero:'denizalti'},
   sinemaafisi:{label:'Sinema Afişi', accent:'#d4af37', soft:'#4a4038', dark:true, bg:'radial-gradient(ellipse at 50% 18%,#241d16,#0c0a08 75%)', page:'#0c0a08', nameFont:'Cinzel', decor:[], decorKind:'none', hero:'sinema'},
   kristal:  {label:'Kristal', accent:'#6f93c9', soft:'#d8e4f2', dark:false, bg:'linear-gradient(170deg,#f8fafd,#e6edf7)', page:'#f8fafd', nameFont:'Cormorant Garamond', decor:['✦','❄'], decorKind:'rain', hero:'kristal'},
+  pusula:   {label:'Pusula & Seyahat', accent:'#3d6b5c', soft:'#d8cdb4', dark:false, bg:'linear-gradient(170deg,#f2ead8,#e8dcc2)', page:'#f2ead8', nameFont:'Cormorant Garamond', decor:['✈️','🧭'], decorKind:'rain', hero:'pusula'},
+  sato:     {label:'Masal Şatosu', accent:'#c9a86e', soft:'#5a4a7a', dark:true, bg:'radial-gradient(ellipse at 50% 10%,#2a1e46,#120c22 75%)', page:'#120c22', nameFont:'Cormorant Garamond', decor:[], decorKind:'stars', hero:'sato'},
+  notakagidi:{label:'Nota Kağıdı', accent:'#4a4440', soft:'#d8d2c8', dark:false, bg:'#faf7f0', page:'#faf7f0', nameFont:'Playfair Display', decor:['♪','♫','♬'], decorKind:'rain', hero:'nota'},
+  gunbatimi:{label:'Gün Batımı Plajı', accent:'#e8734a', soft:'#f6c8a8', dark:false, bg:'linear-gradient(180deg,#f9b46c 0%,#f2825e 45%,#b65a7c 80%,#7a4a78 100%)', page:'#fdf3e7', nameFont:'Great Vibes', decor:['🌴','🐚'], decorKind:'rain', hero:'gunbatimi'},
+  yagliboya:{label:'Yağlı Boya', accent:'#8a4a5e', soft:'#e2d2c2', dark:false, bg:'#f5efe4', page:'#f5efe4', nameFont:'Italianno', decor:[], decorKind:'none', hero:'yagliboya'},
+  ayna:     {label:'Gümüş Ayna', accent:'#7a8294', soft:'#d4d8e0', dark:false, bg:'linear-gradient(170deg,#f5f6f8,#e4e7ed)', page:'#f5f6f8', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', hero:'ayna'},
   /* ===== DİNİ DÜĞÜN DAVETLERİ (besmele + kına & düğün kartları + dua) ===== */
   dini:     {label:'Zarif Besmele', accent:'#b08a3e', soft:'#e8d6a8', dark:false, bg:'linear-gradient(170deg,#fdf9ef,#f7ecd4)', page:'#faf5e9', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
   diniYesil:{label:'Zümrüt Dua', accent:'#2e6b4f', soft:'#cfe2d4', dark:false, bg:'linear-gradient(170deg,#f7fbf6,#e7f0e6)', page:'#f4f9f3', nameFont:'Cormorant Garamond', decor:['✦'], decorKind:'rain', kind:'dini', green:'#2e6b4f'},
@@ -1361,6 +1406,90 @@ function buildHeroVariant(T, cfg, x){
       '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',serif;font-weight:500;font-size:clamp(44px,10vw,84px);background:linear-gradient(100deg,#6f93c9,#a8c4e8 35%,#7ba2d4 60%,#c9d9ef);-webkit-background-clip:text;background-clip:text;color:transparent">'+names+'</h1>'+
       '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
       '<div class="reveal" style="margin-top:22px;padding:11px 28px;color:'+T.accent+';font-size:12px;letter-spacing:3px;border:1px solid '+T.soft+';background:rgba(255,255,255,.65);backdrop-filter:blur(6px);clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,12px 100%,0 50%)">💎 '+dateLine.toUpperCase()+'</div>'+cue;
+  }
+  if(v==='pusula'){
+    // Pusula & seyahat: dönen ibreli pusula + iki durak arasındaki rota
+    return '<svg class="reveal" width="120" height="120" viewBox="0 0 120 120">'+
+        '<circle cx="60" cy="60" r="54" fill="#fbf6ea" stroke="'+T.accent+'" stroke-width="2.5"/>'+
+        '<circle cx="60" cy="60" r="44" fill="none" stroke="'+T.accent+'" stroke-width="1" opacity=".4"/>'+
+        '<text x="60" y="18" text-anchor="middle" font-size="11" fill="'+T.accent+'" font-weight="700">K</text><text x="60" y="110" text-anchor="middle" font-size="11" fill="'+T.accent+'" opacity=".6">G</text>'+
+        '<text x="106" y="64" text-anchor="middle" font-size="11" fill="'+T.accent+'" opacity=".6">D</text><text x="14" y="64" text-anchor="middle" font-size="11" fill="'+T.accent+'" opacity=".6">B</text>'+
+        '<g><polygon points="60,26 66,60 60,94 54,60" fill="'+T.accent+'"/><polygon points="60,26 66,60 60,60 54,60" fill="#c0574a"/>'+
+        '<animateTransform attributeName="transform" type="rotate" values="-14 60 60;14 60 60;-14 60 60" dur="5s" repeatCount="indefinite"/></g>'+
+        '<circle cx="60" cy="60" r="4.5" fill="#3a352c"/></svg>'+
+      '<div class="eyebrow reveal" style="margin-top:14px;color:'+x.inkSoft+';letter-spacing:4px">'+esc(x.heroEyebrow)+'</div>'+
+      '<div class="reveal" style="display:flex;align-items:center;gap:14px;margin:14px 0;flex-wrap:wrap;justify-content:center">'+
+        '<span style="font-family:\''+T.nameFont+'\',serif;font-size:clamp(30px,7vw,52px);color:'+T.accent+'">'+esc(cfg.brideName)+'</span>'+
+        '<svg width="90" height="20" viewBox="0 0 90 20"><path d="M4 16 Q 30 2 50 12 T 86 6" fill="none" stroke="'+T.accent+'" stroke-width="1.6" stroke-dasharray="4 5"/><circle cx="4" cy="16" r="3" fill="'+T.accent+'"/><circle cx="86" cy="6" r="3" fill="#c0574a"/></svg>'+
+        '<span style="font-family:\''+T.nameFont+'\',serif;font-size:clamp(30px,7vw,52px);color:'+T.accent+'">'+esc(cfg.groomName)+'</span>'+
+      '</div>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="reveal" style="margin-top:18px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;letter-spacing:2px;color:'+x.inkSoft+'">VARIŞ: '+dateLine.toUpperCase()+' · '+esc((cfg.venueCity||'').toUpperCase())+'</div>'+cue;
+  }
+  if(v==='sato'){
+    // Masal şatosu: kule silueti + üstünde parlayan yıldız
+    return '<svg class="reveal" width="230" height="120" viewBox="0 0 230 120" fill="#2e2450" style="filter:drop-shadow(0 6px 20px rgba(201,168,110,.2))">'+
+        '<rect x="30" y="55" width="24" height="65"/><polygon points="30,55 42,28 54,55"/>'+
+        '<rect x="88" y="40" width="28" height="80"/><polygon points="88,40 102,8 116,40"/>'+
+        '<rect x="150" y="55" width="24" height="65"/><polygon points="150,55 162,28 174,55"/>'+
+        '<rect x="54" y="80" width="34" height="40"/><rect x="116" y="80" width="34" height="40"/>'+
+        '<rect x="60" y="92" width="7" height="12" fill="#c9a86e" opacity=".9"/><rect x="98" y="60" width="8" height="14" fill="#c9a86e" opacity=".9"/><rect x="158" y="92" width="7" height="12" fill="#c9a86e" opacity=".9"/>'+
+        '<circle cx="102" cy="2" r="2.4" fill="#fff"><animate attributeName="opacity" values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></circle>'+
+      '</svg>'+
+      '<div class="eyebrow reveal" style="color:'+T.accent+';letter-spacing:5px;margin-top:10px">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',serif;font-weight:500;font-size:clamp(44px,10vw,84px);color:#f0e2c8;text-shadow:0 4px 24px rgba(201,168,110,.35)">'+names+'</h1>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="reveal" style="margin-top:20px;padding:10px 26px;border:1px solid '+T.accent+'66;color:'+T.accent+';font-size:12px;letter-spacing:3px;border-radius:2px;clip-path:polygon(0 8px,8px 8px,8px 0,calc(100% - 8px) 0,calc(100% - 8px) 8px,100% 8px,100% 100%,0 100%)">'+dateLine.toUpperCase()+'</div>'+cue;
+  }
+  if(v==='nota'){
+    // Nota kağıdı: porte çizgileri üstünde notalar, opus alt başlığı
+    return '<div class="reveal" style="width:min(92%,540px);position:relative;padding:26px 0">'+
+        '<div style="position:absolute;left:0;right:0;top:30px;height:44px;background:repeating-linear-gradient(180deg,#b8b0a2 0 1px,transparent 1px 11px)"></div>'+
+        '<div style="position:relative;font-size:30px;color:#3a352c;letter-spacing:26px;padding-left:14px">𝄞&nbsp;♩ ♪ ♫ ♩</div>'+
+      '</div>'+
+      '<div class="eyebrow reveal" style="color:'+x.inkSoft+';letter-spacing:4px">'+esc(x.heroEyebrow)+'</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',serif;font-style:italic;font-weight:500;font-size:clamp(40px,9vw,72px);color:#3a352c;margin:12px 0">'+names+'</h1>'+
+      '<div class="reveal" style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:16px;color:'+x.inkSoft+'">Op. 1 — "Aşk Senfonisi" · '+dateLine+'</div>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+';margin-top:14px">'+esc(cfg.subtitle)+'</p>'+cue;
+  }
+  if(v==='gunbatimi'){
+    // Gün batımı: batan güneş + deniz yansıması + palmiye silueti
+    return '<div class="reveal" style="position:relative;width:min(88%,420px);height:230px;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(122,74,120,.35)">'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(180deg,#f9b46c,#f2825e 45%,#b65a7c 78%,#7a4a78)"></div>'+
+        '<div style="position:absolute;left:50%;top:42%;transform:translateX(-50%);width:86px;height:86px;border-radius:50%;background:radial-gradient(circle,#fff3d0,#ffcf7a 65%,rgba(255,207,122,0));filter:blur(1px)"></div>'+
+        '<div style="position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,rgba(90,50,90,.35),rgba(50,30,60,.55))"></div>'+
+        '<div style="position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:60px;height:26%;background:repeating-linear-gradient(180deg,rgba(255,220,150,.5) 0 3px,transparent 3px 9px);filter:blur(1px)"></div>'+
+        '<div style="position:absolute;right:6%;bottom:18%;font-size:52px;filter:brightness(0) opacity(.75)">🌴</div>'+
+      '</div>'+
+      '<h1 class="names reveal" style="font-family:\''+T.nameFont+'\',cursive;font-size:clamp(48px,11vw,88px);color:'+T.accent+';margin-top:18px">'+names+'</h1>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+      '<div class="eyebrow reveal" style="margin-top:14px;color:'+T.accent+'">🌅 '+dateLine+'</div>'+cue;
+  }
+  if(v==='yagliboya'){
+    // Yağlı boya: tuval kartı + renk lekeleri + imza
+    return '<div class="reveal" style="position:relative;width:min(90%,500px);background:#fbf7ec;padding:48px 24px;border:14px solid transparent;'+
+        'border-image:linear-gradient(140deg,#b98a4a,#8a5f2e 40%,#caa05e 70%,#7a5228) 1;box-shadow:0 24px 60px rgba(90,60,40,.28)">'+
+        '<div style="position:absolute;left:8%;top:12%;width:70px;height:44px;border-radius:60% 40% 55% 45%;background:#c96f87;opacity:.28;filter:blur(10px)"></div>'+
+        '<div style="position:absolute;right:10%;top:20%;width:60px;height:52px;border-radius:45% 55% 40% 60%;background:#5f7050;opacity:.25;filter:blur(11px)"></div>'+
+        '<div style="position:absolute;left:16%;bottom:14%;width:80px;height:40px;border-radius:50% 50% 60% 40%;background:#c9a14e;opacity:.3;filter:blur(10px)"></div>'+
+        '<div class="eyebrow" style="position:relative;color:'+x.inkSoft+'">'+esc(x.heroEyebrow)+'</div>'+
+        '<h1 class="names" style="position:relative;font-family:\''+T.nameFont+'\',cursive;font-size:clamp(48px,11vw,84px);color:'+T.accent+';margin:12px 0">'+names+'</h1>'+
+        '<p style="position:relative;font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:16px;color:'+x.inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
+        '<div style="position:relative;margin-top:18px;font-family:\'Shadows Into Light\',cursive;font-size:15px;color:#8a6a4a;text-align:right">tuval üzerine aşk — '+fmtDate(cfg.date,x.lang)+'</div>'+
+      '</div>'+cue;
+  }
+  if(v==='ayna'){
+    // Gümüş ayna: oval çerçeve + parlama süpürmesi + yansıma
+    return '<div class="reveal" style="position:relative;width:min(80%,360px);aspect-ratio:3/4;border-radius:50%/38%;padding:12px;'+
+        'background:linear-gradient(140deg,#e8ebf2,#b8bfcc 30%,#f2f4f8 50%,#a8b0c0 70%,#dfe3ea);box-shadow:0 26px 60px rgba(122,130,148,.35)">'+
+        '<div style="position:absolute;inset:12px;border-radius:50%/38%;overflow:hidden;background:linear-gradient(160deg,#fdfdfe,#e9ecf2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1px solid #c8cdd8">'+
+          '<div style="position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.75) 50%,transparent 58%);animation:mirror-shine 4.2s ease-in-out infinite"></div>'+
+          '<div class="eyebrow" style="color:'+x.inkSoft+';letter-spacing:4px;font-size:10.5px">'+esc(x.heroEyebrow)+'</div>'+
+          '<h1 class="names" style="font-family:\''+T.nameFont+'\',serif;font-weight:500;font-size:clamp(30px,7vw,48px);color:#4a5164;text-align:center;line-height:1.15">'+names+'</h1>'+
+          '<div style="font-size:11.5px;letter-spacing:3px;color:'+T.accent+'">'+dateLine.toUpperCase()+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<p class="subtitle reveal" style="color:'+x.inkSoft+';margin-top:20px">'+esc(cfg.subtitle)+'</p>'+cue;
   }
   if(v==='mektup'){
     // Aşk mektubu: kâğıt kart + balmumu mühür

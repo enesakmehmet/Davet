@@ -39,6 +39,12 @@ const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat; is
   { key: 'denizalti', label: 'Deniz Altı', c1: '#062430', c2: '#5fd4d0', cat: 'dugun', isNew: true },
   { key: 'sinemaafisi', label: 'Sinema Afişi', c1: '#0c0a08', c2: '#d4af37', cat: 'dugun', isNew: true },
   { key: 'kristal', label: 'Kristal', c1: '#6f93c9', c2: '#f8fafd', cat: 'dugun', isNew: true },
+  { key: 'pusula', label: 'Pusula & Seyahat', c1: '#3d6b5c', c2: '#f2ead8', cat: 'dugun', isNew: true },
+  { key: 'sato', label: 'Masal Şatosu', c1: '#120c22', c2: '#c9a86e', cat: 'dugun', isNew: true },
+  { key: 'notakagidi', label: 'Nota Kağıdı', c1: '#4a4440', c2: '#faf7f0', cat: 'dugun', isNew: true },
+  { key: 'gunbatimi', label: 'Gün Batımı Plajı', c1: '#f2825e', c2: '#7a4a78', cat: 'dugun', isNew: true },
+  { key: 'yagliboya', label: 'Yağlı Boya', c1: '#8a4a5e', c2: '#f5efe4', cat: 'dugun', isNew: true },
+  { key: 'ayna', label: 'Gümüş Ayna', c1: '#7a8294', c2: '#f5f6f8', cat: 'dugun', isNew: true },
   // ===== Dini Düğün davetleri (besmele + kına & düğün kartları + dua) =====
   { key: 'dini', label: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', cat: 'dini' },
   { key: 'diniYesil', label: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', cat: 'dini' },
