@@ -70,6 +70,16 @@ const Home = () => {
     api.get('/stats/public').then(({ data }) => setPublicStats(data)).catch(() => {});
   }, []);
 
+  // Görünen SSS ile Google için FAQPage yapılandırılmış verisi aynı tek kaynaktan gelsin
+  const faqs = [
+    { q: 'Ücretli mi?', a: FREE ? 'Şu an lansmana özel olarak tüm davetler ve tüm özellikler tamamen ücretsiz. Abonelik veya gizli ücret yok.' : `Abonelik yok. Her davet için tek seferlik ${PRICE} ₺ ödersiniz. Oluşturduğunuz davet size aittir.` },
+    { q: 'Ödeme sonrası değişiklik yapabilir miyim?', a: 'Evet. Davetiniz yayında olduğu sürece editör üzerinden çift adı, tarih, mekan, fotoğraf ve diğer her şeyi sınırsızca güncelleyebilirsiniz.' },
+    { q: 'Misafirlerim üye olmak zorunda mı?', a: 'Hayır. Misafirleriniz linke tıklayıp hiçbir üyelik olmadan saniyeler içinde RSVP yapar ve yol tarifi alır.' },
+    { q: 'Davet ne kadar süre yayında kalır?', a: 'Satın alımdan itibaren 1 yıl yayında kalır. Düğün tarihiniz için fazlasıyla yeterlidir.' },
+    { q: 'Mobil uyumlu mu?', a: "Evet, davetler öncelikli olarak telefon için tasarlandı; WhatsApp'tan açıldığında kusursuz görünür." },
+    { q: 'Sadece düğün için mi kullanılabilir?', a: 'Hayır. Düğün dışında kına gecesi, doğum günü ve genel kutlama daveti olarak da kullanılabilir; her biri için hazır temalar mevcuttur.' },
+  ];
+
   return (
     <div className="home-page">
       {/* ===== HERO ===== */}
@@ -300,13 +310,24 @@ const Home = () => {
         <div className="container faq-container">
           <div className="section-header text-center"><h2>Sıkça Sorulan Sorular</h2></div>
           <div className="faq-list">
-            <Faq q="Ücretli mi?" a={FREE ? 'Şu an lansmana özel olarak tüm davetler ve tüm özellikler tamamen ücretsiz. Abonelik veya gizli ücret yok.' : `Abonelik yok. Her davet için tek seferlik ${PRICE} ₺ ödersiniz. Oluşturduğunuz davet size aittir.`} />
-            <Faq q="Ödeme sonrası değişiklik yapabilir miyim?" a="Evet. Davetiniz yayında olduğu sürece editör üzerinden çift adı, tarih, mekan, fotoğraf ve diğer her şeyi sınırsızca güncelleyebilirsiniz." />
-            <Faq q="Misafirlerim üye olmak zorunda mı?" a="Hayır. Misafirleriniz linke tıklayıp hiçbir üyelik olmadan saniyeler içinde RSVP yapar ve yol tarifi alır." />
-            <Faq q="Davet ne kadar süre yayında kalır?" a="Satın alımdan itibaren 1 yıl yayında kalır. Düğün tarihiniz için fazlasıyla yeterlidir." />
-            <Faq q="Mobil uyumlu mu?" a="Evet, davetler öncelikli olarak telefon için tasarlandı; WhatsApp'tan açıldığında kusursuz görünür." />
+            {faqs.map((f, i) => <Faq key={i} q={f.q} a={f.a} />)}
           </div>
         </div>
+        {/* Google için FAQPage yapılandırılmış verisi (soru-cevaplar görünen SSS ile aynı kaynaktan) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: faqs.map((f) => ({
+                '@type': 'Question',
+                name: f.q,
+                acceptedAnswer: { '@type': 'Answer', text: f.a },
+              })),
+            }),
+          }}
+        />
       </section>
 
       {/* ===== SON CTA ===== */}

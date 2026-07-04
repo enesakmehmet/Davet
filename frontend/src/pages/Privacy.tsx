@@ -45,8 +45,10 @@ const Privacy = () => {
         <H>4. Çerezler</H>
         <p>
           Platform, oturumunuzu sürdürmek için zorunlu çerezler/yerel depolama (giriş anahtarları) ve davet
-          sayfalarında tekil ziyaretçi sayımı için anonim bir yerel işaret kullanır. Reklam veya üçüncü taraf
-          takip çerezi <strong>kullanılmaz</strong>.
+          sayfalarında tekil ziyaretçi sayımı için anonim bir yerel işaret kullanır. Bunlar hizmetin çalışması
+          için zorunludur ve onay gerektirmez. Ayrıca, açıkça onay vermeniz hâlinde Google Analytics ve/veya
+          Meta (Facebook) Pixel gibi analiz araçları etkinleşebilir; bu araçlar yalnızca onay verdiğinizde
+          yüklenir ve istediğiniz zaman onayınızı geri çekebilirsiniz.
         </p>
 
         <H>5. Misafir Fotoğrafları (Anı Albümü)</H>

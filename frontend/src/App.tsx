@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import Templates from './pages/Templates';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
 import Privacy from './pages/Privacy';
@@ -17,6 +18,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PageTracker from './components/PageTracker';
 import WhatsappButton from './components/WhatsappButton';
+import CookieConsent from './components/CookieConsent';
 import './index.css';
 
 function App() {
@@ -25,10 +27,12 @@ function App() {
       <Router>
         <PageTracker />
         <WhatsappButton />
+        <CookieConsent />
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
             <Route path="templates" element={<Templates />} />
+            <Route path="hakkimizda" element={<About />} />
             <Route path="privacy" element={<Privacy />} />
             <Route path="terms" element={<Terms />} />
             <Route path="contact" element={<Contact />} />

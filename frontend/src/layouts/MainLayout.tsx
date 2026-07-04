@@ -21,6 +21,7 @@ const MainLayout = () => {
         <nav className="nav-links">
           <Link to="/templates">Şablonlar</Link>
           <a href="#pricing">Fiyatlandırma</a>
+          <Link to="/hakkimizda">Hakkımızda</Link>
         </nav>
         <div className="header-actions">
           {isLoggedIn ? (
@@ -49,6 +50,7 @@ const MainLayout = () => {
         <div className="mobile-menu">
           <Link to="/templates" onClick={() => setMenuOpen(false)}>Şablonlar</Link>
           <a href="#pricing" onClick={() => setMenuOpen(false)}>Fiyatlandırma</a>
+          <Link to="/hakkimizda" onClick={() => setMenuOpen(false)}>Hakkımızda</Link>
           <div className="mobile-menu-divider" />
           {isLoggedIn ? (
             <>
@@ -80,8 +82,12 @@ const MainLayout = () => {
           <Link to="/terms">Şartlar</Link>
         </div>
         <div className="footer-col">
-          <h4>İletişim</h4>
+          <h4>Şirket</h4>
+          <Link to="/hakkimizda">Hakkımızda</Link>
           <Link to="/contact">İletişim</Link>
+        </div>
+        <div className="footer-col">
+          <h4>Bizi Takip Edin</h4>
           <a href="#">Instagram</a>
           <a href="#">Pinterest</a>
         </div>
