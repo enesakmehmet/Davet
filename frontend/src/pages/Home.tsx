@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,15 +21,24 @@ const stagger = {
 };
 
 const SHOWCASE = [
-  { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026' },
-  { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026' },
-  { key: 'lacivert', name: 'Lacivert Gece', g: 'linear-gradient(150deg,#0e1a33,#c9a14e)', font: 'Allura', accent: '#9c7a31', couple: 'Naz & Mert', date: '9 MAYIS 2027' },
-  { key: 'tropikal', name: 'Tropikal', g: 'linear-gradient(150deg,#136443,#2aa56c)', font: 'Caveat', accent: '#136443', couple: 'Sıla & Efe', date: '5 EYLÜL 2026' },
-  { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026' },
-  { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027' },
+  { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026', targetDate: '2026-09-12T18:00:00+03:00' },
+  { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026', targetDate: '2026-10-03T18:00:00+03:00' },
+  { key: 'lacivert', name: 'Lacivert Gece', g: 'linear-gradient(150deg,#0e1a33,#c9a14e)', font: 'Allura', accent: '#9c7a31', couple: 'Naz & Mert', date: '9 MAYIS 2027', targetDate: '2027-05-09T18:00:00+03:00' },
+  { key: 'tropikal', name: 'Tropikal', g: 'linear-gradient(150deg,#136443,#2aa56c)', font: 'Caveat', accent: '#136443', couple: 'Sıla & Efe', date: '5 EYLÜL 2026', targetDate: '2026-09-05T18:00:00+03:00' },
+  { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026', targetDate: '2026-10-17T18:00:00+03:00' },
+  { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027', targetDate: '2027-06-06T18:00:00+03:00' },
 ];
 
 const Home = () => {
+  // Hero telefon önizlemesi, hazır temalardan birini gösterir ve 10 saniyede bir değişir
+  const [scIdx, setScIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setScIdx((i) => (i + 1) % SHOWCASE.length), 10000);
+    return () => clearInterval(id);
+  }, []);
+  const current = SHOWCASE[scIdx];
+  const [firstName, secondName] = current.couple.split(' & ');
+
   return (
     <div className="home-page">
       {/* ===== HERO ===== */}
@@ -56,13 +65,23 @@ const Home = () => {
           <motion.div className="hero-visuals" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.15 }}>
             <div className="mockup-frame">
               <div className="mockup-screen">
-                <div className="mockup-invitation">
-                  <p className="m-pretitle">AİLELERİYLE BİRLİKTE</p>
-                  <h2 className="m-title">Zeynep<span>&amp;</span>Ahmet</h2>
-                  <div className="m-rule" />
-                  <p className="m-date">12 EYLÜL 2026</p>
-                  <MockCountdown />
-                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={current.key}
+                    className="mockup-invitation"
+                    style={{ '--mock-accent': current.accent, '--mock-font': `'${current.font}', cursive` } as CSSProperties}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.6, ease: 'easeInOut' as const }}
+                  >
+                    <p className="m-pretitle">AİLELERİYLE BİRLİKTE</p>
+                    <h2 className="m-title">{firstName}<span>&amp;</span>{secondName}</h2>
+                    <div className="m-rule" />
+                    <p className="m-date">{current.date}</p>
+                    <MockCountdown target={current.targetDate} />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
 
@@ -238,11 +257,10 @@ const Home = () => {
   );
 };
 
-/* Hero telefon mockup'ındaki canlı geri sayım */
-const MockCountdown = () => {
-  const target = new Date('2026-09-12T18:00:00+03:00').getTime();
+/* Hero telefon mockup'ındaki canlı geri sayım — her rotasyonda ilgili temanın tarihine göre sayar */
+const MockCountdown = ({ target }: { target: string }) => {
   const calc = () => {
-    let diff = target - Date.now();
+    let diff = new Date(target).getTime() - Date.now();
     if (diff < 0) diff = 0;
     return {
       d: Math.floor(diff / 86400000),
@@ -253,10 +271,11 @@ const MockCountdown = () => {
   };
   const [t, setT] = useState(calc());
   useEffect(() => {
+    setT(calc());
     const id = setInterval(() => setT(calc()), 1000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [target]);
   const pad = (n: number) => (n < 10 ? '0' + n : '' + n);
   return (
     <div className="m-countdown">

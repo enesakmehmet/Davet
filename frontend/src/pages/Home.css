@@ -78,14 +78,14 @@ section { padding: 96px 0; }
   padding: 40px 24px; color: #4a3f2a;
   background: linear-gradient(165deg,#fbf7ef,#f3e7cf 60%,#ecdcb6);
 }
-.m-pretitle { font-size: 10px; letter-spacing: 3px; color: #9c7a31; }
-.m-title { font-family: var(--font-serif); font-size: 46px; line-height: 1.05; margin: 16px 0; color: #9c7a31; }
-.m-title span { display: block; font-size: .5em; color: #c9a14e; margin: 2px 0; }
-.m-rule { width: 120px; height: 1px; background: #c9a14e; margin: 6px 0 16px; opacity: .6; }
+.m-pretitle { font-size: 10px; letter-spacing: 3px; color: var(--mock-accent, #9c7a31); }
+.m-title { font-family: var(--mock-font, var(--font-serif)); font-size: 46px; line-height: 1.05; margin: 16px 0; color: var(--mock-accent, #9c7a31); transition: color .3s ease; }
+.m-title span { display: block; font-size: .5em; color: var(--mock-accent, #c9a14e); margin: 2px 0; opacity: .75; }
+.m-rule { width: 120px; height: 1px; background: var(--mock-accent, #c9a14e); margin: 6px 0 16px; opacity: .6; }
 .m-date { font-size: 12px; letter-spacing: 2px; color: #7c6a4a; }
 .m-countdown { display: flex; gap: 10px; margin-top: 26px; }
-.m-countdown span { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #e8d6a8; border-radius: 10px; padding: 8px 9px; font-size: 9px; letter-spacing: 1px; color: #9c7a31; }
-.m-countdown b { font-family: var(--font-serif); font-size: 20px; line-height: 1; margin-bottom: 3px; color: #8c5a2a; }
+.m-countdown span { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #e8d6a8; border-radius: 10px; padding: 8px 9px; font-size: 9px; letter-spacing: 1px; color: var(--mock-accent, #9c7a31); }
+.m-countdown b { font-family: var(--font-serif); font-size: 20px; line-height: 1; margin-bottom: 3px; color: var(--mock-accent, #8c5a2a); }
 
 .floating-card {
   position: absolute; padding: 14px 20px; display: flex; align-items: center; gap: 14px; border-radius: 16px;
