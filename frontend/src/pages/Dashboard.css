@@ -187,6 +187,25 @@
 
 /* ===== Panel iki sütun + son RSVP listesi ===== */
 .db-panel-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 18px; align-items: start; }
+
+/* Panel: kompakt son davet listesi (tam liste Davetiyeler sayfasında) */
+.db-quick { display: flex; flex-direction: column; }
+.db-quick-item {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  padding: 13px 10px; border: none; background: transparent; cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light); border-radius: 10px;
+  transition: background .18s;
+  font-family: inherit;
+}
+.db-quick-item:last-child { border-bottom: none; }
+.db-quick-item:hover { background: rgba(212,175,55,.06); }
+.db-quick-dot { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+.db-quick-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.db-quick-info b { font-size: 14.5px; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.db-quick-info small { font-size: 12px; color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.db-quick-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.db-quick-meta em { font-style: normal; font-size: 11.5px; color: var(--color-text-secondary); background: var(--color-bg); border: 1px solid var(--color-border-light); border-radius: 20px; padding: 2px 9px; white-space: nowrap; }
+.db-quick-arrow { color: var(--color-accent-gold); flex-shrink: 0; }
 .db-recent { display: flex; flex-direction: column; }
 .db-recent-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 2px; border-bottom: 1px solid var(--color-border-light); }
 .db-recent-item:last-child { border-bottom: none; }
@@ -212,12 +231,23 @@
 .db-title { font-family: var(--font-serif); font-size: 28px; }
 .db-sub { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
 
-.db-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 22px; }
-.db-stat { background: #fff; border: 1px solid var(--color-border); border-radius: 16px; padding: 20px; transition: box-shadow .2s, transform .2s; }
-.db-stat:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-.db-stat-top { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 600; margin-bottom: 12px; }
-.db-stat-top i { color: var(--color-accent-gold); display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); }
-.db-stat b { font-family: var(--font-serif); font-size: 32px; font-weight: 700; color: var(--color-text-primary); }
+.db-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.db-stat {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(160deg, #ffffff 0%, #faf7ef 100%);
+  border: 1px solid var(--color-border); border-radius: 16px; padding: 16px 18px;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+.db-stat:hover { box-shadow: 0 10px 26px rgba(19,26,43,.08); transform: translateY(-2px); border-color: rgba(212,175,55,.45); }
+.db-stat-ico {
+  color: var(--color-accent-gold); display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(212,175,55,.06));
+  border: 1px solid rgba(212,175,55,.25);
+}
+.db-stat-body { display: flex; flex-direction: column; min-width: 0; }
+.db-stat-lab { font-size: 11px; letter-spacing: .8px; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 700; }
+.db-stat b { font-family: var(--font-serif); font-size: 27px; font-weight: 700; color: var(--color-text-primary); line-height: 1.15; }
 .db-stat b.gold { color: var(--color-accent-gold); }
 
 .db-panel { background: #fff; border: 1px solid var(--color-border); border-radius: 18px; padding: 22px; }
@@ -327,10 +357,13 @@
   .db-sub { font-size: 13px; }
   .content-section { padding: 20px; border-radius: 16px; }
   .db-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .db-stat { padding: 14px; }
-  .db-stat b { font-size: 24px; }
-  .db-stat-top { font-size: 10.5px; margin-bottom: 8px; }
-  .db-stat-top i { width: 28px; height: 28px; border-radius: 8px; }
+  .db-stat { padding: 12px 13px; gap: 10px; }
+  .db-stat b { font-size: 21px; }
+  .db-stat-lab { font-size: 10px; letter-spacing: .5px; }
+  .db-stat-ico { width: 36px; height: 36px; border-radius: 10px; }
+  .db-quick-item { gap: 10px; padding: 11px 6px; }
+  .db-quick-dot { width: 34px; height: 34px; border-radius: 10px; }
+  .db-quick-meta em:last-child { display: none; } /* dar ekranda sadece RSVP rozetini göster */
   .db-panel { padding: 16px; border-radius: 14px; }
   .inv-grid { grid-template-columns: 1fr; }
   .inv-meta { gap: 14px; }

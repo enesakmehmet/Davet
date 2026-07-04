@@ -91,6 +91,12 @@ const getBirthdayAge = (inv: any, cfg: any) => {
   return String(cfg?.groomName || fromSlug || '32');
 };
 
+/**
+ * ESKİ VERİ ONARIMI — yalnızca hâlâ varsayılan DÜĞÜN içeriğiyle kalmış doğum günü
+ * davetleri için çalışır. Kullanıcının özelleştirdiği kutlamalara ASLA dokunmaz.
+ * Onarım tetiklenirse sonuç veritabanına BİR KEZ kalıcı yazılır (persistRepair),
+ * böylece davet bir daha asla kendiliğinden değişmez.
+ */
 const repairInvitation = (inv: any) => {
   if (!inv) return inv;
   const text = `${inv.title || ''} ${inv.slug || ''}`.toLocaleLowerCase('tr-TR');
@@ -104,7 +110,7 @@ const repairInvitation = (inv: any) => {
 
   return {
     ...inv,
-    eventDate: undefined,
+    __repaired: true,
     config: {
       ...(inv.config || {}),
       theme: 'kutlamaPop',
@@ -121,6 +127,16 @@ const repairInvitation = (inv: any) => {
       cakeType: inv.config?.cakeType || 'classic',
     },
   };
+};
+
+/* Onarılan daveti kalıcılaştır: bir kez DB'ye yazılır, sonrasında onarım hiç tetiklenmez */
+const persistedRepairs = new Set<string>();
+const persistRepair = (inv: any) => {
+  if (!inv?.__repaired || !inv.id || persistedRepairs.has(inv.id)) return;
+  persistedRepairs.add(inv.id);
+  api.patch(`/invitations/${inv.id}`, { config: inv.config }).catch(() => {
+    persistedRepairs.delete(inv.id); // başarısızsa bir sonraki açılışta tekrar denenir
+  });
 };
 
 // Mock services for Templates
@@ -144,7 +160,11 @@ export const templateService = {
 export const invitationService = {
   getUserInvitations: async () => {
     const response = await api.get('/invitations');
-    return Array.isArray(response.data) ? response.data.map(repairInvitation) : response.data;
+    if (!Array.isArray(response.data)) return response.data;
+    const list = response.data.map(repairInvitation);
+    // Onarım gereken eski kayıtları kalıcılaştır — davetler bir daha kendiliğinden değişmez
+    list.forEach(persistRepair);
+    return list.map(({ __repaired, ...inv }: any) => inv);
   },
   // Yeni form tabanlı editör: config nesnesini kaydeder
   createInvitation: async (data: { title: string; slug: string; eventDate?: string; config: any }) => {

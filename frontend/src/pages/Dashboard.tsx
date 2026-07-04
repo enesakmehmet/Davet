@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, Mail, Users, BarChart3, Plus, UserCircle,
   ExternalLink, Eye, MailOpen, Edit3, Trash2, Settings as SettingsIcon, AlertTriangle, Download, X,
-  Copy, Check, MessageCircle, CalendarClock, QrCode, CopyPlus, Bell, Undo2
+  Copy, Check, MessageCircle, CalendarClock, QrCode, CopyPlus, Bell, Undo2, ChevronRight
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, invitationService, guestListService, statsService, settingsService, authService, guestService, qrService, notificationService, ABS_API_URL } from '../services/api';
@@ -339,7 +339,22 @@ const PanelView = ({ invitations, totalRsvp, totalViews, viewsMap, recentGuests,
           {invitations.length === 0 ? (
             <div className="db-empty">Henüz davetiyen yok. <Link to="/editor" className="db-link">İlk davetini oluştur →</Link></div>
           ) : (
-            <div className="inv-grid">{invitations.slice(0, 4).map((inv: any) => <InvCard key={inv.id} inv={inv} views={viewsMap?.[inv.id]} onDelete={onDelete} onDuplicate={onDuplicate} deletingId={deletingId} />)}</div>
+            <div className="db-quick">
+              {invitations.slice(0, 5).map((inv: any) => (
+                <button key={inv.id} className="db-quick-item" onClick={() => onGo('davetiyeler')} title="Davetiyeler sayfasında aç">
+                  <span className="db-quick-dot" style={{ background: grad(inv?.config?.theme) }} />
+                  <span className="db-quick-info">
+                    <b>{inv.title || 'Davetiye'}</b>
+                    <small>/davet/{inv.slug} · {fmtDate(inv.eventDate)}</small>
+                  </span>
+                  <span className="db-quick-meta">
+                    <em>{inv?._count?.guests ?? 0} RSVP</em>
+                    <em>{viewsMap?.[inv.id] ?? '—'} görüntülenme</em>
+                  </span>
+                  <ChevronRight size={17} className="db-quick-arrow" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -878,8 +893,11 @@ const SettingsView = () => {
 
 const Stat = ({ lab, val, ico, gold }: any) => (
   <div className="db-stat">
-    <div className="db-stat-top"><span>{lab}</span><i>{ico}</i></div>
-    <b className={gold ? 'gold' : ''}>{val}</b>
+    <i className="db-stat-ico">{ico}</i>
+    <div className="db-stat-body">
+      <span className="db-stat-lab">{lab}</span>
+      <b className={gold ? 'gold' : ''}>{val}</b>
+    </div>
   </div>
 );
 
