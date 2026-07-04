@@ -15,6 +15,7 @@ model User {
   role         String   @default("user") // "user" | "admin"
   status       String   @default("active") // "active" | "suspended"
   refreshToken String?
+  expoPushToken String? // mobil push bildirimleri (Expo)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

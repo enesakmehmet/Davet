@@ -1,15 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
-    return this.prisma.notification.create({
+    const notif = await this.prisma.notification.create({
       data: createNotificationDto,
     });
+    // Kullanıcının kayıtlı Expo push token'ı varsa telefona da gönder (best-effort)
+    this.sendPush(createNotificationDto.userId, createNotificationDto.title, createNotificationDto.content).catch(() => null);
+    return notif;
+  }
+
+  /** Expo push token kaydet/güncelle */
+  async savePushToken(userId: string, token: string) {
+    if (!token || !/^Expo(nent)?PushToken\[/.test(token)) {
+      return { success: false, message: 'Geçersiz push token.' };
+    }
+    await this.prisma.user.update({ where: { id: userId }, data: { expoPushToken: token } });
+    return { success: true };
+  }
+
+  /** Expo push API üzerinden bildirim gönderir — hata akışı asla bozmaz */
+  private async sendPush(userId: string, title: string, body: string) {
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { expoPushToken: true } });
+      const token = user?.expoPushToken;
+      if (!token) return;
+      await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: token, title, body, sound: 'default' }),
+      });
+    } catch (e: any) {
+      this.logger.warn(`Push gönderilemedi: ${e?.message || e}`);
+    }
   }
 
   async findAllByUser(userId: string) {
