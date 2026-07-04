@@ -345,6 +345,14 @@ export const statsService = {
   },
   // Public: davet açıldığında görüntülenme kaydı (fire-and-forget)
   recordView: async (invitationId: string) => {
+    // Tekil ziyaretçi tespiti: bu tarayıcı bu daveti daha önce açtı mı?
+    let isNewVisitor = true;
+    try {
+      const visitKey = `davetim_visited_${invitationId}`;
+      if (localStorage.getItem(visitKey)) isNewVisitor = false;
+      else localStorage.setItem(visitKey, String(Date.now()));
+    } catch { /* localStorage kapalıysa her açılış ziyaretçi sayılır */ }
+
     const ua = navigator.userAgent;
     let device = 'Desktop';
     if (/Mobile|Android|iPhone|iPad/i.test(ua)) device = 'Mobil';
@@ -377,13 +385,14 @@ export const statsService = {
       } catch(e2) {}
     }
 
-    api.post('/analytics/view', { 
+    api.post('/analytics/view', {
       invitationId,
       device,
       browser,
       operatingSystem: os,
       city,
       country,
+      isNewVisitor,
       referrer: document.referrer || undefined
     }).catch(() => {});
   },

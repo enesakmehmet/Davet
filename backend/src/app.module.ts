@@ -7,6 +7,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
 import { redisConnection } from './config/redis.util';
+import { RedisThrottlerStorage } from './config/throttler-redis.storage';
+import { GuestPhotosModule } from './guest-photos/guest-photos.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -39,10 +41,14 @@ import { SettingsModule } from './settings/settings.module';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 30, // IP başına dakikada 30 istek (abuse/spam koruması)
-    }]),
+    ThrottlerModule.forRoot({
+      throttlers: [{
+        ttl: 60000,
+        limit: 30, // IP başına dakikada 30 istek (abuse/spam koruması)
+      }],
+      // Sayaçlar Redis'te: birden fazla instance/replika olsa da limitler ortak işler
+      storage: new RedisThrottlerStorage(),
+    }),
     BullModule.forRoot({
       connection: redisConnection(),
     }),
@@ -65,6 +71,7 @@ import { SettingsModule } from './settings/settings.module';
     HealthModule,
     AdminModule,
     SettingsModule,
+    GuestPhotosModule,
   ],
   controllers: [AppController],
   providers: [

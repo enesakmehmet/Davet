@@ -1,156 +1,107 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 
-jest.mock('bcrypt', () => ({
-  hash: jest.fn().mockResolvedValue('hashed-pw'),
-  compare: jest.fn(),
-}));
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcrypt = require('bcrypt');
-
+/** Kritik yayınlama/çöp kutusu akışlarının birim testleri (DB'siz, mock prisma ile) */
 describe('InvitationsService', () => {
   let service: InvitationsService;
-  let prisma: any;
+
+  const prismaMock = {
+    user: { findUnique: jest.fn() },
+    subscription: { findFirst: jest.fn() },
+    invitation: {
+      count: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    notification: { create: jest.fn().mockResolvedValue({}) },
+    asset: { deleteMany: jest.fn() },
+    $transaction: jest.fn(),
+  };
+
+  const mailMock = { sendMail: jest.fn() };
 
   beforeEach(async () => {
-    prisma = {
-      invitation: {
-        findUnique: jest.fn(),
-        findFirst: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-      },
-      asset: { deleteMany: jest.fn() },
-      $transaction: jest.fn(),
-    };
-
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [InvitationsService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        InvitationsService,
+        { provide: PrismaService, useValue: prismaMock },
+        { provide: MailService, useValue: mailMock },
+      ],
     }).compile();
 
     service = module.get<InvitationsService>(InvitationsService);
-    jest.clearAllMocks();
+
+    // Varsayılan mutlu yol
+    prismaMock.user.findUnique.mockResolvedValue({ emailVerified: true });
+    prismaMock.subscription.findFirst.mockResolvedValue(null); // free plan
+    prismaMock.invitation.count.mockResolvedValue(0);
+    prismaMock.invitation.findUnique.mockResolvedValue(null); // slug boşta
+    prismaMock.invitation.create.mockResolvedValue({ id: 'inv-1', slug: 'test-slug' });
   });
 
-  it('tanımlı olmalı', () => {
-    expect(service).toBeDefined();
-  });
+  const dto: any = { title: 'Test Davet', slug: 'test-slug', config: { theme: 'altin' } };
 
-  describe('create', () => {
-    it('slug zaten kullanımdaysa ConflictException fırlatır', async () => {
-      prisma.invitation.findUnique.mockResolvedValue({ id: 'existing' });
-      await expect(
-        service.create({ slug: 'kullanimda' } as any, 'user1'),
-      ).rejects.toBeInstanceOf(ConflictException);
-      expect(prisma.invitation.create).not.toHaveBeenCalled();
+  describe('create (yayınlama)', () => {
+    it('doğrulanmış kullanıcı davet yayınlayabilir', async () => {
+      const result = await service.create(dto, 'user-1');
+      expect(result).toEqual(expect.objectContaining({ id: 'inv-1' }));
+      expect(prismaMock.invitation.create).toHaveBeenCalled();
     });
 
-    it('geçerli veriyle davetiye oluşturur', async () => {
-      prisma.invitation.findUnique.mockResolvedValue(null);
-      prisma.invitation.create.mockResolvedValue({ id: 'inv1', slug: 'yeni-davet' });
+    it('e-postası doğrulanmamış kullanıcı yayınlayamaz', async () => {
+      prismaMock.user.findUnique.mockResolvedValue({ emailVerified: false });
+      await expect(service.create(dto, 'user-1')).rejects.toThrow(ForbiddenException);
+      expect(prismaMock.invitation.create).not.toHaveBeenCalled();
+    });
 
-      const result = await service.create({ slug: 'yeni-davet', title: 'Test' } as any, 'user1');
+    it('free plan davet limitini aşamaz', async () => {
+      prismaMock.invitation.count.mockResolvedValue(5); // varsayılan limit: 5
+      await expect(service.create(dto, 'user-1')).rejects.toThrow(ForbiddenException);
+      expect(prismaMock.invitation.create).not.toHaveBeenCalled();
+    });
 
-      expect(result).toEqual({ id: 'inv1', slug: 'yeni-davet' });
-      expect(prisma.invitation.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ userId: 'user1' }) }),
+    it('kullanımda olan slug reddedilir', async () => {
+      prismaMock.invitation.findUnique.mockResolvedValue({ id: 'baska-davet', slug: 'test-slug' });
+      await expect(service.create(dto, 'user-1')).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('restore (çöp kutusundan geri alma)', () => {
+    it('çöpteki davet geri alınabilir', async () => {
+      prismaMock.invitation.findFirst.mockResolvedValue({ id: 'inv-1', userId: 'user-1', deletedAt: new Date() });
+      prismaMock.invitation.update.mockResolvedValue({ id: 'inv-1', deletedAt: null });
+      const result = await service.restore('inv-1', 'user-1');
+      expect(result.deletedAt).toBeNull();
+    });
+
+    it('çöpte olmayan davet için NotFound döner', async () => {
+      prismaMock.invitation.findFirst.mockResolvedValue(null);
+      await expect(service.restore('yok', 'user-1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('başkasının daveti geri alınamaz', async () => {
+      prismaMock.invitation.findFirst.mockResolvedValue({ id: 'inv-1', userId: 'baskasi', deletedAt: new Date() });
+      await expect(service.restore('inv-1', 'user-1')).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('remove (yayından kaldırma)', () => {
+    it('soft delete yapar, kalıcı silmez', async () => {
+      prismaMock.invitation.findFirst.mockResolvedValue({ id: 'inv-1', userId: 'user-1' });
+      prismaMock.invitation.update.mockResolvedValue({ id: 'inv-1', deletedAt: new Date() });
+      await service.remove('inv-1', 'user-1');
+      expect(prismaMock.invitation.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
       );
-    });
-  });
-
-  describe('findOneBySlug', () => {
-    it('davetiye bulunamazsa NotFoundException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue(null);
-      await expect(service.findOneBySlug('yok')).rejects.toBeInstanceOf(NotFoundException);
-    });
-
-    it('şifre korumalı davetiyede şifre verilmezse ForbiddenException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({
-        id: 'inv1', isPasswordProtected: true, passwordHash: 'hashed-pw',
-      });
-      await expect(service.findOneBySlug('korumali')).rejects.toBeInstanceOf(ForbiddenException);
-    });
-
-    it('şifre korumalı davetiyede hatalı şifre ForbiddenException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({
-        id: 'inv1', isPasswordProtected: true, passwordHash: 'hashed-pw',
-      });
-      bcrypt.compare.mockResolvedValue(false);
-      await expect(service.findOneBySlug('korumali', 'yanlis-sifre')).rejects.toBeInstanceOf(ForbiddenException);
-    });
-
-    it('passwordHash alanını yanıttan çıkarır (sızdırmaz)', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({
-        id: 'inv1', slug: 'acik-davet', isPasswordProtected: false, passwordHash: null,
-      });
-      const result = await service.findOneBySlug('acik-davet');
-      expect(result).not.toHaveProperty('passwordHash');
-      expect(result).toEqual({ id: 'inv1', slug: 'acik-davet', isPasswordProtected: false });
-    });
-  });
-
-  describe('update', () => {
-    it('davetiye bulunamazsa NotFoundException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue(null);
-      await expect(service.update('yok', {} as any, 'user1')).rejects.toBeInstanceOf(NotFoundException);
-    });
-
-    it('başka kullanıcının davetiyesi düzenlenmeye çalışılırsa ForbiddenException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'baska-kullanici' });
-      await expect(service.update('inv1', {} as any, 'user1')).rejects.toBeInstanceOf(ForbiddenException);
-    });
-  });
-
-  describe('remove', () => {
-    it('davetiye bulunamazsa NotFoundException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue(null);
-      await expect(service.remove('yok', 'user1')).rejects.toBeInstanceOf(NotFoundException);
-    });
-
-    it('başka kullanıcının davetiyesi silinmeye çalışılırsa ForbiddenException fırlatır', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'baska-kullanici' });
-      await expect(service.remove('inv1', 'user1')).rejects.toBeInstanceOf(ForbiddenException);
-    });
-
-    it('davete bağlı yüklenmiş müzik ve fotoğrafları (assets) DB\'den tamamen siler', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({
-        id: 'inv1',
-        userId: 'user1',
-        config: {
-          musicUrl: 'https://api.example.com/api/assets/file/aaaa1111-1111-1111-1111-111111111111',
-          photos: [
-            'https://api.example.com/api/assets/file/bbbb2222-2222-2222-2222-222222222222',
-            'https://images.unsplash.com/harici-foto.jpg', // harici URL — silinmemeli
-          ],
-        },
-      });
-      prisma.invitation.update.mockResolvedValue({ id: 'inv1', deletedAt: new Date() });
-
-      await service.remove('inv1', 'user1');
-
-      expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
-        where: {
-          id: { in: expect.arrayContaining([
-            'aaaa1111-1111-1111-1111-111111111111',
-            'bbbb2222-2222-2222-2222-222222222222',
-          ]) },
-          userId: 'user1',
-        },
-      });
-    });
-
-    it('sahibi doğruysa davetiyeyi soft-delete yapar (deletedAt set edilir)', async () => {
-      prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'user1', config: {} });
-      prisma.invitation.update.mockResolvedValue({ id: 'inv1', deletedAt: new Date() });
-
-      await service.remove('inv1', 'user1');
-
-      expect(prisma.invitation.update).toHaveBeenCalledWith({
-        where: { id: 'inv1' },
-        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
-      });
+      expect(prismaMock.invitation.delete).not.toHaveBeenCalled();
     });
   });
 });

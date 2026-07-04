@@ -54,6 +54,10 @@ export class AnalyticsService {
       where: { invitationId },
     });
 
+    // Tekil ziyaretçi: yalnızca tarayıcı "ilk kez açıyorum" dediğinde artar.
+    // (Eski istemciler alanı göndermez → geriye uyumluluk için onlar da sayılır.)
+    const countAsVisitor = recordViewDto.isNewVisitor !== false;
+
     if (!analytics) {
       await this.prisma.analytics.create({
         data: {
@@ -81,7 +85,7 @@ export class AnalyticsService {
       where: { id: analytics.id },
       data: {
         views: analytics.views + 1,
-        visitors: analytics.visitors + 1,
+        visitors: analytics.visitors + (countAsVisitor ? 1 : 0),
         countries: updatedCountries,
         cities: updatedCities,
         devices: updatedDevices,

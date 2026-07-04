@@ -93,6 +93,7 @@ model Invitation {
 
   pages           InvitationPage[]
   guests          Guest[]
+  guestPhotos     GuestPhoto[]
   analytics       Analytics[]
   analyticsEvents AnalyticsEvent[]
   versions        InvitationVersion[]
@@ -132,6 +133,21 @@ model Asset {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Misafir albümü: davete gelen misafirlerin yüklediği fotoğraflar
+model GuestPhoto {
+  id        String   @id @default(uuid())
+  guestName String?
+  mime      String
+  size      Int      @default(0)
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
 }
 
 model Guest {

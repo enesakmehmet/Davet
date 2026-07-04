@@ -1,14 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import * as QRCode from 'qrcode';
 import { QrCodesService } from './qr-codes.service';
 import { PrismaService } from '../prisma/prisma.service';
+
+// qrcode paketinin export'ları yeniden tanımlanamıyor (spyOn çalışmıyor);
+// bu yüzden modülün tamamını jest.mock ile değiştiriyoruz.
+jest.mock('qrcode', () => ({
+  toDataURL: jest.fn().mockResolvedValue('data:image/png;base64,xyz'),
+  toBuffer: jest.fn().mockResolvedValue(Buffer.from('fake')),
+}));
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const QRCode = require('qrcode');
 
 describe('QrCodesService', () => {
   let service: QrCodesService;
   let prisma: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     prisma = {
       invitation: { findUnique: jest.fn() },
     };
@@ -18,10 +27,6 @@ describe('QrCodesService', () => {
     }).compile();
 
     service = module.get<QrCodesService>(QrCodesService);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   it('tanımlı olmalı', () => {
@@ -44,12 +49,9 @@ describe('QrCodesService', () => {
     prisma.invitation.findUnique.mockResolvedValue({ slug: 'ayse-mehmet-a1b2' });
     process.env.FRONTEND_URL = 'https://example.com';
 
-    const spy = (jest.spyOn(QRCode, 'toDataURL') as unknown as jest.SpyInstance)
-      .mockResolvedValue('data:image/png;base64,xyz');
-
     const dataUrl = await service.generateQRCode('inv1');
 
-    expect(spy).toHaveBeenCalledWith('https://example.com/davet/ayse-mehmet-a1b2', expect.any(Object));
+    expect(QRCode.toDataURL).toHaveBeenCalledWith('https://example.com/davet/ayse-mehmet-a1b2', expect.any(Object));
     expect(dataUrl).toBe('data:image/png;base64,xyz');
 
     delete process.env.FRONTEND_URL;
@@ -59,12 +61,9 @@ describe('QrCodesService', () => {
     prisma.invitation.findUnique.mockResolvedValue({ slug: 'zeynep-ahmet-c3d4' });
     process.env.FRONTEND_URL = 'https://example.com';
 
-    const spy = (jest.spyOn(QRCode, 'toBuffer') as unknown as jest.SpyInstance)
-      .mockResolvedValue(Buffer.from('fake'));
-
     await service.generateQRCodeBuffer('inv2');
 
-    expect(spy).toHaveBeenCalledWith('https://example.com/davet/zeynep-ahmet-c3d4', expect.any(Object));
+    expect(QRCode.toBuffer).toHaveBeenCalledWith('https://example.com/davet/zeynep-ahmet-c3d4', expect.any(Object));
 
     delete process.env.FRONTEND_URL;
   });

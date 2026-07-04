@@ -202,7 +202,13 @@ const normalizeCfg = (c: any): Cfg => {
 const initialCfg = (): Cfg => {
   const theme = new URLSearchParams(window.location.search).get('theme');
   let base = DEFAULT_CFG;
-  if (theme && THEMES.some((t) => t.key === theme)) base = { ...DEFAULT_CFG, theme };
+  if (theme && THEMES.some((t) => t.key === theme)) {
+    base = { ...DEFAULT_CFG, theme };
+    // Şablon galerisinden gelen tema kendi kategorisinin örnek içeriğiyle açılsın
+    if (isCelebTheme(theme)) base = { ...base, ...CELEB_CONTENT, theme };
+    else if (isBirthdayTheme(theme)) base = { ...base, ...BDAY_CONTENT, theme };
+    else if (isDiniTheme(theme)) base = { ...base, ...DINI_CONTENT, theme };
+  }
   return normalizeCfg(JSON.parse(JSON.stringify(base)));
 };
 

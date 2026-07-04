@@ -215,6 +215,17 @@
   .dini-dua{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.7;max-width:440px;margin:0 auto}
   .dini-names{letter-spacing:5px;font-size:15px;font-weight:600;margin-top:18px}
 
+  /* ===== Anı Albümü (misafir fotoğrafları) ===== */
+  .ga-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:520px;margin:18px auto 0}
+  .ga-item{position:relative;padding-top:100%;border-radius:12px;overflow:hidden;background:rgba(0,0,0,.06)}
+  .ga-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ga-item .ga-name{position:absolute;bottom:0;left:0;right:0;padding:10px 8px 6px;font-size:10.5px;color:#fff;background:linear-gradient(to top,rgba(0,0,0,.65),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ga-upload{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:13px 26px;border:none;border-radius:999px;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;color:#fff;transition:.25s}
+  .ga-upload:disabled{opacity:.6;cursor:default}
+  .ga-status{margin-top:10px;font-size:12.5px;min-height:18px}
+  .ga-empty{margin-top:16px;font-size:13.5px;opacity:.7}
+  @media(max-width:560px){.ga-grid{grid-template-columns:repeat(2,1fr)}}
+
   /* ===== Dar ekran / telefon önizleme uyumu ===== */
   @media(max-width:560px){
     section{padding:52px 18px}
@@ -637,6 +648,9 @@ function render(cfg){
     '</div>';
   wrap.appendChild(s8);
 
+  /* ANI ALBÜMÜ (yayınlanmış davetlerde) */
+  setupGuestAlbum(cfg, T, wrap, { inkSoft: inkSoft, surface: surface, border: border });
+
   /* FOOTER */
   var ft=el('footer'); ft.style.background=T.dark?'rgba(0,0,0,.3)':T.accent; ft.style.color=T.dark?T.soft:'#fff';
   ft.innerHTML='<div class="fn" style="font-family:\''+T.nameFont+'\',cursive;font-size:48px">'+esc(couple)+'</div><p>'+fmtDate(cfg.date, lang).toUpperCase()+' — '+esc(cfg.venueCity)+'</p>';
@@ -780,6 +794,9 @@ function renderDini(cfg, T, wrap, x){
     '</div>';
   wrap.appendChild(s8);
 
+  /* ANI ALBÜMÜ (yayınlanmış davetlerde) */
+  setupGuestAlbum(cfg, T, wrap, { inkSoft: inkSoft, surface: surface, border: border });
+
   /* DUA FOOTER: silüet + hilal + dua + isimler */
   var ftSec=sec(); ftSec.style.paddingBottom='70px';
   ftSec.innerHTML=
@@ -883,6 +900,66 @@ function renderCelebration(cfg, T, wrap, x){
     currentMusicUrl = cfg.musicUrl || null;
     if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
   }
+}
+
+/* ===== Anı Albümü: misafirler fotoğraf yükler, herkes görür ===== */
+function setupGuestAlbum(cfg, T, wrap, x){
+  if(!cfg.invitationId || !cfg.apiBase) return; // yalnızca yayınlanmış davetlerde
+  var inkSoft=x.inkSoft, surface=x.surface, border=x.border;
+  var apiBase=cfg.apiBase.replace(/\/$/,'');
+
+  var s=el('section','fade');
+  s.innerHTML='<h2 class="title" style="color:'+T.accent+'">Anı Albümü</h2>'+
+    '<div class="tsub" style="color:'+inkSoft+'">O günden karelerinizi bizimle paylaşın 📸</div>'+
+    '<div class="ga-grid" id="gaGrid"></div>'+
+    '<div class="ga-empty" id="gaEmpty" style="color:'+inkSoft+';display:none">İlk fotoğrafı sen yükle!</div>'+
+    '<button class="ga-upload" id="gaBtn" style="background:'+T.accent+'">📷 Fotoğraf Yükle</button>'+
+    '<input type="file" id="gaFile" accept="image/*" style="display:none">'+
+    '<div class="ga-status" id="gaStatus" style="color:'+inkSoft+'"></div>';
+  wrap.appendChild(s);
+
+  var grid=s.querySelector('#gaGrid'), empty=s.querySelector('#gaEmpty');
+  var btn=s.querySelector('#gaBtn'), fileIn=s.querySelector('#gaFile'), status=s.querySelector('#gaStatus');
+
+  function renderList(list){
+    grid.innerHTML='';
+    if(!list || !list.length){ empty.style.display='block'; return; }
+    empty.style.display='none';
+    list.forEach(function(p){
+      var d=el('div','ga-item');
+      d.innerHTML='<img loading="lazy" src="'+esc(p.url)+'" alt="">'+(p.guestName?'<span class="ga-name">'+esc(p.guestName)+'</span>':'');
+      grid.appendChild(d);
+    });
+  }
+
+  fetch(apiBase+'/guest-photos/invitation/'+encodeURIComponent(cfg.invitationId))
+    .then(function(r){return r.json();})
+    .then(function(list){ if(Array.isArray(list)) renderList(list); })
+    .catch(function(){});
+
+  btn.addEventListener('click',function(){ fileIn.click(); });
+  fileIn.addEventListener('change',function(){
+    var f=fileIn.files && fileIn.files[0];
+    if(!f) return;
+    if(f.size>10*1024*1024){ status.textContent='Fotoğraf en fazla 10 MB olabilir.'; return; }
+    var name='';
+    try{ name=window.prompt('Adınız (fotoğrafın altında görünür, boş bırakabilirsiniz):','')||''; }catch(e){}
+    btn.disabled=true; status.textContent='Yükleniyor…';
+    var fd=new FormData();
+    fd.append('file',f);
+    fd.append('invitationId',cfg.invitationId);
+    if(name) fd.append('guestName',name);
+    fetch(apiBase+'/guest-photos',{method:'POST',body:fd})
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(res){
+        if(!res.ok) throw new Error((res.j&&res.j.message)||'Yüklenemedi');
+        status.textContent='Teşekkürler, fotoğrafınız albümde! 💛';
+        return fetch(apiBase+'/guest-photos/invitation/'+encodeURIComponent(cfg.invitationId)).then(function(r){return r.json();});
+      })
+      .then(function(list){ if(Array.isArray(list)) renderList(list); })
+      .catch(function(e){ status.textContent=(e&&e.message)||'Yüklenemedi, tekrar deneyin.'; })
+      .finally(function(){ btn.disabled=false; fileIn.value=''; });
+  });
 }
 
 function videoEmbed(url,border){

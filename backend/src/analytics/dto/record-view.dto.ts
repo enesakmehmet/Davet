@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class RecordViewDto {
   @IsString()
@@ -28,4 +28,9 @@ export class RecordViewDto {
   @IsString()
   @IsOptional()
   city?: string;
+
+  /** Tarayıcı bu daveti daha önce hiç açmadıysa true — tekil ziyaretçi sayımı için */
+  @IsBoolean()
+  @IsOptional()
+  isNewVisitor?: boolean;
 }

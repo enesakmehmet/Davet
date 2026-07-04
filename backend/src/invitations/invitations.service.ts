@@ -16,6 +16,15 @@ export class InvitationsService {
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto, userId: string) {
+    // Yayınlamak için e-posta doğrulaması zorunlu (sahte hesap koruması)
+    const owner = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerified: true },
+    });
+    if (owner && owner.emailVerified === false) {
+      throw new ForbiddenException('Davet yayınlamak için önce e-posta adresini doğrulaman gerekiyor. Panelindeki "doğrulama e-postasını tekrar gönder" bağlantısını kullanabilirsin.');
+    }
+
     // Plan bazlı davet limiti (DB'nin kontrolsüz şişmesini önler)
     const activeSub = await this.prisma.subscription.findFirst({
       where: { userId, status: 'active' },
