@@ -24,6 +24,9 @@ const WhatsappButton = () => {
     location.pathname,
   )}&sid=${encodeURIComponent(getSessionId())}`;
 
+  // Editor sayfasında mobilde kendi "önizleme" yüzen butonuyla aynı köşeye denk geliyor — orada gösterme.
+  if (location.pathname.startsWith('/editor')) return null;
+
   return (
     <>
       <style>{`

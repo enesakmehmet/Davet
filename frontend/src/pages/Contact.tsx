@@ -48,7 +48,7 @@ const Contact = () => {
             <Mail color="var(--color-accent-gold)" />
             <div>
               <h4 style={{ marginBottom: '4px' }}>E-posta</h4>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>hello@davetim.com</p>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>hello@benimdavetim.com</p>
             </div>
           </div>
           

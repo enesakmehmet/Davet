@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Not: Özel alan adı aldığınızda aşağıdaki adresleri kendi domaininizle güncelleyin. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/</loc>
+    <loc>https://www.benimdavetim.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/templates</loc>
+    <loc>https://www.benimdavetim.com/templates</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/hakkimizda</loc>
+    <loc>https://www.benimdavetim.com/hakkimizda</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/contact</loc>
+    <loc>https://www.benimdavetim.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/privacy</loc>
+    <loc>https://www.benimdavetim.com/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://davet-frontend-production.up.railway.app/terms</loc>
+    <loc>https://www.benimdavetim.com/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

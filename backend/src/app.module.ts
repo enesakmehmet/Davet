@@ -31,6 +31,7 @@ import { HealthModule } from './health/health.module';
 import { AdminModule } from './admin/admin.module';
 import { SettingsModule } from './settings/settings.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
     SettingsModule,
     GuestPhotosModule,
     WhatsappModule,
+    LeadsModule,
   ],
   controllers: [AppController],
   providers: [

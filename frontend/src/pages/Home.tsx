@@ -189,7 +189,7 @@ const Home = () => {
             <Feature icon={<ImageIcon size={28} />} title="Fotoğraf Galerisi" desc="Çift fotoğraflarınızı otomatik dönen şık bir slaytta sergileyin." />
             <Feature icon={<Globe size={28} />} title="Çoklu Dil" desc="Davetiniz Türkçe, İngilizce ve Almanca dillerinde misafirlerinize sunulur." />
             <Feature icon={<Lock size={28} />} title="Şifre Koruması" desc="İsterseniz davetinizi şifreyle koruyun; yalnızca linki ve şifreyi bilenler görsün." />
-            <Feature icon={<Link2 size={28} />} title="Özel Bağlantı" desc="davetim.com/davet/senin-linkin gibi kendi seçtiğiniz özel bir bağlantı adresi alın." />
+            <Feature icon={<Link2 size={28} />} title="Özel Bağlantı" desc="benimdavetim.com/davet/senin-linkin gibi kendi seçtiğiniz özel bir bağlantı adresi alın." />
             <Feature icon={<QrCode size={28} />} title="QR Kod" desc="Daveti anında QR koda dönüştürün; baskı davetiyeye veya panoya ekleyin." />
             <Feature icon={<Eye size={28} />} title="Görselli Link Önizleme" desc="WhatsApp'ta paylaştığınızda davetiniz görselli, şık bir link kartı olarak görünür." />
             <Feature icon={<Bell size={28} />} title="Bildirimler" desc="Yeni bir RSVP yanıtı geldiğinde anında bildirim alırsınız, hiçbir yanıtı kaçırmazsınız." />

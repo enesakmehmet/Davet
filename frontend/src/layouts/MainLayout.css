@@ -43,12 +43,16 @@
 .footer {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 32px 24px;
   padding-top: 64px;
   padding-bottom: 64px;
   margin-top: 64px;
   border-top: 1px solid var(--color-border);
   width: 100%;
 }
+.footer-col { flex: 1 1 160px; min-width: 140px; }
+.footer-col.brand { flex-basis: 220px; }
 
 .footer-col {
   display: flex;

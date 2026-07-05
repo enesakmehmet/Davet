@@ -23,7 +23,7 @@ async function bootstrap() {
   );
 
   // CORS — birden çok origin desteklenir (site + admin paneli).
-  // Üretimde: CORS_ORIGINS="https://davetim.com,https://panel.davetim.com"
+  // Üretimde: CORS_ORIGINS="https://www.benimdavetim.com,https://benimdavetim.com"
   const corsOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:3001,http://localhost:3002')
     .split(',')
     .map((s) => s.trim())

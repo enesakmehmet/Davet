@@ -1,4 +1,3 @@
-# Not: Özel alan adı aldığınızda aşağıdaki sitemap adresini kendi domaininizle güncelleyin.
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -9,4 +8,4 @@ Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /verify-email
 
-Sitemap: https://davet-frontend-production.up.railway.app/sitemap.xml
+Sitemap: https://www.benimdavetim.com/sitemap.xml
