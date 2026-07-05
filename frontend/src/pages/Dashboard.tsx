@@ -569,13 +569,23 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, onAlbum, deletingId }: any
 
   return (
     <div className="inv-card">
-      <div ref={thumbRef} className="inv-thumb" style={{ overflow: 'hidden', position: 'relative', height: 160, background: grad(inv?.config?.theme) }}>
+      <div
+        ref={thumbRef}
+        className="inv-thumb"
+        style={{
+          overflow: 'hidden', position: 'relative', height: 160,
+          background: grad(inv?.config?.theme),
+          // overflow:hidden tek başına ölçeklenmiş (transform:scale) bir iframe'i her tarayıcıda
+          // düzgün kırpmıyor (Chromium'da bilinen bir sorun) — clip-path bunu garanti ediyor.
+          clipPath: 'inset(0 round 16px 16px 0 0)',
+        }}
+      >
         {inView && (
           <iframe
             title="thumbnail"
             loading="lazy"
             src={`/davet-preview.html?v=20260702a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
-            style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0 }}
+            style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0, maxWidth: 'none' }}
           />
         )}
         <span className="inv-badge" style={{ zIndex: 10 }}>Yayında</span>
