@@ -834,7 +834,14 @@ function render(cfg){
   if (isThumb) {
     document.body.classList.add('is-thumb');
     var s = document.createElement('style');
-    s.textContent = '.is-thumb { overflow: hidden !important; pointer-events: none !important; } .is-thumb section.hero { min-height: 0 !important; padding: 40px 20px !important; display: block !important; text-align: center; } .is-thumb .scroll-cue { display: none !important; }';
+    // Kart önizlemesi ~%30 ölçeğe küçültülüyor; ince/italik/serif yazılar (subtitle, tarih
+    // satırı, dini besmele metni) bu ölçekte bulanıklaşıp anlamsız karalamaya dönüşüyor.
+    // Thumbnail'de sadece büyük ve okunaklı kalan kısımları (isim, kısa üst etiket, süsleme)
+    // gösterip ince baskı metinleri tamamen gizliyoruz.
+    s.textContent = '.is-thumb { overflow: hidden !important; pointer-events: none !important; } '
+      + '.is-thumb section.hero { min-height: 0 !important; padding: 40px 20px !important; display: block !important; text-align: center; } '
+      + '.is-thumb .scroll-cue { display: none !important; } '
+      + '.is-thumb .subtitle, .is-thumb .date-eyebrow, .is-thumb .dini-msg { display: none !important; }';
     document.head.appendChild(s);
   }
 
@@ -862,7 +869,7 @@ function render(cfg){
     ageHTML+
     '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>'+ornamentMid+'<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
     '<p class="subtitle reveal" style="color:'+inkSoft+'">'+esc(cfg.subtitle)+'</p>'+
-    '<div class="eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
+    '<div class="eyebrow date-eyebrow reveal" style="margin-top:20px;color:'+(T.dark?T.soft:T.accent)+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
     '<div class="scroll-cue" style="color:'+(T.dark?T.soft:T.accent)+'">'+t.scrollDown+'</div>';
   hero.innerHTML = buildHeroVariant(T, cfg, {
     couple: couple, heroEyebrow: heroEyebrow, inkSoft: inkSoft, ink: ink, lang: lang, scrollTxt: t.scrollDown,
@@ -1022,7 +1029,7 @@ function renderDini(cfg, T, wrap, x){
     '<h1 class="names reveal" style="font-family:\'Cormorant Garamond\',serif;font-weight:600;font-size:clamp(44px,11vw,84px);color:'+T.accent+';margin-top:0">'+esc(cfg.groomName)+'</h1>'+
     '<p class="dini-msg reveal" style="color:'+inkSoft+'">'+esc(cfg.message)+'</p>'+
     '<div class="ornament reveal" style="color:'+T.accent+'"><span style="background:linear-gradient(90deg,transparent,'+T.accent+');height:1px;flex:1"></span>❦<span style="background:linear-gradient(90deg,'+T.accent+',transparent);height:1px;flex:1"></span></div>'+
-    '<div class="eyebrow reveal" style="color:'+T.accent+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
+    '<div class="eyebrow date-eyebrow reveal" style="color:'+T.accent+'">'+fmtDate(cfg.date, lang)+' · '+fmtDay(cfg.date, lang)+'</div>'+
     '<div class="scroll-cue" style="color:'+T.accent+'">'+t.scrollDown+'</div>';
   wrap.appendChild(hero);
 
