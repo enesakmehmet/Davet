@@ -11,8 +11,9 @@ export class GuestsService {
   ) {}
 
   async create(createGuestDto: CreateGuestDto) {
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: createGuestDto.invitationId },
+    // Silinmiş (çöp kutusundaki) bir davete artık RSVP gönderilemez.
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: createGuestDto.invitationId, deletedAt: null },
     });
 
     if (!invitation) {

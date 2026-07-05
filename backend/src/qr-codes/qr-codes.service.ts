@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as QRCode from 'qrcode';
 
@@ -6,16 +6,25 @@ import * as QRCode from 'qrcode';
 export class QrCodesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async generateQRCode(invitationId: string): Promise<string> {
-    // Davetiyenin var olup olmadığını kontrol et
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: invitationId },
-      select: { slug: true },
+  /** Davetiyenin var olduğunu VE isteği yapan kullanıcıya ait olduğunu doğrular (IDOR koruması). */
+  private async getOwnedInvitation(invitationId: string, userId: string) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: invitationId, deletedAt: null },
+      select: { slug: true, userId: true },
     });
 
     if (!invitation) {
       throw new NotFoundException('Davetiye bulunamadı');
     }
+    if (invitation.userId !== userId) {
+      throw new ForbiddenException('Bu davetiyenin QR kodunu oluşturma yetkiniz yok.');
+    }
+
+    return invitation;
+  }
+
+  async generateQRCode(invitationId: string, userId: string): Promise<string> {
+    const invitation = await this.getOwnedInvitation(invitationId, userId);
 
     // QR kod için URL oluştur
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
@@ -40,15 +49,8 @@ export class QrCodesService {
     }
   }
 
-  async generateQRCodeBuffer(invitationId: string): Promise<Buffer> {
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: invitationId },
-      select: { slug: true },
-    });
-
-    if (!invitation) {
-      throw new NotFoundException('Davetiye bulunamadı');
-    }
+  async generateQRCodeBuffer(invitationId: string, userId: string): Promise<Buffer> {
+    const invitation = await this.getOwnedInvitation(invitationId, userId);
 
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
     const invitationUrl = `${baseUrl}/davet/${invitation.slug}`;

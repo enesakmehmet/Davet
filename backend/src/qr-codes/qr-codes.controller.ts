@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   Res,
+  Request,
   UseGuards,
   HttpStatus,
 } from '@nestjs/common';
@@ -15,8 +16,8 @@ export class QrCodesController {
 
   @Get(':invitationId')
   @UseGuards(JwtAuthGuard)
-  async generateQRCode(@Param('invitationId') invitationId: string) {
-    const qrCodeDataUrl = await this.qrCodesService.generateQRCode(invitationId);
+  async generateQRCode(@Param('invitationId') invitationId: string, @Request() req) {
+    const qrCodeDataUrl = await this.qrCodesService.generateQRCode(invitationId, req.user.id);
     return {
       statusCode: HttpStatus.OK,
       message: 'QR kod başarıyla oluşturuldu',
@@ -30,10 +31,11 @@ export class QrCodesController {
   @UseGuards(JwtAuthGuard)
   async downloadQRCode(
     @Param('invitationId') invitationId: string,
+    @Request() req,
     @Res() res: any,
   ) {
-    const qrCodeBuffer = await this.qrCodesService.generateQRCodeBuffer(invitationId);
-    
+    const qrCodeBuffer = await this.qrCodesService.generateQRCodeBuffer(invitationId, req.user.id);
+
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Disposition', `attachment; filename="qr-code-${invitationId}.png"`);
     res.send(qrCodeBuffer);

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { AnalyticsService } from './analytics.service';
 import { RecordViewDto } from './dto/record-view.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,8 +18,9 @@ export class AnalyticsController {
     return this.analyticsService.recordView(recordViewDto, ip);
   }
 
-  // Public: site sayfa görüntüleme kaydı (dahili analytics) — rate limit dışı
-  @SkipThrottle()
+  // Public: site sayfa görüntüleme kaydı (dahili analytics). Normal gezinme sırasında
+  // sık tetiklendiği için global limitten (30/dk) daha yüksek ama sınırsız değil.
+  @Throttle({ default: { limit: 120, ttl: 60000 } })
   @Post('pageview')
   recordPageView(@Body() body: { path?: string; sessionId?: string; referrer?: string }) {
     return this.analyticsService.recordPageView({

@@ -8,60 +8,15 @@ import {
 } from 'lucide-react';
 import { invitationService, assetService } from '../services/api';
 import { slugify } from '../utils/format';
+import { THEMES as CANONICAL_THEMES } from '../data/themes';
 import './Editor.css';
 
-/* Onizleme motorundaki temalarla birebir ayni anahtarlar */
+/* Onizleme motorundaki temalarla birebir ayni anahtarlar.
+   Veri artık ../data/themes.ts'den geliyor (Templates.tsx ile aynı tek kaynak) —
+   burada sadece bu dosyanın geri kalanının kullandığı eski alan adlarına (label/cat) eşleniyor. */
 type Cat = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama';
-const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat; isNew?: boolean }[] = [
-  { key: 'altin', label: 'Zarif Altın', c1: '#9c7a31', c2: '#e8d6a8', cat: 'dugun' },
-  { key: 'gul', label: 'Romantik Gül', c1: '#b35a72', c2: '#f6dbe2', cat: 'dugun' },
-  { key: 'minimal', label: 'Modern Minimal', c1: '#1a1a1a', c2: '#d8d8d8', cat: 'dugun' },
-  { key: 'bohem', label: 'Bohem Kır', c1: '#5f7050', c2: '#cdbfa6', cat: 'dugun' },
-  { key: 'lacivert', label: 'Lacivert Gece', c1: '#0e1a33', c2: '#c9a14e', cat: 'dugun' },
-  { key: 'lavanta', label: 'Lavanta Bahçe', c1: '#6f54a0', c2: '#e3d6f3', cat: 'dugun' },
-  { key: 'sonbahar', label: 'Sonbahar', c1: '#8a3d1c', c2: '#ecd9bf', cat: 'dugun' },
-  { key: 'deniz', label: 'Deniz Kıyısı', c1: '#1c7484', c2: '#bfe6ec', cat: 'dugun' },
-  { key: 'tropikal', label: 'Tropikal', c1: '#136443', c2: '#bfe6cf', cat: 'dugun' },
-  { key: 'havai', label: 'Gece Havai Fişek', c1: '#070912', c2: '#cbab53', cat: 'dugun' },
-  { key: 'sinematik', label: 'Altın Sinematik', c1: '#0b0b0d', c2: '#c9a14e', cat: 'dugun' },
-  { key: 'zumrut', label: 'Zümrüt Saray', c1: '#0d3b2a', c2: '#d4b455', cat: 'dugun', isNew: true },
-  { key: 'gececicek', label: 'Gece Çiçeği', c1: '#2b0d1d', c2: '#e58bb1', cat: 'dugun', isNew: true },
-  { key: 'pudra', label: 'Pudra Şıklığı', c1: '#c07f6d', c2: '#f6e3da', cat: 'dugun', isNew: true },
-  { key: 'yildizharitasi', label: 'Yıldız Haritası', c1: '#080b18', c2: '#9bb8ff', cat: 'dugun', isNew: true },
-  { key: 'gazete', label: 'Düğün Gazetesi', c1: '#f6f2e6', c2: '#1a1a1a', cat: 'dugun', isNew: true },
-  { key: 'biniskarti', label: 'Biniş Kartı', c1: '#0e5a8a', c2: '#dce9f2', cat: 'dugun', isNew: true },
-  { key: 'mumisigi', label: 'Mum Işığı', c1: '#120a04', c2: '#e8b45a', cat: 'dugun', isNew: true },
-  { key: 'sakurazen', label: 'Sakura Zen', c1: '#c96f87', c2: '#faf7f4', cat: 'dugun', isNew: true },
-  { key: 'askmektubu', label: 'Aşk Mektubu', c1: '#8a5a3b', c2: '#f9f3e6', cat: 'dugun', isNew: true },
-  { key: 'filmseridi', label: 'Film Şeridi', c1: '#101010', c2: '#e8c15a', cat: 'dugun', isNew: true },
-  { key: 'muze', label: 'Müze', c1: '#7a6a4f', c2: '#f4f1ea', cat: 'dugun', isNew: true },
-  { key: 'parsomen', label: 'Parşömen', c1: '#7a4a1f', c2: '#f3e6c8', cat: 'dugun', isNew: true },
-  { key: 'denizalti', label: 'Deniz Altı', c1: '#062430', c2: '#5fd4d0', cat: 'dugun', isNew: true },
-  { key: 'sinemaafisi', label: 'Sinema Afişi', c1: '#0c0a08', c2: '#d4af37', cat: 'dugun', isNew: true },
-  { key: 'kristal', label: 'Kristal', c1: '#6f93c9', c2: '#f8fafd', cat: 'dugun', isNew: true },
-  { key: 'pusula', label: 'Pusula & Seyahat', c1: '#3d6b5c', c2: '#f2ead8', cat: 'dugun', isNew: true },
-  { key: 'sato', label: 'Masal Şatosu', c1: '#120c22', c2: '#c9a86e', cat: 'dugun', isNew: true },
-  { key: 'notakagidi', label: 'Nota Kağıdı', c1: '#4a4440', c2: '#faf7f0', cat: 'dugun', isNew: true },
-  { key: 'gunbatimi', label: 'Gün Batımı Plajı', c1: '#f2825e', c2: '#7a4a78', cat: 'dugun', isNew: true },
-  { key: 'yagliboya', label: 'Yağlı Boya', c1: '#8a4a5e', c2: '#f5efe4', cat: 'dugun', isNew: true },
-  { key: 'ayna', label: 'Gümüş Ayna', c1: '#7a8294', c2: '#f5f6f8', cat: 'dugun', isNew: true },
-  // ===== Dini Düğün davetleri (besmele + kına & düğün kartları + dua) =====
-  { key: 'dini', label: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', cat: 'dini' },
-  { key: 'diniYesil', label: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', cat: 'dini' },
-  // ===== Doğum Günü davetleri =====
-  { key: 'balon', label: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', cat: 'dogumgunu' },
-  { key: 'konfeti', label: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', cat: 'dogumgunu' },
-  // ===== Kutlama (kişiye gönderilen, davet değil) =====
-  { key: 'kutlamaPop', label: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', cat: 'kutlama' },
-  { key: 'kutlamaGece', label: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', cat: 'kutlama' },
-  { key: 'kutlamaPastel', label: 'Pastel Kutlama', c1: '#7aa6b8', c2: '#d8ecf2', cat: 'kutlama' },
-  { key: 'kutlamaAltin', label: 'Altın Zarafet', c1: '#b8923f', c2: '#ecd9a8', cat: 'kutlama' },
-  { key: 'kutlamaCocuk', label: 'Çocuk Partisi', c1: '#ff7a3d', c2: '#ffe0b8', cat: 'kutlama' },
-  { key: 'kutlamaDisko', label: 'Disko Gecesi', c1: '#0a0118', c2: '#ff2ec4', cat: 'kutlama' },
-  { key: 'kutlamaNeon', label: 'Neon Parti', c1: '#0a0a1f', c2: '#00e5ff', cat: 'kutlama', isNew: true },
-  { key: 'kutlamaSakura', label: 'Bahar Çiçeği', c1: '#e77fa1', c2: '#fde9f1', cat: 'kutlama', isNew: true },
-  { key: 'kutlamaMasal', label: 'Masal Dünyası', c1: '#8f6fd6', c2: '#efe6ff', cat: 'kutlama', isNew: true },
-];
+const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat; isNew?: boolean }[] =
+  CANONICAL_THEMES.map((t) => ({ key: t.key, label: t.name, c1: t.c1, c2: t.c2, cat: t.category, isNew: t.isNew }));
 
 const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'kutlama').map((t) => t.key);
 const isBirthdayTheme = (key: string) => BIRTHDAY_KEYS.includes(key);

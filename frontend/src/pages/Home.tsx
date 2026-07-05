@@ -44,11 +44,13 @@ const CATEGORY_PRETITLE: Record<Category, string> = {
 const SHOWCASE: { key: string; name: string; g: string; font: string; accent: string; couple: string; date: string; targetDate: string; category: Category }[] = [
   { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026', targetDate: '2026-09-12T18:00:00+03:00', category: 'dugun' },
   { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026', targetDate: '2026-10-03T18:00:00+03:00', category: 'dugun' },
-  { key: 'kina', name: 'Kına Gecesi', g: 'linear-gradient(150deg,#8a3a1c,#e8b98a)', font: 'Dancing Script', accent: '#8a3a1c', couple: "Selin'in Kınası", date: '20 AĞUSTOS 2026', targetDate: '2026-08-20T19:00:00+03:00', category: 'kina' },
+  // Not: "kına" özel bir hazır tema kategorisi olarak yok; editördeki 'dini' teması (Zarif Besmele)
+  // kına/nikah gecesi için de kullanılabildiğinden gerçek tema anahtarı buna işaret ediyor.
+  { key: 'dini', name: 'Kına Gecesi', g: 'linear-gradient(150deg,#b08a3e,#f0e2bd)', font: 'Dancing Script', accent: '#b08a3e', couple: "Selin'in Kınası", date: '20 AĞUSTOS 2026', targetDate: '2026-08-20T19:00:00+03:00', category: 'kina' },
   { key: 'lacivert', name: 'Lacivert Gece', g: 'linear-gradient(150deg,#0e1a33,#c9a14e)', font: 'Allura', accent: '#9c7a31', couple: 'Naz & Mert', date: '9 MAYIS 2027', targetDate: '2027-05-09T18:00:00+03:00', category: 'dugun' },
   { key: 'konfeti', name: 'Konfeti Şenlik', g: 'linear-gradient(150deg,#ff7a59,#ffd166)', font: 'Pacifico', accent: '#d6336c', couple: 'Mira • 7 Yaş', date: '2 AĞUSTOS 2026', targetDate: '2026-08-02T16:00:00+03:00', category: 'dogumgunu' },
   { key: 'tropikal', name: 'Tropikal', g: 'linear-gradient(150deg,#136443,#2aa56c)', font: 'Caveat', accent: '#136443', couple: 'Sıla & Efe', date: '5 EYLÜL 2026', targetDate: '2026-09-05T18:00:00+03:00', category: 'dugun' },
-  { key: 'havaifisek', name: 'Gece Havai Fişek', g: 'linear-gradient(150deg,#1b1035,#ffd166)', font: 'Pacifico', accent: '#e8a53d', couple: 'Yeni Yıl Kutlaması', date: '31 ARALIK 2026', targetDate: '2026-12-31T20:00:00+03:00', category: 'kutlama' },
+  { key: 'kutlamaGece', name: 'Gece Havai Fişek', g: 'linear-gradient(150deg,#0f0a22,#ffd86b)', font: 'Pacifico', accent: '#ffd86b', couple: 'Yeni Yıl Kutlaması', date: '31 ARALIK 2026', targetDate: '2026-12-31T20:00:00+03:00', category: 'kutlama' },
   { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026', targetDate: '2026-10-17T18:00:00+03:00', category: 'dugun' },
   { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027', targetDate: '2027-06-06T18:00:00+03:00', category: 'dugun' },
 ];

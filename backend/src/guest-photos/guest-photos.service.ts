@@ -64,6 +64,13 @@ export class GuestPhotosService {
 
   /** Public: davetin albümü (fotoğraf içeriği hariç, sadece meta + url) */
   async listByInvitation(invitationId: string) {
+    // Davet silinmişse (çöp kutusunda) albümü artık kimseye göstermiyoruz.
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: invitationId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!invitation) return [];
+
     const photos = await this.prisma.guestPhoto.findMany({
       where: { invitationId },
       orderBy: { createdAt: 'desc' },
@@ -72,10 +79,10 @@ export class GuestPhotosService {
     return photos.map((p) => ({ ...p, url: this.publicUrl(p.id) }));
   }
 
-  /** Public: fotoğraf içeriği */
+  /** Public: fotoğraf içeriği — bağlı davet silinmişse artık servis edilmez. */
   async getFile(id: string) {
-    const photo = await this.prisma.guestPhoto.findUnique({
-      where: { id },
+    const photo = await this.prisma.guestPhoto.findFirst({
+      where: { id, invitation: { deletedAt: null } },
       select: { data: true, mime: true },
     });
     if (!photo) throw new NotFoundException('Fotoğraf bulunamadı.');

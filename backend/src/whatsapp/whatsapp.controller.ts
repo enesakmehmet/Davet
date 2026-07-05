@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { WhatsappService } from './whatsapp.service';
 
@@ -9,7 +9,10 @@ export class WhatsappController {
 
   // Public: site butonu buraya link verir. Numara yalnızca backend'de (env) tutulur,
   // ziyaretçinin tarayıcısına/frontend koduna hiç gönderilmez.
-  @SkipThrottle()
+  // Not: gerçek bir ziyaretçiyi engellemesin diye limit bilinçli olarak yüksek tutuldu,
+  // ama DB'ye sahte kayıt yığan bir script'i engelleyecek kadar da sıkı.
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Get('go')
   async go(
     @Query('path') path: string,

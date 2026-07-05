@@ -49,6 +49,15 @@ const THEME_GRAD: Record<string, string> = {
 };
 const grad = (t?: string) => THEME_GRAD[t || 'altin'] || THEME_GRAD.altin;
 
+/* Tutarlı hata/başarı bildirimi — native alert() yerine sayfa genelinde aynı stil banner.
+   Alt bileşenler (InvCard, GuestsView, SettingsView, vb.) prop drilling olmadan
+   showToast(...) çağırabilsin diye modül düzeyinde basit bir pub/sub kullanılıyor. */
+type ToastMsg = { msg: string; type: 'error' | 'ok' };
+let toastListener: ((t: ToastMsg) => void) | null = null;
+const showToast = (msg: string, type: ToastMsg['type'] = 'error') => {
+  toastListener?.({ msg, type });
+};
+
 /* Boş durum illüstrasyonu: altın çizgisel zarf + yüzükler */
 const EmptyArt = () => (
   <svg width="120" height="88" viewBox="0 0 120 88" fill="none" style={{ display: 'block', margin: '0 auto 14px', opacity: 0.9 }}>
@@ -110,6 +119,19 @@ const Dashboard = () => {
   const [viewsMap, setViewsMap] = useState<Record<string, number>>({});
   const [recentGuests, setRecentGuests] = useState<any[]>([]);
 
+  // Tutarlı hata/başarı bildirimi — native alert() yerine tüm sayfada aynı stil banner.
+  const [toast, setToast] = useState<ToastMsg | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const notify = showToast; // alias: bileşen içinden çağıranlar için
+  useEffect(() => {
+    toastListener = (t) => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      setToast(t);
+      toastTimer.current = setTimeout(() => setToast(null), 4000);
+    };
+    return () => { toastListener = null; };
+  }, []);
+
   useEffect(() => {
     (async () => {
       let list: any[] = [];
@@ -161,7 +183,7 @@ const Dashboard = () => {
       await invitationService.deleteInvitation(inv.id);
       setInvitations((list) => list.filter((x) => x.id !== inv.id));
     } catch {
-      alert('Kaldırılamadı. Lütfen tekrar deneyin.');
+      notify('Kaldırılamadı. Lütfen tekrar deneyin.');
     } finally {
       setDeletingId(null);
     }
@@ -179,7 +201,7 @@ const Dashboard = () => {
       });
       setInvitations((list) => [{ ...created, _count: { guests: 0 } }, ...list]);
     } catch {
-      alert('Kopyalanamadı. Lütfen tekrar deneyin.');
+      notify('Kopyalanamadı. Lütfen tekrar deneyin.');
     }
   };
 
@@ -201,7 +223,7 @@ const Dashboard = () => {
       await guestPhotoService.remove(photo.id);
       setAlbumPhotos((l) => l.filter((p) => p.id !== photo.id));
     } catch {
-      alert('Silinemedi, tekrar deneyin.');
+      notify('Silinemedi, tekrar deneyin.');
     }
   };
   const downloadAllPhotos = async () => {
@@ -237,6 +259,9 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-layout">
+      {toast && (
+        <div className={`db-toast ${toast.type === 'ok' ? 'ok' : 'err'}`}>{toast.msg}</div>
+      )}
       <aside className="dashboard-sidebar">
         <div className="sidebar-brand">
           <Link to="/" className="db-brand">Davetim</Link>
@@ -495,7 +520,7 @@ const InvitationsView = ({ invitations, viewsMap, onDelete, onDuplicate, onAlbum
       setTrash((l) => l.filter((x) => x.id !== inv.id));
       onRestore?.({ ...inv, ...restored });
     } catch {
-      alert('Geri alınamadı. Lütfen tekrar deneyin.');
+      showToast('Geri alınamadı. Lütfen tekrar deneyin.');
     } finally {
       setRestoringId(null);
     }
@@ -551,7 +576,7 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, onAlbum, deletingId }: any
     try {
       await qrService.download(inv.id, `${inv.slug}-qr.png`);
     } catch {
-      alert('QR kod indirilemedi.');
+      showToast('QR kod indirilemedi.');
     } finally {
       setQrLoading(false);
     }
@@ -656,7 +681,7 @@ const GuestsView = ({ invitations }: any) => {
       await api.delete(`/guests/${id}`); // Direct api call or add to service
       setData((prev: any) => prev.filter((g: any) => g.id !== id));
     } catch (err) {
-      alert('Silinemedi, lütfen tekrar deneyin.');
+      showToast('Silinemedi, lütfen tekrar deneyin.');
     }
   };
 
@@ -679,7 +704,7 @@ const GuestsView = ({ invitations }: any) => {
       setAddCount(1);
       fetchGuests();
     } catch (err) {
-      alert('Eklenemedi, lütfen tekrar deneyin.');
+      showToast('Eklenemedi, lütfen tekrar deneyin.');
     } finally {
       setAddLoading(false);
     }
@@ -954,7 +979,7 @@ const SettingsView = () => {
       logout();
       navigate('/');
     } catch {
-      alert('Hesap silinemedi. Lütfen tekrar deneyin.');
+      showToast('Hesap silinemedi. Lütfen tekrar deneyin.');
       setDeleting(false);
     }
   };
@@ -1001,7 +1026,7 @@ const SettingsView = () => {
         <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 14 }}>
           Hesabına ait tüm verileri (profil, davetiyeler, misafir listeleri) JSON dosyası olarak indirebilirsin.
         </p>
-        <button className="db-btn ghost" onClick={() => settingsService.exportData().catch(() => alert('İndirilemedi, tekrar deneyin.'))}>
+        <button className="db-btn ghost" onClick={() => settingsService.exportData().catch(() => showToast('İndirilemedi, tekrar deneyin.'))}>
           <Download size={15} /> Verilerimi İndir (JSON)
         </button>
       </div>

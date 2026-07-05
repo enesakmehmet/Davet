@@ -57,9 +57,10 @@ export class AssetsService {
   }
 
   // Public: dosya içeriğini DB'den getir (davet görüntüleyici çalabilsin)
+  // Not: silinmiş (deletedAt dolu) dosyalar artık servis edilmiyor.
   async getFile(id: string) {
-    return this.prisma.asset.findUnique({
-      where: { id },
+    return this.prisma.asset.findFirst({
+      where: { id, deletedAt: null },
       select: { data: true, mime: true, filename: true },
     });
   }

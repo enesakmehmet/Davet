@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Res } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { InvitationsService } from './invitations.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { UpdateInvitationDto } from './dto/update-invitation.dto';
@@ -62,6 +63,9 @@ ${image ? `<meta property="og:image" content="${esc(image)}">` : ''}
 </head><body>Yönlendiriliyorsunuz… <a href="${esc(target)}">Davetiyeyi aç</a></body></html>`);
   }
 
+  // Şifre tahmin (brute-force) korumasına karşı: IP başına dakikada sınırlı deneme.
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post(':slug')
   findOne(@Param('slug') slug: string, @Body('password') password?: string) {
     return this.invitationsService.findOneBySlug(slug, password);

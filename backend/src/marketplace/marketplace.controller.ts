@@ -3,11 +3,14 @@ import { MarketplaceService } from './marketplace.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminAccessGuard } from '../auth/guards/admin-access.guard';
 
 @Controller('marketplace')
 export class MarketplaceController {
   constructor(private readonly marketplaceService: MarketplaceService) {}
 
+  // Kategori taksonomisi yalnızca yönetici tarafından oluşturulmalı (herkese açık yazma değil).
+  @UseGuards(AdminAccessGuard)
   @Post('categories')
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     return this.marketplaceService.createCategory(createCategoryDto);

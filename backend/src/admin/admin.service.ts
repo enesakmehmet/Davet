@@ -364,6 +364,50 @@ export class AdminService {
     return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
+  // Çöp kutusundaki (kullanıcı ya da admin tarafından silinmiş) tüm davetiyeler — kim, ne zaman
+  async getTrashedInvitations(page: number = 1, limit: number = 20, search?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = { deletedAt: { not: null } };
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.invitation.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { deletedAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          eventDate: true,
+          deletedAt: true,
+          user: { select: { email: true, name: true } },
+          _count: { select: { guests: true } },
+        },
+      }),
+      this.prisma.invitation.count({ where }),
+    ]);
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+  }
+
+  // Çöp kutusundaki bir davetiyeyi geri getirir (herhangi bir kullanıcıya ait olabilir — admin override)
+  async restoreInvitation(invitationId: string) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: invitationId, deletedAt: { not: null } },
+    });
+    if (!invitation) throw new NotFoundException('Davetiye çöp kutusunda bulunamadı.');
+
+    return this.prisma.invitation.update({
+      where: { id: invitationId },
+      data: { deletedAt: null },
+    });
+  }
+
   // Bir davetiyenin RSVP/misafir listesi (admin)
   async getInvitationGuests(invitationId: string) {
     const invitation = await this.prisma.invitation.findUnique({
@@ -448,5 +492,93 @@ export class AdminService {
     });
 
     return { days, dailyUsers, dailyRevenue };
+  }
+
+  // Moderasyon: platform genelinde son yüklenen misafir fotoğrafları (davet/yükleyen bilgisiyle)
+  async getGuestPhotos(page: number = 1, limit: number = 24, search?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { guestName: { contains: search, mode: 'insensitive' } },
+        { invitation: { title: { contains: search, mode: 'insensitive' } } },
+        { invitation: { slug: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.guestPhoto.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          guestName: true,
+          mime: true,
+          size: true,
+          createdAt: true,
+          invitation: { select: { id: true, title: true, slug: true, deletedAt: true, user: { select: { email: true, name: true } } } },
+        },
+      }),
+      this.prisma.guestPhoto.count({ where }),
+    ]);
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+  }
+
+  // Admin: uygunsuz bir misafir fotoğrafını doğrudan siler (sahiplik kontrolü yapılmaz)
+  async removeGuestPhoto(id: string) {
+    const photo = await this.prisma.guestPhoto.findUnique({ where: { id } });
+    if (!photo) throw new NotFoundException('Fotoğraf bulunamadı.');
+    await this.prisma.guestPhoto.delete({ where: { id } });
+    return { message: 'Fotoğraf silindi.' };
+  }
+
+  // Platformda gönderilmiş tüm bildirimler (kime, ne zaman, okundu mu)
+  async getAllNotifications(page: number = 1, limit: number = 30, search?: string) {
+    const skip = (page - 1) * limit;
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.notification.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, title: true, content: true, isRead: true, createdAt: true,
+          user: { select: { id: true, email: true, name: true } },
+        },
+      }),
+      this.prisma.notification.count({ where }),
+    ]);
+    return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+  }
+
+  // Admin: tek bir kullanıcıya (userId) ya da herkese (userId boş) bildirim gönderir
+  async sendNotification(title: string, content: string, userId?: string) {
+    const cleanTitle = String(title || '').trim().slice(0, 200);
+    const cleanContent = String(content || '').trim().slice(0, 2000);
+    if (!cleanTitle || !cleanContent) throw new NotFoundException('Başlık ve içerik zorunlu.');
+
+    if (userId) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+      if (!user) throw new NotFoundException('Kullanıcı bulunamadı.');
+      await this.prisma.notification.create({ data: { userId, title: cleanTitle, content: cleanContent } });
+      return { message: 'Bildirim gönderildi.', count: 1 };
+    }
+
+    // Broadcast: tüm kullanıcılara tek tek bildirim satırı oluştur (createMany ile hızlı)
+    const users = await this.prisma.user.findMany({ select: { id: true } });
+    if (users.length === 0) return { message: 'Gönderilecek kullanıcı yok.', count: 0 };
+    await this.prisma.notification.createMany({
+      data: users.map((u) => ({ userId: u.id, title: cleanTitle, content: cleanContent })),
+    });
+    return { message: `Bildirim ${users.length} kullanıcıya gönderildi.`, count: users.length };
   }
 }

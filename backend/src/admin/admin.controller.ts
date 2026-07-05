@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Query,
   UseGuards,
   DefaultValuePipe,
@@ -130,6 +131,20 @@ export class AdminController {
     return this.adminService.getAllInvitations(page, limit, search);
   }
 
+  @Get('invitations/trash')
+  async getTrashedInvitations(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.adminService.getTrashedInvitations(page, limit, search);
+  }
+
+  @Patch('invitations/:id/restore')
+  async restoreInvitation(@Param('id') id: string) {
+    return this.adminService.restoreInvitation(id);
+  }
+
   @Get('invitations/:id/guests')
   async getInvitationGuests(@Param('id') id: string) {
     return this.adminService.getInvitationGuests(id);
@@ -138,5 +153,33 @@ export class AdminController {
   @Delete('invitations/:id')
   async removeInvitation(@Param('id') id: string) {
     return this.adminService.removeInvitation(id);
+  }
+
+  @Get('guest-photos')
+  async getGuestPhotos(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(24), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.adminService.getGuestPhotos(page, limit, search);
+  }
+
+  @Delete('guest-photos/:id')
+  async removeGuestPhoto(@Param('id') id: string) {
+    return this.adminService.removeGuestPhoto(id);
+  }
+
+  @Get('notifications')
+  async getAllNotifications(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(30), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.adminService.getAllNotifications(page, limit, search);
+  }
+
+  @Post('notifications')
+  async sendNotification(@Body('title') title: string, @Body('content') content: string, @Body('userId') userId?: string) {
+    return this.adminService.sendNotification(title, content, userId);
   }
 }

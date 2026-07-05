@@ -43,6 +43,8 @@ export class AuthController {
     return this.authService.login(loginDto, platform);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // otomatik yenileme dahil, kötüye kullanım limiti
   @ApiOperation({ summary: 'Refresh token kullanarak yeni access token döner' })
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -69,6 +71,8 @@ export class AuthController {
     return this.authService.resetPassword(dto);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'E-posta adresini doğrulama tokenıyla onaylar' })
   @HttpCode(HttpStatus.OK)
   @Post('verify-email')

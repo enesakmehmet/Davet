@@ -10,7 +10,8 @@ export class EditorService {
   async autosave(autosaveDto: AutosaveDto, userId: string) {
     const { invitationId, versionNumber, editorData } = autosaveDto;
 
-    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
+    // Çöp kutusundaki (silinmiş) bir davete otomatik kayıt yapılmasın — önce geri alınmalı.
+    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, deletedAt: null } });
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
     if (invitation.userId !== userId) throw new ForbiddenException('Yetkisiz erişim.');
 
@@ -24,7 +25,7 @@ export class EditorService {
   }
 
   async getVersions(invitationId: string, userId: string) {
-    const invitation = await this.prisma.invitation.findUnique({ where: { id: invitationId } });
+    const invitation = await this.prisma.invitation.findFirst({ where: { id: invitationId, deletedAt: null } });
     if (!invitation || invitation.userId !== userId) throw new ForbiddenException('Yetkisiz erişim.');
 
     return this.prisma.invitationVersion.findMany({
