@@ -2,10 +2,13 @@ import { ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common
 import { AuthGuard } from '@nestjs/passport';
 
 /**
- * Admin uçları için erişim kontrolü.
+ * Admin paneline GİRİŞ kontrolü (temel kapı).
  * - ADMIN_OPEN=true ise (yalnızca lokal/geliştirme): JWT ve rol kontrolü atlanır,
  *   panel şifresiz çalışır.
- * - Aksi halde geçerli JWT + role === 'admin' zorunludur.
+ * - Aksi halde geçerli JWT + role in ('admin','moderator') zorunludur.
+ * NOT: Bu guard sadece panele GİRİŞİ kontrol eder. "admin" ile "moderator" arasındaki
+ * ince yetki farkları (kullanıcı silme, ödeme görme vb. yalnızca admin) endpoint
+ * bazında ek olarak RolesGuard + @Roles('admin') ile uygulanır (bkz. admin.controller.ts).
  */
 @Injectable()
 export class AdminAccessGuard extends AuthGuard('jwt') {
@@ -25,7 +28,7 @@ export class AdminAccessGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new ForbiddenException('Bu işlem için admin girişi gerekir.');
     }
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && user.role !== 'moderator') {
       throw new ForbiddenException('Yönetici yetkisi gerekiyor.');
     }
     return user;

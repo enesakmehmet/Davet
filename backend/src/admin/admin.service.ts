@@ -175,7 +175,7 @@ export class AdminService {
   }
 
   async updateUserRole(id: string, role: string) {
-    const safe = role === 'admin' ? 'admin' : 'user';
+    const safe = ['admin', 'moderator'].includes(role) ? role : 'user';
     const user = await this.prisma.user.update({
       where: { id },
       data: { role: safe },
@@ -580,5 +580,60 @@ export class AdminService {
       data: users.map((u) => ({ userId: u.id, title: cleanTitle, content: cleanContent })),
     });
     return { message: `Bildirim ${users.length} kullanıcıya gönderildi.`, count: users.length };
+  }
+
+  // Genel arama: tek bir e-posta/isim/başlık girip o kişiyle ilgili her şeyi (kullanıcı,
+  // davetiyeleri, ödemeleri) tek seferde bulmak için — sekme sekme aramak yerine.
+  async globalSearch(q: string) {
+    const term = q.trim().slice(0, 100);
+    if (!term) return { users: [], invitations: [], payments: [] };
+
+    const [users, invitations, payments] = await Promise.all([
+      this.prisma.user.findMany({
+        where: {
+          OR: [
+            { email: { contains: term, mode: 'insensitive' } },
+            { name: { contains: term, mode: 'insensitive' } },
+          ],
+        },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, email: true, name: true, role: true, status: true, createdAt: true },
+      }),
+      this.prisma.invitation.findMany({
+        where: {
+          deletedAt: null,
+          OR: [
+            { title: { contains: term, mode: 'insensitive' } },
+            { slug: { contains: term, mode: 'insensitive' } },
+            { user: { email: { contains: term, mode: 'insensitive' } } },
+            { user: { name: { contains: term, mode: 'insensitive' } } },
+          ],
+        },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, title: true, slug: true, createdAt: true,
+          user: { select: { email: true, name: true } },
+          _count: { select: { guests: true } },
+        },
+      }),
+      this.prisma.payment.findMany({
+        where: {
+          OR: [
+            { user: { email: { contains: term, mode: 'insensitive' } } },
+            { user: { name: { contains: term, mode: 'insensitive' } } },
+          ],
+        },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, amount: true, status: true, provider: true, createdAt: true,
+          user: { select: { email: true, name: true } },
+        },
+      }),
+    ]);
+
+    return { users, invitations, payments };
   }
 }
