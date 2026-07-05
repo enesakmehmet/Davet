@@ -127,21 +127,36 @@
   .fab{position:fixed;right:16px;z-index:9999;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:18px;
     box-shadow:0 8px 20px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .25s}
   .fab:hover{transform:scale(1.08)}
-  .fab.music{bottom:16px}.fab.share{bottom:72px}
+  .fab.share{bottom:16px}
   .fab.playing{animation:spin 4s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  /* Otomatik oynatma tarayıcı tarafından engellendiyse müzik ikonu hafifçe titreşip
-     kullanıcıyı dokunmaya davet eder; müzik başlayınca bu sınıf otomatik kaldırılır */
-  .fab.music.needs-tap{animation:musicPulse 1.5s ease-in-out infinite}
-  @keyframes musicPulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.28)}50%{box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 0 9px rgba(255,255,255,.35)}}
-  /* Müzik ikonuna dokunmayı hatırlatan zıplayan parmak işareti — sadece needs-tap iken görünür */
-  .fab.music .tap-hint{display:none}
-  .fab.music.needs-tap .tap-hint{
-    display:block;position:absolute;right:100%;margin-right:10px;top:50%;transform:translateY(-50%);
-    font-size:30px;line-height:1;animation:tapBounce 1s ease-in-out infinite;pointer-events:none;
-    filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))
+
+  /* Müzik butonu: yuvarlak fab değil, ikon + eşitleyici çubuklar + etiket içeren hap (pill) —
+     anasayfa tanıtım vitrinindeki "Arka Plan Müziği" görseliyle aynı tasarım. Müzik artık
+     otomatik başlamıyor; bu buton her zaman görünür ve dokunulmasını bekler. */
+  .fab.music{
+    left:16px;right:auto;bottom:16px;width:auto;height:auto;min-height:0;
+    border-radius:30px;padding:8px 16px 8px 8px;display:flex;align-items:center;gap:9px;
+    font-size:12.5px;font-weight:600;font-family:inherit;white-space:nowrap;
+    animation:musicPulse 1.8s ease-in-out infinite;
   }
-  @keyframes tapBounce{0%,100%{transform:translateY(-50%) translateX(0)}50%{transform:translateY(-50%) translateX(-7px)}}
+  .fab.music.playing{animation:none}
+  .fab.music .mp-icon{
+    width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:12px;
+  }
+  .fab.music .mp-bars{display:flex;align-items:flex-end;gap:2px;height:13px;flex-shrink:0}
+  .fab.music .mp-bars i{width:2px;border-radius:1px;background:currentColor;opacity:.9;display:block;transform:scaleY(.35)}
+  .fab.music.playing .mp-bars i{animation:mpBar 1.1s ease-in-out infinite}
+  .fab.music .mp-bars i:nth-child(1){animation-delay:0s;height:40%}
+  .fab.music .mp-bars i:nth-child(2){animation-delay:.12s;height:90%}
+  .fab.music .mp-bars i:nth-child(3){animation-delay:.24s;height:55%}
+  .fab.music .mp-bars i:nth-child(4){animation-delay:.36s;height:100%}
+  .fab.music .mp-bars i:nth-child(5){animation-delay:.48s;height:65%}
+  @keyframes mpBar{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+  /* Otomatik oynatma yok — buton her zaman hafifçe nabız gibi atarak dokunmaya davet eder */
+  .fab.music.needs-tap{animation:musicPulse 1.8s ease-in-out infinite}
+  @keyframes musicPulse{0%,100%{box-shadow:0 8px 20px rgba(0,0,0,.28)}50%{box-shadow:0 8px 20px rgba(0,0,0,.28),0 0 0 8px rgba(255,255,255,.28)}}
 
   /* Kutlama: video + imza */
   .vid{border-radius:18px;overflow:hidden;max-width:560px;margin:0 auto;aspect-ratio:16/9;background:#000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -408,7 +423,9 @@
     .btn{padding:11px 18px;font-size:11px}
     .tl{padding-left:28px}
     .fab{width:42px;height:42px;font-size:16px;right:12px}
-    .fab.music{bottom:12px}.fab.share{bottom:62px}
+    .fab.share{bottom:12px}
+    .fab.music{left:12px;bottom:12px;padding:7px 14px 7px 7px;font-size:12px}
+    .fab.music .mp-icon{width:23px;height:23px}
     .gal{max-width:100%}
   }
   @media(max-width:380px){
@@ -948,7 +965,7 @@ function render(cfg){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+  if(cfg.music){ ensureMusicBtn(T); } else removeMusicBtn();
 }
 
 /* ============ DİNİ DÜĞÜN RENDER (besmele + kına & düğün kartları + dua) ============ */
@@ -1120,7 +1137,7 @@ function renderDini(cfg, T, wrap, x){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music && !isThumb){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+  if(cfg.music && !isThumb){ ensureMusicBtn(T); } else removeMusicBtn();
 }
 
 /* ============ KUTLAMA RENDER (davet değil, kişiye gönderilen kutlama) ============ */
@@ -1196,7 +1213,7 @@ function renderCelebration(cfg, T, wrap, x){
     setupCake();
     setupFabs(cfg, cfg.brideName||'', T);
     currentMusicUrl = cfg.musicUrl || null;
-    if(cfg.music){ ensureMusicBtn(T); attemptAutoplay(); } else removeMusicBtn();
+    if(cfg.music){ ensureMusicBtn(T); } else removeMusicBtn();
   }
 }
 
@@ -1718,13 +1735,26 @@ var musicBtn=null;
 var currentMusicUrl=null;
 function ensureMusicBtn(T){
   removeMusicBtn();
-  musicBtn=el('button','fab music needs-tap','🎵<span class="tap-hint">👉</span>');musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';musicBtn.style.position='fixed';
+  musicBtn=el('button','fab music needs-tap',
+    '<span class="mp-icon">🎵</span><span class="mp-bars"><i></i><i></i><i></i><i></i><i></i></span><span class="mp-label">Arka Plan Müziği</span>');
+  musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';musicBtn.style.position='fixed';
   musicBtn.addEventListener('click',function(){musicState.playing?stopMusic():startMusic();});
   document.body.appendChild(musicBtn);
 }
 function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
 var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
-function setPlaying(on){var ms=musicState;ms.playing=on;if(musicBtn){if(on){musicBtn.classList.add('playing');musicBtn.classList.remove('needs-tap');musicBtn.textContent='🔊';}else{musicBtn.classList.remove('playing');musicBtn.textContent='🎵';}}}
+function setPlaying(on){
+  var ms=musicState;ms.playing=on;
+  if(!musicBtn)return;
+  var label=musicBtn.querySelector('.mp-label');
+  if(on){
+    musicBtn.classList.add('playing');musicBtn.classList.remove('needs-tap');
+    if(label)label.textContent='Müzik Çalıyor';
+  }else{
+    musicBtn.classList.remove('playing');
+    if(label)label.textContent='Arka Plan Müziği';
+  }
+}
 function startMusic(silent){
   var ms=musicState;
   // MP3 varsa onu çal
@@ -1749,32 +1779,9 @@ function startMusic(silent){
   chord();ms.loop=setInterval(chord,1700);setPlaying(true);
 }
 function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}setPlaying(false);}
-/* Sayfa açılır açılmaz müziği otomatik başlatmayı dener; tarayıcı engellerse ilk gerçek
-   dokunuş/tıklamada başlar. NOT: "scroll" olayı tetikleyici olarak KULLANILMAZ — mobil
-   tarayıcılarda sayfa yüklenirken adres çubuğu otomatik gizlenince sahte bir "scroll"
-   olayı tetiklenir; bu, kullanıcı hiç dokunmadan tek seferlik dinleyiciyi tüketip
-   otomatik oynatmayı sessizce kilitliyordu. */
-function attemptAutoplay(){
-  startMusic(true);
-  var tries=0;
-  function tryAgain(){
-    if(musicState.playing){ detach(); return; }
-    if(tries++>40) return; // aşırı deneme koruması
-    startMusic(true);
-    setTimeout(function(){ if(musicState.playing) detach(); },300);
-  }
-  function detach(){
-    document.removeEventListener('click',tryAgain,true);
-    document.removeEventListener('touchend',tryAgain,true);
-    document.removeEventListener('touchstart',tryAgain,true);
-    document.removeEventListener('keydown',tryAgain,true);
-  }
-  // capture:true -> herhangi bir iç eleman olayı durdursa (stopPropagation) bile önce burada yakalanır
-  document.addEventListener('click',tryAgain,true);
-  document.addEventListener('touchend',tryAgain,true);
-  document.addEventListener('touchstart',tryAgain,true);
-  document.addEventListener('keydown',tryAgain,true);
-}
+/* Otomatik oynatma denemesi YOK: tarayıcılar zaten çoğu zaman engelliyordu ve garip bir
+   davranışa yol açıyordu. Müzik artık yalnızca kullanıcı "Arka Plan Müziği" butonuna
+   dokununca başlar — bkz. ensureMusicBtn() ve buradaki click dinleyicisi. */
 
 /* ==== Havai fişek ==== */
 var fwRAF=null;
