@@ -125,6 +125,48 @@
   background: #f0eee8;
 }
 
+/* Kart üzerindeki canlı önizleme — gradyan/monogramın üstünde, tıklanamaz (pointer-events:none) */
+.tc-live-preview { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+.tc-live-preview iframe { pointer-events: none; }
+
+/* ===== Şablon büyük önizleme modalı ===== */
+.tpl-modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10, 12, 20, 0.72); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.tpl-modal-panel {
+  background: #fff; border-radius: 22px; overflow: hidden;
+  width: 100%; max-width: 920px; max-height: 90vh;
+  display: flex; position: relative;
+  box-shadow: 0 40px 90px rgba(0,0,0,.4);
+}
+.tpl-modal-close {
+  position: absolute; top: 14px; right: 14px; z-index: 5;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,0,0,.45); color: #fff; border: none;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: background .2s ease;
+}
+.tpl-modal-close:hover { background: rgba(0,0,0,.65); }
+.tpl-modal-phone {
+  width: 340px; flex-shrink: 0; aspect-ratio: 9/16; max-height: 90vh;
+  background: #f0eee8; border-right: 1px solid var(--color-border-light);
+}
+.tpl-modal-info { padding: 34px 32px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.tpl-modal-info h3 { font-family: var(--font-serif); font-size: 28px; margin-bottom: 6px; }
+.tpl-modal-actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+
+@media (max-width: 720px) {
+  .tpl-modal-panel { flex-direction: column; max-height: 92vh; overflow-y: auto; }
+  .tpl-modal-phone { width: 100%; aspect-ratio: 9/16; max-height: 60vh; border-right: none; border-bottom: 1px solid var(--color-border-light); }
+  .tpl-modal-info { padding: 24px 20px; }
+  .tpl-modal-info h3 { font-size: 22px; }
+  .tpl-modal-actions { flex-direction: column; }
+  .tpl-modal-actions a, .tpl-modal-actions .btn-primary-large { text-align: center; }
+}
+
 .tc-new {
   position: absolute;
   top: 12px;
@@ -169,6 +211,7 @@
 .tc-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 2;
   background: rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;

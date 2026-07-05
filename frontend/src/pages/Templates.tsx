@@ -1,8 +1,26 @@
-import { useState } from 'react';
-import { Search, Eye, Edit3 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, Eye, Edit3, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import './Templates.css';
+
+/* Eleman görünür olunca true döner — ağır iframe önizlemelerini yalnızca
+   karta scroll edildiğinde yüklemek için (sayfa açılışını hızlandırır). */
+const useInView = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin: '300px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, inView };
+};
 
 /* Editor ve onizleme motorundaki temalarla birebir ayni anahtarlar */
 const TEMPLATES = [
@@ -67,6 +85,7 @@ const previewUrl = (key: string) => {
 const Templates = () => {
   const [activeCategory, setActiveCategory] = useState('Tümü');
   const [searchQuery, setSearchQuery] = useState('');
+  const [previewTpl, setPreviewTpl] = useState<(typeof TEMPLATES)[number] | null>(null);
 
   const filtered = TEMPLATES.filter((tpl) => {
     const matchesCategory = activeCategory === 'Tümü' || tpl.category === activeCategory;
@@ -132,16 +151,25 @@ const Templates = () => {
                 transition={{ duration: 0.3 }}
                 className="template-card"
               >
-                <div className="tc-image-wrapper" style={{ background: `linear-gradient(135deg, ${tpl.c1}, ${tpl.c2})` }}>
+                <div
+                  className="tc-image-wrapper"
+                  style={{ background: `linear-gradient(135deg, ${tpl.c1}, ${tpl.c2})`, cursor: 'pointer' }}
+                  onClick={() => setPreviewTpl(tpl)}
+                >
                   {tpl.isNew && <span className="tc-new">YENİ</span>}
                   <span className="tc-monogram" style={{ color: tpl.dark ? tpl.c2 : '#ffffff' }}>
                     {tpl.category === 'Dini Düğün' ? '☪' : tpl.category === 'Doğum Günü' || tpl.category === 'Kutlama' ? '🎂' : '♥'}
                   </span>
+                  <TemplateThumb tplKey={tpl.key} />
                   <div className="tc-overlay">
-                    <a href={previewUrl(tpl.key)} target="_blank" rel="noreferrer" className="btn-outline-white">
+                    <button
+                      type="button"
+                      className="btn-outline-white"
+                      onClick={(e) => { e.stopPropagation(); setPreviewTpl(tpl); }}
+                    >
                       <Eye size={16} /> Önizle
-                    </a>
-                    <Link to={`/editor?theme=${tpl.key}`} className="btn-primary-white">
+                    </button>
+                    <Link to={`/editor?theme=${tpl.key}`} className="btn-primary-white" onClick={(e) => e.stopPropagation()}>
                       <Edit3 size={16} /> Bu Temayla Başla
                     </Link>
                   </div>
@@ -164,7 +192,97 @@ const Templates = () => {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {previewTpl && <TemplatePreviewModal tpl={previewTpl} onClose={() => setPreviewTpl(null)} />}
+      </AnimatePresence>
     </div>
+  );
+};
+
+/**
+ * Kart üzerinde her zaman görünen küçük, canlı davetiye önizlemesi.
+ * davet-preview.html gerçek boyutunda (1000x1600) render edilip kartın gerçek
+ * genişliğine göre JS ile ölçeklenir; clip-path ile kart sınırının dışına
+ * taşması (bazı tarayıcılarda transform+overflow:hidden'ın kırpmaması) engellenir.
+ */
+const TemplateThumb = ({ tplKey }: { tplKey: string }) => {
+  const { ref, inView } = useInView();
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.32);
+
+  useEffect(() => {
+    const measure = () => {
+      if (wrapRef.current) setScale(wrapRef.current.clientWidth / 1000);
+    };
+    const id = setTimeout(measure, 60);
+    window.addEventListener('resize', measure);
+    return () => { clearTimeout(id); window.removeEventListener('resize', measure); };
+  }, [inView]);
+
+  return (
+    <div
+      ref={(el) => { (ref as any).current = el; wrapRef.current = el; }}
+      className="tc-live-preview"
+      style={{ clipPath: 'inset(0 round 20px 20px 0 0)' }}
+    >
+      {inView && (
+        <iframe
+          title={`${tplKey} önizleme`}
+          loading="lazy"
+          src={previewUrl(tplKey)}
+          style={{ width: 1000, height: 1600, transform: `scale(${scale})`, transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0, maxWidth: 'none' }}
+        />
+      )}
+    </div>
+  );
+};
+
+/** Bir şablona tıklanınca sayfadan ayrılmadan tam boy önizleme gösteren modal. */
+const TemplatePreviewModal = ({ tpl, onClose }: { tpl: (typeof TEMPLATES)[number]; onClose: () => void }) => {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <motion.div
+      className="tpl-modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="tpl-modal-panel"
+        initial={{ opacity: 0, scale: 0.92, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 8 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button type="button" className="tpl-modal-close" onClick={onClose} aria-label="Kapat">
+          <X size={20} />
+        </button>
+        <div className="tpl-modal-phone">
+          <iframe title={`${tpl.name} büyük önizleme`} src={previewUrl(tpl.key)} style={{ width: '100%', height: '100%', border: 0 }} />
+        </div>
+        <div className="tpl-modal-info">
+          <span className="tc-category">{tpl.category}</span>
+          <h3>{tpl.name}</h3>
+          <div className="tpl-modal-actions">
+            <a href={previewUrl(tpl.key)} target="_blank" rel="noreferrer" className="btn-outline">Yeni Sekmede Aç</a>
+            <Link to={`/editor?theme=${tpl.key}`} className="btn-primary-large">
+              <Edit3 size={16} /> Bu Temayla Başla
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
