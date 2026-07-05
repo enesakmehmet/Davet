@@ -82,6 +82,12 @@ const previewUrl = (key: string) => {
   return `/davet-preview.html#cfg=${cfg}`;
 };
 
+/** Kart içi küçük önizleme: thumb=1 → müzik otomatik çalmaz, intro/parallax kapalı (bkz. davet-preview.html isThumb). */
+const thumbPreviewUrl = (key: string) => {
+  const cfg = btoa(unescape(encodeURIComponent(JSON.stringify({ theme: key }))));
+  return `/davet-preview.html?thumb=1#cfg=${cfg}`;
+};
+
 const Templates = () => {
   const [activeCategory, setActiveCategory] = useState('Tümü');
   const [searchQuery, setSearchQuery] = useState('');
@@ -230,7 +236,7 @@ const TemplateThumb = ({ tplKey }: { tplKey: string }) => {
         <iframe
           title={`${tplKey} önizleme`}
           loading="lazy"
-          src={previewUrl(tplKey)}
+          src={thumbPreviewUrl(tplKey)}
           style={{ width: 1000, height: 1600, transform: `scale(${scale})`, transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0, maxWidth: 'none' }}
         />
       )}
