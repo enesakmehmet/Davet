@@ -575,8 +575,8 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, onAlbum, deletingId }: any
     setQrLoading(true);
     try {
       await qrService.download(inv.id, `${inv.slug}-qr.png`);
-    } catch {
-      showToast('QR kod indirilemedi.');
+    } catch (err: any) {
+      showToast(err?.message || 'QR kod indirilemedi.');
     } finally {
       setQrLoading(false);
     }

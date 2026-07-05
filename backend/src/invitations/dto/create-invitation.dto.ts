@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsObject, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsNumber, IsObject, IsBoolean, MinLength, MaxLength, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateInvitationPageDto {
@@ -16,6 +16,11 @@ export class CreateInvitationDto {
 
   @IsString()
   @IsNotEmpty()
+  @MinLength(3, { message: 'Bağlantı en az 3 karakter olmalı.' })
+  @MaxLength(60, { message: 'Bağlantı en fazla 60 karakter olabilir.' })
+  @Matches(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
+    message: 'Bağlantı yalnızca küçük harf, rakam ve tire (-) içerebilir; tire ile başlayıp bitemez.',
+  })
   slug: string;
 
   @IsDateString()

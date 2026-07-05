@@ -85,6 +85,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
+  // Üretimde FRONTEND_URL boşsa ya da localhost'a işaret ediyorsa (QR kodları, e-postalar,
+  // vs. bu değere göre link üretiyor) sessizce yanlış adres üretmek yerine loglarda açıkça uyar.
+  const frontendUrl = process.env.FRONTEND_URL || '';
+  const isProd = (process.env.NODE_ENV || 'development') === 'production';
+  if (isProd && (!frontendUrl || /localhost|127\.0\.0\.1/i.test(frontendUrl))) {
+    logger.error(
+      `⚠️  FRONTEND_URL ${!frontendUrl ? 'tanımlı değil' : `"${frontendUrl}" (localhost) olarak ayarlanmış`} — ` +
+      `üretimde bu, QR kodlarının ve e-posta bağlantılarının kullanıcıların erişemeyeceği bir adrese ` +
+      `(localhost) işaret etmesine yol açar. Railway ortam değişkenlerinde FRONTEND_URL="https://www.benimdavetim.com" olarak ayarlayın.`,
+    );
+  }
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
 

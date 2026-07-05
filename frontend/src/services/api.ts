@@ -126,11 +126,38 @@ export const invitationService = {
 // QR kod (davet linki için)
 export const qrService = {
   download: async (invitationId: string, filename = 'davet-qr.png') => {
-    const response = await api.get(`/qr-codes/${invitationId}/download`, { responseType: 'blob' });
-    const url = URL.createObjectURL(response.data);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const response = await api.get(`/qr-codes/${invitationId}/download`, { responseType: 'blob' });
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      // responseType 'blob' olduğu için sunucudan dönen hata JSON'u ham Blob olarak gelir —
+      // kullanıcıya "yetki yok" / "bulunamadı" / diğer durumları ayırt edebilmek için
+      // asıl mesajı bu Blob'un içinden okumaya çalışıyoruz.
+      const status = err?.response?.status;
+      let message = '';
+      const blob = err?.response?.data;
+      if (blob instanceof Blob) {
+        try {
+          const text = await blob.text();
+          const parsed = JSON.parse(text);
+          message = parsed?.message || '';
+        } catch {
+          /* JSON değilse yok say, aşağıda status'e göre mesaj üretilecek */
+        }
+      }
+      if (!message) {
+        if (status === 403) message = 'Bu davetiyenin QR kodunu indirme yetkiniz yok.';
+        else if (status === 404) message = 'Davetiye bulunamadı — silinmiş olabilir.';
+        else if (status === 401) message = 'Oturumunuz sona ermiş olabilir, lütfen tekrar giriş yapın.';
+        else message = 'QR kod indirilemedi. Lütfen tekrar deneyin.';
+      }
+      const e: any = new Error(message);
+      e.status = status;
+      throw e;
+    }
   },
 };
 

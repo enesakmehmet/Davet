@@ -54,23 +54,33 @@ export class InvitationsService {
       isPasswordProtected = true;
     }
 
-    return this.prisma.invitation.create({
-      data: {
-        ...invitationData,
-        isPasswordProtected,
-        passwordHash,
-        userId,
-        pages: pages ? {
-          create: pages.map(p => ({
-            pageNumber: p.pageNumber,
-            elements: p.elements as Prisma.InputJsonObject,
-          }))
-        } : undefined,
-      },
-      include: {
-        pages: true,
+    try {
+      return await this.prisma.invitation.create({
+        data: {
+          ...invitationData,
+          isPasswordProtected,
+          passwordHash,
+          userId,
+          pages: pages ? {
+            create: pages.map(p => ({
+              pageNumber: p.pageNumber,
+              elements: p.elements as Prisma.InputJsonObject,
+            }))
+          } : undefined,
+        },
+        include: {
+          pages: true,
+        }
+      });
+    } catch (e) {
+      // Yukarıdaki findUnique kontrolüyle create arasına giren bir yarış durumunda
+      // (iki istek aynı slug'ı aynı anda dener) Prisma P2002 (unique constraint) fırlatır —
+      // bunu ham 500 yerine kullanıcının anlayacağı bir mesaja çeviriyoruz.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new ConflictException('Bu bağlantı (slug) az önce başka biri tarafından alındı. Lütfen farklı bir bağlantı deneyin.');
       }
-    });
+      throw e;
+    }
   }
 
   async findAllByUser(userId: string) {
@@ -138,25 +148,34 @@ export class InvitationsService {
       }
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const updatedInv = await tx.invitation.update({
-        where: { id },
-        data: updatePayload,
-      });
-
-      if (pages) {
-        await tx.invitationPage.deleteMany({ where: { invitationId: id } });
-        await tx.invitationPage.createMany({
-          data: pages.map(p => ({
-            invitationId: id,
-            pageNumber: p.pageNumber,
-            elements: p.elements as Prisma.InputJsonObject,
-          }))
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const updatedInv = await tx.invitation.update({
+          where: { id },
+          data: updatePayload,
         });
-      }
 
-      return tx.invitation.findUnique({ where: { id }, include: { pages: true } });
-    });
+        if (pages) {
+          await tx.invitationPage.deleteMany({ where: { invitationId: id } });
+          await tx.invitationPage.createMany({
+            data: pages.map(p => ({
+              invitationId: id,
+              pageNumber: p.pageNumber,
+              elements: p.elements as Prisma.InputJsonObject,
+            }))
+          });
+        }
+
+        return tx.invitation.findUnique({ where: { id }, include: { pages: true } });
+      });
+    } catch (e) {
+      // Yukarıdaki slug çakışma kontrolüyle update arasına giren bir yarış durumunda
+      // Prisma P2002 fırlatır — ham 500 yerine anlaşılır bir mesaja çeviriyoruz.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new ConflictException('Bu bağlantı (slug) az önce başka biri tarafından alındı. Lütfen farklı bir bağlantı deneyin.');
+      }
+      throw e;
+    }
   }
 
   async remove(id: string, userId: string) {

@@ -342,6 +342,20 @@ const Editor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfg]);
 
+  // ---- Sekme kapatılırsa/yenilenirse ve son otomatik kayıt başarısız olduysa veya hâlâ
+  // devam ediyorsa, kullanıcıyı uyar ki değişiklikler fark etmeden kaybolmasın ----
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (autoSave === 'error' || autoSave === 'saving') {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [autoSave]);
+
   const set = (k: keyof Cfg, v: any) => setCfg((c) => ({ ...c, [k]: v }));
 
   // İçerik hâlâ hazır bir şablonda mı? (kullanıcı metni özelleştirmediyse kategori geçişinde otomatik çevir)
@@ -435,8 +449,31 @@ const Editor = () => {
     a.click();
   };
 
+  /* Yayınlamadan önce zorunlu alanlar dolu mu kontrol et (isim/tarih/mekan boş bırakılamaz) */
+  const validatePublish = (): { section: string; message: string } | null => {
+    if (!cfg.brideName?.trim()) {
+      return { section: 'couple', message: isCeleb || isBday ? 'Lütfen bir isim girin.' : 'Lütfen gelin adını girin.' };
+    }
+    if (!isCeleb && !cfg.groomName?.trim()) {
+      return { section: 'couple', message: isBday ? 'Lütfen yaş bilgisini girin.' : 'Lütfen damat adını girin.' };
+    }
+    if (!isCeleb && !cfg.date) {
+      return { section: 'couple', message: 'Lütfen davet tarihini seçin.' };
+    }
+    if (!isCeleb && !cfg.venueName?.trim()) {
+      return { section: 'venue', message: 'Lütfen mekan adını girin.' };
+    }
+    return null;
+  };
+
   /* Backend'e kaydet / yayınla */
   const publish = async () => {
+    const problem = validatePublish();
+    if (problem) {
+      setActive(problem.section);
+      setSaveError(problem.message);
+      return;
+    }
     setSaving(true); setSaveError('');
     try {
       const title = isCelebTheme(cfg.theme)
