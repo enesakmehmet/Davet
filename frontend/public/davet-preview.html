@@ -133,13 +133,17 @@
 
   /* Müzik butonu: yuvarlak fab değil, ikon + eşitleyici çubuklar + etiket içeren hap (pill) —
      anasayfa tanıtım vitrinindeki "Arka Plan Müziği" görseliyle aynı tasarım. Müzik artık
-     otomatik başlamıyor; bu buton her zaman görünür ve dokunulmasını bekler. */
+     otomatik başlamıyor; bu buton her zaman görünür ve dokunulmasını bekler.
+     Konum: köşeye/kenara yaslı değil, ortalanmış ve alt kenardan yeterince yukarıda —
+     böylece "AŞAĞI KAYDIR" ipucu yazısının ve sayfa altındaki içeriğin üzerine binmiyor. */
   .fab.music{
-    left:16px;right:auto;bottom:16px;width:auto;height:auto;min-height:0;
+    left:50%;right:auto;bottom:calc(76px + env(safe-area-inset-bottom, 0px));
+    transform:translateX(-50%);width:auto;height:auto;min-height:0;
     border-radius:30px;padding:8px 16px 8px 8px;display:flex;align-items:center;gap:9px;
     font-size:12.5px;font-weight:600;font-family:inherit;white-space:nowrap;
     animation:musicPulse 1.8s ease-in-out infinite;
   }
+  .fab.music:hover{transform:translateX(-50%) scale(1.04)}
   .fab.music.playing{animation:none}
   .fab.music .mp-icon{
     width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);flex-shrink:0;
@@ -424,7 +428,7 @@
     .tl{padding-left:28px}
     .fab{width:42px;height:42px;font-size:16px;right:12px}
     .fab.share{bottom:12px}
-    .fab.music{left:12px;bottom:12px;padding:7px 14px 7px 7px;font-size:12px}
+    .fab.music{left:50%;bottom:calc(66px + env(safe-area-inset-bottom, 0px));padding:7px 14px 7px 7px;font-size:12px}
     .fab.music .mp-icon{width:23px;height:23px}
     .gal{max-width:100%}
   }

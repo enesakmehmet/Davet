@@ -25,7 +25,9 @@ const WhatsappButton = () => {
   )}&sid=${encodeURIComponent(getSessionId())}`;
 
   // Editor sayfasında mobilde kendi "önizleme" yüzen butonuyla aynı köşeye denk geliyor — orada gösterme.
-  if (location.pathname.startsWith('/editor')) return null;
+  // Davetiye görüntüleme sayfasında da gösterme: davetin kendi paylaş/müzik butonlarıyla çakışıyor
+  // ve davetiye sahibiyle ilgisi olmayan bir "bize yaz" butonu misafire hiç uygun değil.
+  if (location.pathname.startsWith('/editor') || location.pathname.startsWith('/davet/')) return null;
 
   return (
     <>
