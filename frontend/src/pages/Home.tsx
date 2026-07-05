@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -115,21 +115,13 @@ const Home = () => {
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={current.key}
-                    className="mockup-invitation"
-                    style={{ '--mock-accent': current.accent, '--mock-font': `'${current.font}', cursive` } as CSSProperties}
+                    className="mockup-fade"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.6, ease: 'easeInOut' as const }}
                   >
-                    <p className="m-pretitle">{CATEGORY_PRETITLE[current.category]}</p>
-                    <h2 className="m-title">
-                      {isCouple ? (<>{nameParts[0]}<span>&amp;</span>{nameParts[1]}</>) : nameParts[0]}
-                    </h2>
-                    <div className="m-rule" />
-                    <p className="m-date">{current.date}</p>
-                    <MockCountdown target={current.targetDate} />
-                    <MockRsvpDemo />
+                    <MockPhonePreview theme={current} isCouple={isCouple} nameParts={nameParts} />
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -395,6 +387,84 @@ const LeadCapture = () => {
         </button>
       </form>
       {status === 'error' && <p className="lead-error">Bir şeyler ters gitti, tekrar dener misin?</p>}
+    </div>
+  );
+};
+
+/**
+ * Hero telefon mockup'ı — sadece üst kısmı (başlık/geri sayım/RSVP) göstermekle kalmaz,
+ * her tema döngüsünde otomatik olarak aşağı kayıp galeri/müzik/harita bölümlerini de gösterir,
+ * sonra tekrar yukarı çıkar. Gerçek scroll yüksekliği JS ile ölçülür (temaya göre metin
+ * uzunluğu değişebildiği için sabit piksel yerine dinamik hesap kullanılır).
+ */
+const MockPhonePreview = ({
+  theme,
+  isCouple,
+  nameParts,
+}: {
+  theme: (typeof SHOWCASE)[number];
+  isCouple: boolean;
+  nameParts: string[];
+}) => {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [viewportH, setViewportH] = useState(560);
+  const [scrollDist, setScrollDist] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const vp = viewportRef.current;
+      const inner = innerRef.current;
+      if (!vp || !inner) return;
+      setViewportH(vp.clientHeight);
+      const diff = inner.scrollHeight - vp.clientHeight;
+      setScrollDist(diff > 0 ? diff : 0);
+    };
+    const id = setTimeout(measure, 60);
+    window.addEventListener('resize', measure);
+    return () => { clearTimeout(id); window.removeEventListener('resize', measure); };
+  }, [theme.key]);
+
+  return (
+    <div
+      className="mockup-invitation"
+      ref={viewportRef}
+      style={{ '--mock-accent': theme.accent, '--mock-font': `'${theme.font}', cursive` } as CSSProperties}
+    >
+      <motion.div
+        className="mockup-scroll-inner"
+        ref={innerRef}
+        animate={scrollDist > 0 ? { y: [0, 0, -scrollDist, -scrollDist, 0] } : { y: 0 }}
+        transition={{ duration: 8.6, times: [0, 0.3, 0.55, 0.85, 1], ease: 'easeInOut' as const }}
+      >
+        <div className="m-page m-page-hero" style={{ minHeight: viewportH }}>
+          <p className="m-pretitle">{CATEGORY_PRETITLE[theme.category]}</p>
+          <h2 className="m-title">
+            {isCouple ? (<>{nameParts[0]}<span>&amp;</span>{nameParts[1]}</>) : nameParts[0]}
+          </h2>
+          <div className="m-rule" />
+          <p className="m-date">{theme.date}</p>
+          <MockCountdown target={theme.targetDate} />
+          <MockRsvpDemo />
+        </div>
+        <div className="m-page m-page-extra">
+          <p className="m-extra-label">Fotoğraf Galerisi</p>
+          <div className="m-gallery">
+            <span className="m-thumb"><ImageIcon size={18} /></span>
+            <span className="m-thumb"><ImageIcon size={18} /></span>
+            <span className="m-thumb"><ImageIcon size={18} /></span>
+          </div>
+          <div className="m-music">
+            <span className="m-music-icon"><Music size={12} /></span>
+            <span className="m-music-bars"><i /><i /><i /><i /><i /></span>
+            <span className="m-music-label">Arka Plan Müziği</span>
+          </div>
+          <div className="m-map">
+            <MapPin size={16} />
+            <span>Yol Tarifi Al</span>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };
