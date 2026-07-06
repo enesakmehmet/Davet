@@ -1,8 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { InvitationsService } from './invitations.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+
+/** İki eşzamanlı isteğin aynı slug'ı almaya çalıştığı yarış durumunu simüle eder */
+const p2002 = () =>
+  new Prisma.PrismaClientKnownRequestError('Unique constraint failed', { code: 'P2002', clientVersion: 'test' });
 
 /** Kritik yayınlama/çöp kutusu akışlarının birim testleri (DB'siz, mock prisma ile) */
 describe('InvitationsService', () => {
@@ -71,6 +76,43 @@ describe('InvitationsService', () => {
     it('kullanımda olan slug reddedilir', async () => {
       prismaMock.invitation.findUnique.mockResolvedValue({ id: 'baska-davet', slug: 'test-slug' });
       await expect(service.create(dto, 'user-1')).rejects.toThrow(ConflictException);
+    });
+
+    it('yarış durumu: ön kontrolden geçse de create sırasında P2002 gelirse ConflictException döner (500 değil)', async () => {
+      prismaMock.invitation.findUnique.mockResolvedValue(null); // ön kontrol: slug boşta görünüyor
+      prismaMock.invitation.create.mockRejectedValue(p2002()); // ama tam o anda başka istek almış
+      await expect(service.create(dto, 'user-1')).rejects.toThrow(ConflictException);
+    });
+
+    it('create sırasında P2002 dışındaki bir hata olduğu gibi fırlatılır', async () => {
+      prismaMock.invitation.findUnique.mockResolvedValue(null);
+      prismaMock.invitation.create.mockRejectedValue(new Error('beklenmedik db hatası'));
+      await expect(service.create(dto, 'user-1')).rejects.toThrow('beklenmedik db hatası');
+    });
+  });
+
+  describe('update (slug değişikliği yarış durumu)', () => {
+    const txMock = {
+      invitation: { update: jest.fn(), findUnique: jest.fn() },
+      invitationPage: { deleteMany: jest.fn(), createMany: jest.fn() },
+    };
+
+    beforeEach(() => {
+      prismaMock.$transaction.mockImplementation((cb: any) => cb(txMock));
+      prismaMock.invitation.findFirst.mockResolvedValue({ id: 'inv-1', userId: 'user-1', slug: 'eski-slug' });
+      txMock.invitation.update.mockResolvedValue({ id: 'inv-1' });
+      txMock.invitation.findUnique.mockResolvedValue({ id: 'inv-1', slug: 'yeni-slug' });
+    });
+
+    it('yarış durumu: slug ön kontrolden geçse de transaction sırasında P2002 gelirse ConflictException döner (500 değil)', async () => {
+      prismaMock.invitation.findUnique.mockResolvedValue(null); // ön kontrol: slug boşta görünüyor
+      txMock.invitation.update.mockRejectedValue(p2002()); // ama tam o anda başka istek almış
+      await expect(service.update('inv-1', { slug: 'yeni-slug' } as any, 'user-1')).rejects.toThrow(ConflictException);
+    });
+
+    it('zaten kullanımdaki slug ön kontrolde reddedilir', async () => {
+      prismaMock.invitation.findUnique.mockResolvedValue({ id: 'baska-davet', slug: 'yeni-slug' });
+      await expect(service.update('inv-1', { slug: 'yeni-slug' } as any, 'user-1')).rejects.toThrow(ConflictException);
     });
   });
 

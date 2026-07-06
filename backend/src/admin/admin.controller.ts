@@ -15,6 +15,7 @@ import { AdminService } from './admin.service';
 import { AdminAccessGuard } from '../auth/guards/admin-access.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { SendNotificationDto } from './dto/send-notification.dto';
 
 /** Sadece "admin" rolü — "moderator" bu uçlara giremez (kullanıcı/ödeme/denetim/davetiye silme vb.) */
 const AdminOnly = () => UseGuards(RolesGuard);
@@ -209,7 +210,7 @@ export class AdminController {
 
   @Post('notifications')
   @AdminOnly() @Roles('admin')
-  async sendNotification(@Body('title') title: string, @Body('content') content: string, @Body('userId') userId?: string) {
-    return this.adminService.sendNotification(title, content, userId);
+  async sendNotification(@Body() dto: SendNotificationDto) {
+    return this.adminService.sendNotification(dto.title, dto.content, dto.userId);
   }
 }
