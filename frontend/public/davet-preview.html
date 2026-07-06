@@ -529,6 +529,14 @@ var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,m
 var introPlayed=false, introPreviewDismissed=false;
 
 function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// Kullanıcı tarafından girilen görsel URL'lerini style="background-image:url(...)" içine güvenle gömmek için:
+// tehlikeli şemaları reddeder, attribute/CSS bağlamından kaçmayı sağlayacak karakterleri (' " ) \ < >) yüzde-kodlar.
+function escUrl(u){
+  u=(u==null?'':String(u)).trim();
+  if(!u) return '';
+  if(/^(javascript|vbscript|data:text\/html)/i.test(u)) return '';
+  return u.replace(/\\/g,'%5C').replace(/'/g,'%27').replace(/"/g,'%22').replace(/\)/g,'%29').replace(/</g,'%3C').replace(/>/g,'%3E');
+}
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
 function firstPhoto(cfg){
   if(!cfg || !cfg.photos || !cfg.photos.length) return '';
@@ -616,7 +624,7 @@ function showCurtainIntro(cfg,T,couple,isThumb,lang){
   var gate=el('div','intro-gate');
   gate.setAttribute('role','button');
   gate.setAttribute('aria-label','Daveti ac');
-  var bgStyle=photo?'background-image:url(&quot;'+photo.replace(/"/g,'&quot;')+'&quot;)':'background:'+T.bg;
+  var bgStyle=photo?'background-image:url(&quot;'+escUrl(photo).replace(/"/g,'&quot;')+'&quot;)':'background:'+T.bg;
   var monogram=initials(couple).replace('&','') || initials(cfg.brideName) || 'D';
   gate.innerHTML=
     '<div class="intro-bg" style="'+bgStyle+'"></div>'+
@@ -918,7 +926,7 @@ function render(cfg){
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=typeof src==='string'?src:(src.url||'');var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
   }
@@ -976,7 +984,7 @@ function render(cfg){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music){ ensureMusicBtn(T); } else removeMusicBtn();
+  if(cfg.music && !isThumb){ ensureMusicBtn(T); } else removeMusicBtn();
 }
 
 /* ============ DİNİ DÜĞÜN RENDER (besmele + kına & düğün kartları + dua) ============ */
@@ -1086,7 +1094,7 @@ function renderDini(cfg, T, wrap, x){
   /* GALERİ (opsiyonel) */
   if(cfg.photos && cfg.photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=typeof src==='string'?src:(src.url||'');var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
   }
@@ -1196,7 +1204,7 @@ function renderCelebration(cfg, T, wrap, x){
   /* GALERİ */
   if(cfg.photos && cfg.photos.length){
     var s2=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=typeof src==='string'?src:(src.url||'');var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
     g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s2.innerHTML=titleHTML('Anılarımız','Birlikte güzel anlar')+g; wrap.appendChild(s2);
   }
@@ -1255,7 +1263,7 @@ function setupGuestAlbum(cfg, T, wrap, x){
     var caps=list.map(function(p){return p.guestName||'';});
     list.forEach(function(p,i){
       var d=el('div','ga-item');
-      d.innerHTML='<img loading="lazy" src="'+esc(p.url)+'" alt="">'+(p.guestName?'<span class="ga-name">'+esc(p.guestName)+'</span>':'');
+      d.innerHTML='<img loading="lazy" src="'+esc(escUrl(p.url))+'" alt="">'+(p.guestName?'<span class="ga-name">'+esc(p.guestName)+'</span>':'');
       d.addEventListener('click',function(){ openLightbox(urls,caps,i); });
       grid.appendChild(d);
     });

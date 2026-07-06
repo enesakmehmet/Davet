@@ -52,38 +52,48 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Swagger Documentation Setup
-  const config = new DocumentBuilder()
-    .setTitle('Davetim API')
-    .setDescription(
-      'Davetim - Modern Dijital Davetiye Platformu REST API Dokümantasyonu',
-    )
-    .setVersion('1.0.0')
-    .addTag('auth', 'Kimlik doğrulama işlemleri')
-    .addTag('users', 'Kullanıcı yönetimi')
-    .addTag('templates', 'Şablon yönetimi')
-    .addTag('invitations', 'Davetiye yönetimi')
-    .addTag('guests', 'Misafir yönetimi')
-    .addTag('payments', 'Ödeme işlemleri')
-    .addTag('subscriptions', 'Abonelik yönetimi')
-    .addTag('analytics', 'Analitik ve raporlama')
-    .addTag('qr-codes', 'QR kod işlemleri')
-    .addTag('admin', 'Admin panel')
-    .addTag('settings', 'Kullanıcı ayarları')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'JWT token ile kimlik doğrulama',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
-    .build();
-  
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  // Güvenlik: üretimde tüm API yüzeyini (rotalar, DTO şemaları, auth şeması) kimlik doğrulama
+  // olmadan herkese açık şekilde ifşa etmemek için Swagger UI yalnızca production DIŞINDA aktif.
+  // İhtiyaç halinde üretimde açmak isterseniz SWAGGER_ENABLED=true ortam değişkenini ayarlayın
+  // (yine de üretimde bunu önermiyoruz).
+  const swaggerEnabled =
+    (process.env.NODE_ENV || 'development') !== 'production' ||
+    process.env.SWAGGER_ENABLED === 'true';
+
+  if (swaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('Davetim API')
+      .setDescription(
+        'Davetim - Modern Dijital Davetiye Platformu REST API Dokümantasyonu',
+      )
+      .setVersion('1.0.0')
+      .addTag('auth', 'Kimlik doğrulama işlemleri')
+      .addTag('users', 'Kullanıcı yönetimi')
+      .addTag('templates', 'Şablon yönetimi')
+      .addTag('invitations', 'Davetiye yönetimi')
+      .addTag('guests', 'Misafir yönetimi')
+      .addTag('payments', 'Ödeme işlemleri')
+      .addTag('subscriptions', 'Abonelik yönetimi')
+      .addTag('analytics', 'Analitik ve raporlama')
+      .addTag('qr-codes', 'QR kod işlemleri')
+      .addTag('admin', 'Admin panel')
+      .addTag('settings', 'Kullanıcı ayarları')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'JWT token ile kimlik doğrulama',
+          in: 'header',
+        },
+        'JWT-auth',
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   // Üretimde FRONTEND_URL boşsa ya da localhost'a işaret ediyorsa (QR kodları, e-postalar,
   // vs. bu değere göre link üretiyor) sessizce yanlış adres üretmek yerine loglarda açıkça uyar.
@@ -101,7 +111,9 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`🚀 Uygulama ${port} portunda çalışıyor`);
-  logger.log(`📚 API Dokümantasyonu: http://localhost:${port}/api/docs`);
+  if (swaggerEnabled) {
+    logger.log(`📚 API Dokümantasyonu: http://localhost:${port}/api/docs`);
+  }
   logger.log(`🌍 Ortam: ${process.env.NODE_ENV || 'development'}`);
 }
 
