@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateNotificationDto {
   @IsString()
@@ -14,4 +14,9 @@ export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
+
+  // Bildirim belirli bir davetle ilgiliyse (ör. yeni RSVP) — mobil push'a dokununca o davete gitmek için
+  @IsString()
+  @IsOptional()
+  invitationId?: string;
 }

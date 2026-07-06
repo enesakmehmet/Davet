@@ -250,6 +250,7 @@ export class InvitationsService {
           userId: inv.userId,
           title: 'Davetiyenin yayın süresi doldu',
           content: `"${inv.title}" 1 yıllık yayın süresini doldurdu ve yayından kaldırıldı.`,
+          invitationId: inv.id,
         },
       }).catch(() => null);
     }
@@ -289,6 +290,7 @@ export class InvitationsService {
           userId: inv.userId,
           title: 'Etkinliğine 3 gün kaldı! 🎉',
           content: `"${inv.title}" için geri sayım başladı. Şu ana kadar ${rsvp} RSVP yanıtı aldın.`,
+          invitationId: inv.id,
         },
       }).catch(() => null);
 

@@ -13,7 +13,12 @@ export class NotificationsService {
       data: createNotificationDto,
     });
     // Kullanıcının kayıtlı Expo push token'ı varsa telefona da gönder (best-effort)
-    this.sendPush(createNotificationDto.userId, createNotificationDto.title, createNotificationDto.content).catch(() => null);
+    this.sendPush(
+      createNotificationDto.userId,
+      createNotificationDto.title,
+      createNotificationDto.content,
+      createNotificationDto.invitationId,
+    ).catch(() => null);
     return notif;
   }
 
@@ -27,7 +32,7 @@ export class NotificationsService {
   }
 
   /** Expo push API üzerinden bildirim gönderir — hata akışı asla bozmaz */
-  private async sendPush(userId: string, title: string, body: string) {
+  private async sendPush(userId: string, title: string, body: string, invitationId?: string) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { expoPushToken: true } });
       const token = user?.expoPushToken;
@@ -35,7 +40,8 @@ export class NotificationsService {
       await fetch('https://exp.host/--/api/v2/push/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: token, title, body, sound: 'default' }),
+        // data: mobil uygulama bildirime dokununca ilgili davete gidebilsin diye
+        body: JSON.stringify({ to: token, title, body, sound: 'default', data: invitationId ? { invitationId } : undefined }),
       });
     } catch (e: any) {
       this.logger.warn(`Push gönderilemedi: ${e?.message || e}`);

@@ -247,6 +247,11 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
+  // Bildirim belirli bir davetle ilgiliyse (ör. yeni RSVP), mobil push'a dokununca
+  // doğrudan o davetin misafir listesine gidebilmek için. Opsiyonel, ilişkisiz (FK yok)
+  // — davet silinse bile eski bildirim kaydı bozulmasın diye.
+  invitationId String?
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

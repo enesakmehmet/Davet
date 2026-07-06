@@ -48,6 +48,7 @@ export class GuestsService {
       userId: invitation.userId,
       title: 'Yeni LCV Yanıtı',
       content: `${guest.name} davetinize ${statusText} bildirdi.`,
+      invitationId: invitation.id,
     });
 
     return guest;
