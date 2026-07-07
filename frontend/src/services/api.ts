@@ -233,11 +233,21 @@ export const authService = {
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
     return data;
   },
+  // Not: kayıt artık doğrudan giriş yaptırmaz — e-postaya 6 haneli kod gönderilir.
+  // Token'lar ancak verifyRegistration ile doğru kod girildiğinde alınır.
   register: async (name: string, email: string, password: string) => {
     const { data } = await api.post('/auth/register', { name, email, password });
+    return data;
+  },
+  verifyRegistration: async (email: string, code: string) => {
+    const { data } = await api.post('/auth/verify-registration', { email, code });
     if (data.access_token) localStorage.setItem('accessToken', data.access_token);
     if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token);
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+    return data;
+  },
+  resendRegistrationCode: async (email: string) => {
+    const { data } = await api.post('/auth/resend-registration-code', { email });
     return data;
   },
   logout: () => {

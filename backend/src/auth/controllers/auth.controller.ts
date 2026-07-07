@@ -8,6 +8,8 @@ import { RefreshDto } from '../dto/refresh.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { VerifyRegistrationDto } from '../dto/verify-registration.dto';
+import { ResendRegistrationCodeDto } from '../dto/resend-registration-code.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('Auth')
@@ -87,6 +89,27 @@ export class AuthController {
   @Post('resend-verification')
   async resendVerification(@Request() req) {
     return this.authService.resendVerification(req.user.id);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: 'Kayıt sırasında gönderilen 6 haneli kodu doğrular ve kaydı tamamlayıp giriş yaptırır' })
+  @HttpCode(HttpStatus.OK)
+  @Post('verify-registration')
+  async verifyRegistration(
+    @Body() dto: VerifyRegistrationDto,
+    @Headers('x-client-platform') platform?: string,
+  ) {
+    return this.authService.verifyRegistration(dto, platform);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({ summary: 'Kayıt doğrulama kodunu tekrar gönderir' })
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-registration-code')
+  async resendRegistrationCode(@Body() dto: ResendRegistrationCodeDto) {
+    return this.authService.resendRegistrationCode(dto);
   }
 
   @ApiBearerAuth()

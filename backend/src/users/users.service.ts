@@ -43,4 +43,15 @@ export class UsersService {
       where: { email, resetToken: code, resetTokenExpires: { gt: new Date() } },
     });
   }
+
+  /** Kayıt doğrulama kodu (6 hane) de aynı sebeple e-posta ile birlikte aranır. */
+  async findByEmailAndVerifyCode(email: string, code: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { email, verifyToken: code, verifyTokenExpires: { gt: new Date() } },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id } });
+  }
 }

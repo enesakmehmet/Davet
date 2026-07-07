@@ -8,7 +8,10 @@ type AuthCtx = {
   user: User;
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  // Not: kayıt artık giriş yaptırmaz — e-postaya gönderilen 6 haneli kod bekler.
+  register: (name: string, email: string, password: string) => Promise<{ email: string; message?: string }>;
+  verifyRegistrationCode: (email: string, code: string) => Promise<void>;
+  resendRegistrationCode: (email: string) => Promise<{ message?: string }>;
   logout: () => void;
   updateUser: (patch: Partial<NonNullable<User>>) => void;
   refreshUser: () => Promise<void>;
@@ -25,8 +28,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
+    // Henüz giriş yapılmaz: backend e-postaya kod gönderir, kullanıcı state'i kod doğrulanınca set edilir.
     const data = await authService.register(name, email, password);
+    return { email: data.email ?? email, message: data.message };
+  }, []);
+
+  const verifyRegistrationCode = useCallback(async (email: string, code: string) => {
+    const data = await authService.verifyRegistration(email, code);
     setUser(data.user ?? null);
+  }, []);
+
+  const resendRegistrationCode = useCallback(async (email: string) => {
+    return authService.resendRegistrationCode(email);
   }, []);
 
   const logout = useCallback(() => {
@@ -55,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <Ctx.Provider value={{ user, isLoggedIn: !!user, login, register, logout, updateUser, refreshUser }}>
+    <Ctx.Provider value={{ user, isLoggedIn: !!user, login, register, verifyRegistrationCode, resendRegistrationCode, logout, updateUser, refreshUser }}>
       {children}
     </Ctx.Provider>
   );

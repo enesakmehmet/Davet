@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
+import { EmailValidatorService } from './services/email-validator.service';
 import { AuthController } from './controllers/auth.controller';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
@@ -21,7 +22,7 @@ import { getJwtSecret } from '../config/secret.util';
       signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '1h') as any },
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, EmailValidatorService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })

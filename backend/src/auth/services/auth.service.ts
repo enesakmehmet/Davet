@@ -2,12 +2,15 @@ import { Injectable, UnauthorizedException, ConflictException, BadRequestExcepti
 import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../../mail/mail.service';
+import { EmailValidatorService } from './email-validator.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshDto } from '../dto/refresh.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { VerifyRegistrationDto } from '../dto/verify-registration.dto';
+import { ResendRegistrationCodeDto } from '../dto/resend-registration-code.dto';
 import * as bcrypt from 'bcrypt';
 import { randomBytes, randomInt } from 'crypto';
 
@@ -17,39 +20,92 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
+    private emailValidator: EmailValidatorService,
   ) {}
 
+  /**
+   * Kayıt: hesabı oluşturur ama GİRİŞ YAPTIRMAZ. E-postaya 6 haneli bir kod gönderilir;
+   * kayıt yalnızca `verifyRegistration` ile doğru kod girildiğinde tamamlanır (bkz. aşağısı).
+   * Aynı e-posta ile daha önce doğrulanmamış bir kayıt başlatılmışsa (yarım kalmış deneme),
+   * bilgiler güncellenip yeni kod gönderilir — "zaten kayıtlı" kilidine düşürülmez.
+   */
   async register(registerDto: RegisterDto, platform?: string) {
+    // Saçma/ulaşılamaz/geçici e-posta adreslerini reddet (gerçek posta kutusu olup olmadığını kontrol eder)
+    await this.emailValidator.assertRegistrable(registerDto.email);
+
     const existingUser = await this.usersService.findByEmail(registerDto.email);
-    if (existingUser) {
+    if (existingUser && existingUser.emailVerified) {
       throw new ConflictException('Bu e-posta adresi zaten kullanımda.');
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    const codeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika
 
-    const verifyToken = randomBytes(32).toString('hex');
-    const verifyTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 saat
+    const user = existingUser
+      ? await this.usersService.update(existingUser.id, {
+          name: registerDto.name,
+          passwordHash: hashedPassword,
+          verifyToken: code,
+          verifyTokenExpires: codeExpires,
+        })
+      : await this.usersService.create({
+          email: registerDto.email,
+          passwordHash: hashedPassword,
+          name: registerDto.name,
+          verifyToken: code,
+          verifyTokenExpires: codeExpires,
+        });
 
-    const user = await this.usersService.create({
-      email: registerDto.email,
-      passwordHash: hashedPassword,
-      name: registerDto.name,
-      verifyToken,
-      verifyTokenExpires,
-    });
-
-    // Doğrulama e-postası gönder (hata giriş akışını engellemesin)
     try {
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-      await this.mailService.sendVerificationEmail(
-        user.email,
-        `${frontendUrl}/verify-email?token=${verifyToken}`,
-      );
-    } catch {
-      /* e-posta gönderilemese de kayıt tamamlanmış olsun */
+      await this.mailService.sendVerificationCode(user.email, code);
+    } catch (err) {
+      // İlk kayıt denemesiyse (yeni oluşturulduysa) ve mail gitmediyse yarım kalmış hesabı bırakma —
+      // aksi halde bu e-posta bir daha hiç kayıt olamaz hale gelir.
+      if (!existingUser) {
+        await this.usersService.delete(user.id);
+      }
+      throw new BadRequestException('Doğrulama kodu e-postana gönderilemedi. Lütfen tekrar dene.');
     }
 
-    return this.generateTokens(user, platform);
+    return {
+      pendingVerification: true,
+      email: user.email,
+      message: `${user.email} adresine 6 haneli bir doğrulama kodu gönderdik. Kaydını tamamlamak için kodu gir.`,
+    };
+  }
+
+  /** Kayıt sırasında gönderilen 6 haneli kodu doğrular ve kaydı tamamlayıp giriş yaptırır. */
+  async verifyRegistration(dto: VerifyRegistrationDto, platform?: string) {
+    const user = await this.usersService.findByEmailAndVerifyCode(dto.email, dto.code);
+    if (!user) {
+      throw new BadRequestException('Geçersiz veya süresi dolmuş kod. Yeni kod isteyebilirsin.');
+    }
+
+    const verifiedUser = await this.usersService.update(user.id, {
+      emailVerified: true,
+      verifyToken: null,
+      verifyTokenExpires: null,
+    });
+
+    return this.generateTokens(verifiedUser, platform);
+  }
+
+  /** Kayıt tamamlanmadan (doğrulama bekleyen) durumdayken kodu tekrar gönderir. */
+  async resendRegistrationCode(dto: ResendRegistrationCodeDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    // Kullanıcı yoksa ya da zaten doğrulanmışsa da aynı genel mesaj dönülür (e-posta sızdırılmaz).
+    if (user && !user.emailVerified) {
+      const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+      const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
+      await this.usersService.update(user.id, { verifyToken: code, verifyTokenExpires: codeExpires });
+      try {
+        await this.mailService.sendVerificationCode(user.email, code);
+      } catch {
+        /* gönderilemese de aynı genel mesaj dönülür */
+      }
+    }
+    return { message: 'Bu e-posta bekleyen bir kayıtsa doğrulama kodu tekrar gönderildi.' };
   }
 
   async login(loginDto: LoginDto, platform?: string) {

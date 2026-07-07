@@ -29,6 +29,22 @@ export class MailService {
     });
   }
 
+  /** Kayıt sırasında e-posta adresini doğrulamak için 6 haneli kod gönderir. */
+  async sendVerificationCode(to: string, code: string) {
+    await this.sendMail({
+      to,
+      subject: `${code} - Davetim Doğrulama Kodun`,
+      text: `Davetim'e hoş geldin! Kaydını tamamlamak için doğrulama kodun: ${code}\nBu kod 15 dakika geçerlidir. Bu kaydı sen başlatmadıysan bu e-postayı yok sayabilirsin.`,
+      html: `
+        <div style="font-family:sans-serif;max-width:420px;margin:0 auto">
+          <p>Davetim'e hoş geldin! Kaydını tamamlamak için aşağıdaki kodu gir:</p>
+          <p style="font-size:32px;font-weight:700;letter-spacing:6px;text-align:center;
+             background:#f8f7f4;border-radius:12px;padding:18px 0;margin:20px 0">${code}</p>
+          <p style="color:#8a8a8a;font-size:13px">Bu kod <strong>15 dakika</strong> geçerlidir. Bu kaydı sen başlatmadıysan bu e-postayı yok sayabilirsin.</p>
+        </div>`,
+    });
+  }
+
   /** Şifre sıfırlama için 6 haneli tek kullanımlık kod gönderir (link değil). */
   async sendForgotPassword(to: string, code: string) {
     await this.sendMail({
