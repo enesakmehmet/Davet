@@ -1,0 +1,15 @@
+# Davetim
+
+> Türkiye merkezli dijital davetiye platformu. Kullanıcılar düğün, kına, nişan, doğum günü ve kutlama davetiyelerini dakikalar içinde tasarlayıp tek bir linkle paylaşabilir. Davetiyeler canlı geri sayım, Google Harita entegrasyonu, RSVP (katılım bildirimi), arka plan müziği ve fotoğraf galerisi içerir.
+
+## Ana Sayfalar
+
+- [Ana Sayfa](https://www.benimdavetim.com/): Platformun tanıtımı, öne çıkan özellikler ve fiyatlandırma.
+- [Şablonlar](https://www.benimdavetim.com/templates): Düğün, kına, doğum günü ve kutlama temaları — canlı önizleme ile.
+- [Hakkımızda](https://www.benimdavetim.com/hakkimizda): Platform ve ekip hakkında bilgi.
+- [İletişim](https://www.benimdavetim.com/contact): İletişim formu.
+
+## Yasal
+
+- [Gizlilik Politikası](https://www.benimdavetim.com/privacy)
+- [Kullanım Şartları](https://www.benimdavetim.com/terms)

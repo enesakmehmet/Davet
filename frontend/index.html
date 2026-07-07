@@ -28,7 +28,25 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Allura&family=Caveat:wght@600&family=Petit+Formal+Script&family=Sacramento&family=Cormorant+Garamond:wght@400;500&family=Dancing+Script:wght@600&family=Pacifico&display=swap" rel="stylesheet" />
+    <!--
+      Bu font seti (Great Vibes, Sacramento, Pacifico vb.) çoğunlukla Editör'ün canlı
+      davet önizlemesinde kullanılıyor, ana sayfanın kendisinde değil. Normal <link
+      rel="stylesheet"> render'ı bloklayıp First/Largest Contentful Paint'i ~4-5sn
+      geciktiriyordu (PageSpeed Insights). Bunun yerine dosyayı arka planda indirip
+      indirme bitince stylesheet'e çeviriyoruz; JS kapalıysa <noscript> devreye girer.
+    -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Allura&family=Caveat:wght@600&family=Petit+Formal+Script&family=Sacramento&family=Cormorant+Garamond:wght@400;500&family=Dancing+Script:wght@600&family=Pacifico&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Allura&family=Caveat:wght@600&family=Petit+Formal+Script&family=Sacramento&family=Cormorant+Garamond:wght@400;500&family=Dancing+Script:wght@600&family=Pacifico&display=swap"
+      />
+    </noscript>
     <title>Davetim — Animasyonlu Dijital Davetiye | Düğün, Kına, Doğum Günü</title>
   </head>
   <body>
