@@ -4,9 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
-import { redisConnection } from './config/redis.util';
 import { RedisThrottlerStorage } from './config/throttler-redis.storage';
 import { GuestPhotosModule } from './guest-photos/guest-photos.module';
 import { AppController } from './app.controller';
@@ -51,9 +49,8 @@ import { LeadsModule } from './leads/leads.module';
       // Sayaçlar Redis'te: birden fazla instance/replika olsa da limitler ortak işler
       storage: new RedisThrottlerStorage(),
     }),
-    BullModule.forRoot({
-      connection: redisConnection(),
-    }),
+    // Not: BullMQ/queue şu an hiçbir yerde kullanılmıyor (queue/processor yok) — kaldırıldı.
+    // İleride arka plan işi (ör. toplu e-posta, video render) gerekirse buraya geri eklenebilir.
     PrismaModule,
     AuthModule,
     UsersModule,
