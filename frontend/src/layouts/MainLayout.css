@@ -133,5 +133,8 @@
 
 /* ===== Footer: mobilde alt alta ===== */
 @media (max-width: 640px) {
-  .footer { flex-direction: column; gap: 32px; padding-top: 48px; padding-bottom: 48px; margin-top: 48px; }
+  .footer { flex-direction: column; flex-wrap: nowrap; gap: 32px; padding-top: 48px; padding-bottom: 48px; margin-top: 48px; }
+  /* Sütunlar row düzeninden kalan flex-grow:1 yüzünden dikey eksende gereksiz yer
+     kaplayıp bölümler arasında büyük boşluklar oluşturuyordu — burada sıfırlıyoruz. */
+  .footer-col, .footer-col.brand { flex: none; }
 }
