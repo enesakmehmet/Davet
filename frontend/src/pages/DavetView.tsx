@@ -60,7 +60,7 @@ const DavetView = () => {
     <iframe
       ref={iframeRef}
       title="Davetiye"
-      src="/davet-preview.html?v=20260702b"
+      src="/davet-preview.html?v=20260719a"
       style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', border: 0 }}
       onLoad={() => cfg && iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg }, '*')}
     />

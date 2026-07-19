@@ -62,12 +62,18 @@ export const THEMES: ThemeDef[] = [
   { key: 'gunbatimi', name: 'Gün Batımı Plajı', c1: '#f2825e', c2: '#7a4a78', category: 'dugun', dark: false, isNew: true },
   { key: 'yagliboya', name: 'Yağlı Boya', c1: '#8a4a5e', c2: '#f5efe4', category: 'dugun', dark: false, isNew: true },
   { key: 'ayna', name: 'Gümüş Ayna', c1: '#7a8294', c2: '#f5f6f8', category: 'dugun', dark: false, isNew: true },
+  { key: 'kismasali', name: 'Kış Masalı', c1: '#3f7096', c2: '#dceef5', category: 'dugun', dark: false, isNew: true },
+  { key: 'bordozarafet', name: 'Bordo Zarafet', c1: '#d9a45c', c2: '#e8c48a', category: 'dugun', dark: true, isNew: true },
+  { key: 'papatyatarlasi', name: 'Papatya Tarlası', c1: '#7a9c3d', c2: '#eaf2cf', category: 'dugun', dark: false, isNew: true },
   // ===== Dini Düğün =====
   { key: 'dini', name: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', category: 'dini', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', category: 'dini', dark: false, isNew: true },
   // ===== Doğum Günü =====
   { key: 'balon', name: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', category: 'dogumgunu', dark: false },
   { key: 'konfeti', name: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', category: 'dogumgunu', dark: true },
+  { key: 'uzaypartisi', name: 'Uzay Partisi', c1: '#7dd3ff', c2: '#bfe9ff', category: 'dogumgunu', dark: true, isNew: true },
+  { key: 'denizkizipartisi', name: 'Deniz Kızı Partisi', c1: '#2aa8a0', c2: '#c8f0ec', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'superkahraman', name: 'Süper Kahraman Partisi', c1: '#e63946', c2: '#ffd1d1', category: 'dogumgunu', dark: false, isNew: true },
   // ===== Kutlama =====
   { key: 'kutlamaPop', name: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', category: 'kutlama', dark: false },
   { key: 'kutlamaGece', name: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', category: 'kutlama', dark: true },
