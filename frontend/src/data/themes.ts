@@ -65,6 +65,12 @@ export const THEMES: ThemeDef[] = [
   { key: 'kismasali', name: 'Kış Masalı', c1: '#3f7096', c2: '#dceef5', category: 'dugun', dark: false, isNew: true },
   { key: 'bordozarafet', name: 'Bordo Zarafet', c1: '#d9a45c', c2: '#e8c48a', category: 'dugun', dark: true, isNew: true },
   { key: 'papatyatarlasi', name: 'Papatya Tarlası', c1: '#7a9c3d', c2: '#eaf2cf', category: 'dugun', dark: false, isNew: true },
+  { key: 'kutuphane', name: 'Kütüphane Aşkı', c1: '#c9a06a', c2: '#e8d4ae', category: 'dugun', dark: true, isNew: true },
+  { key: 'vintagevinil', name: 'Vintage Vinil', c1: '#d69f3e', c2: '#f3e2b8', category: 'dugun', dark: false, isNew: true },
+  { key: 'sehirisiklari', name: 'Şehir Işıkları', c1: '#5a7ca8', c2: '#c9d6e8', category: 'dugun', dark: true, isNew: true },
+  { key: 'coldgulu', name: 'Çöl Gülü', c1: '#b5562e', c2: '#f2d9be', category: 'dugun', dark: false, isNew: true },
+  { key: 'zeytinbahce', name: 'Zeytin Bahçesi', c1: '#6b7a3f', c2: '#e8e6c8', category: 'dugun', dark: false, isNew: true },
+  { key: 'kelebekbahce', name: 'Kelebek Bahçesi', c1: '#4fae8f', c2: '#d4f0e6', category: 'dugun', dark: false, isNew: true },
   // ===== Dini Düğün =====
   { key: 'dini', name: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', category: 'dini', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', category: 'dini', dark: false, isNew: true },

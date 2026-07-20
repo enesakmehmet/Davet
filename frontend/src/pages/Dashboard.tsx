@@ -609,7 +609,7 @@ const InvCard = ({ inv, views, onDelete, onDuplicate, onAlbum, deletingId }: any
           <iframe
             title="thumbnail"
             loading="lazy"
-            src={`/davet-preview.html?v=20260719a&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
+            src={`/davet-preview.html?v=20260719b&thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(inv?.config || {}))))}`}
             style={{ width: 1000, height: 1600, transform: 'scale(0.35)', transformOrigin: 'top left', border: 0, pointerEvents: 'none', position: 'absolute', top: 0, left: 0, maxWidth: 'none' }}
           />
         )}
