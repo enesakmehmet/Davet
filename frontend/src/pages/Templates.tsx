@@ -30,6 +30,7 @@ const CATEGORY_FILTERS: { code: ThemeCategory | 'all'; label: string }[] = [
   { code: 'all', label: 'Tümü' },
   { code: 'dugun', label: CATEGORY_LABEL.dugun },
   { code: 'dini', label: CATEGORY_LABEL.dini },
+  { code: 'kina', label: CATEGORY_LABEL.kina },
   { code: 'dogumgunu', label: CATEGORY_LABEL.dogumgunu },
   { code: 'kutlama', label: CATEGORY_LABEL.kutlama },
 ];

@@ -14,7 +14,7 @@ import './Editor.css';
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar.
    Veri artık ../data/themes.ts'den geliyor (Templates.tsx ile aynı tek kaynak) —
    burada sadece bu dosyanın geri kalanının kullandığı eski alan adlarına (label/cat) eşleniyor. */
-type Cat = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama';
+type Cat = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama' | 'kina';
 const THEMES: { key: string; label: string; c1: string; c2: string; cat: Cat; isNew?: boolean }[] =
   CANONICAL_THEMES.map((t) => ({ key: t.key, label: t.name, c1: t.c1, c2: t.c2, cat: t.category, isNew: t.isNew }));
 
@@ -22,7 +22,9 @@ const BIRTHDAY_KEYS = THEMES.filter((t) => t.cat === 'dogumgunu' || t.cat === 'k
 const isBirthdayTheme = (key: string) => BIRTHDAY_KEYS.includes(key);
 const CELEB_KEYS = THEMES.filter((t) => t.cat === 'kutlama').map((t) => t.key);
 const isCelebTheme = (key: string) => CELEB_KEYS.includes(key);
-const DINI_KEYS = THEMES.filter((t) => t.cat === 'dini').map((t) => t.key);
+// Kına gecesi temaları de görüntüleme motorunda 'dini' render yolunu kullanır
+// (besmele + kına gecesi kartı + dua) — bu yüzden form alanları da aynı şekilde açılır.
+const DINI_KEYS = THEMES.filter((t) => t.cat === 'dini' || t.cat === 'kina').map((t) => t.key);
 const isDiniTheme = (key: string) => DINI_KEYS.includes(key);
 
 /* Dini düğün temasına geçilince (kullanıcı hâlâ varsayılanlardaysa) uygulanan içerik */
@@ -201,7 +203,8 @@ const Editor = () => {
   const isDini = isDiniTheme(cfg.theme);
   const visibleSections = isCeleb ? CELEB_SECTIONS : SECTIONS;
   const [themeCat, setThemeCat] = useState<Cat>(
-    isCelebTheme(cfg.theme) ? 'kutlama' : isDiniTheme(cfg.theme) ? 'dini' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun'
+    () => THEMES.find((t) => t.key === cfg.theme)?.cat
+      ?? (isCelebTheme(cfg.theme) ? 'kutlama' : isDiniTheme(cfg.theme) ? 'dini' : isBirthdayTheme(cfg.theme) ? 'dogumgunu' : 'dugun')
   );
   // Tema kartı hover canlı önizlemesi (sadece fare olan cihazlarda)
   const [hoverTheme, setHoverTheme] = useState<string | null>(null);
@@ -438,7 +441,7 @@ const Editor = () => {
   };
 
   const downloadHtml = async () => {
-    const res = await fetch('/davet-preview.html?v=20260719b');
+    const res = await fetch('/davet-preview.html?v=20260719c');
     let html = await res.text();
     const inject = `<script>window.__INITIAL_CFG__=${JSON.stringify(cfg)};<\/script>`;
     html = html.replace('</head>', inject + '</head>');
@@ -918,7 +921,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-            <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260719b" onLoad={post} />
+            <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260719c" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>

@@ -9,13 +9,14 @@
  * şekilde tutulmalıdır — burayı değiştirirken oradaki THEMES tanımına da bakın.
  */
 
-export type ThemeCategory = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama';
+export type ThemeCategory = 'dugun' | 'dini' | 'dogumgunu' | 'kutlama' | 'kina';
 
 export const CATEGORY_LABEL: Record<ThemeCategory, string> = {
   dugun: 'Düğün',
   dini: 'Dini Düğün',
   dogumgunu: 'Doğum Günü',
   kutlama: 'Kutlama',
+  kina: 'Kına Gecesi',
 };
 
 export interface ThemeDef {
@@ -71,15 +72,46 @@ export const THEMES: ThemeDef[] = [
   { key: 'coldgulu', name: 'Çöl Gülü', c1: '#b5562e', c2: '#f2d9be', category: 'dugun', dark: false, isNew: true },
   { key: 'zeytinbahce', name: 'Zeytin Bahçesi', c1: '#6b7a3f', c2: '#e8e6c8', category: 'dugun', dark: false, isNew: true },
   { key: 'kelebekbahce', name: 'Kelebek Bahçesi', c1: '#4fae8f', c2: '#d4f0e6', category: 'dugun', dark: false, isNew: true },
+  { key: 'uzaydugunu', name: 'Uzay Düğünü', c1: '#8f7fd6', c2: '#c9bfee', category: 'dugun', dark: true, isNew: true },
+  { key: 'antikasaat', name: 'Antika Saat', c1: '#6a7a6a', c2: '#d4dcc8', category: 'dugun', dark: false, isNew: true },
+  { key: 'mercanresifi', name: 'Mercan Resifi', c1: '#ff8a65', c2: '#bdf0ea', category: 'dugun', dark: false, isNew: true },
+  { key: 'kutupisiklari', name: 'Kutup Işıkları', c1: '#5ad9c9', c2: '#b89fee', category: 'dugun', dark: true, isNew: true },
+  { key: 'sampanyabalosu', name: 'Şampanya Balosu', c1: '#d4a5a0', c2: '#f5e0dc', category: 'dugun', dark: false, isNew: true },
+  { key: 'lalebahcesi', name: 'Lale Bahçesi', c1: '#d94f4f', c2: '#ffe1a8', category: 'dugun', dark: false, isNew: true },
+  { key: 'safirgece', name: 'Safir Gece', c1: '#2a5ad9', c2: '#b8ccf5', category: 'dugun', dark: true, isNew: true },
+  { key: 'portakalbahcesi', name: 'Portakal Bahçesi', c1: '#e8a23d', c2: '#fff3d4', category: 'dugun', dark: false, isNew: true },
+  { key: 'gecetreni', name: 'Gece Treni', c1: '#b8863d', c2: '#e0c48a', category: 'dugun', dark: true, isNew: true },
+  { key: 'yesimtasi', name: 'Yeşim Taşı', c1: '#3d8a6a', c2: '#c8e8da', category: 'dugun', dark: false, isNew: true },
   // ===== Dini Düğün =====
   { key: 'dini', name: 'Zarif Besmele', c1: '#b08a3e', c2: '#f0e2bd', category: 'dini', dark: false, isNew: true },
   { key: 'diniYesil', name: 'Zümrüt Dua', c1: '#2e6b4f', c2: '#dcead9', category: 'dini', dark: false, isNew: true },
+  // ===== Kına Gecesi =====
+  { key: 'kinaklasik', name: 'Kına Gecesi Kırmızısı', c1: '#a8203d', c2: '#f0c8a8', category: 'kina', dark: true, isNew: true },
+  { key: 'altinyazmalar', name: 'Altın Yazmalar', c1: '#c9973d', c2: '#e8c98a', category: 'kina', dark: true, isNew: true },
+  { key: 'yasemingecesi', name: 'Yasemin Kokulu Gece', c1: '#5a8a5a', c2: '#e0f0d8', category: 'kina', dark: false, isNew: true },
+  { key: 'kadifebordo', name: 'Kadife Bordo', c1: '#d4af37', c2: '#8a1c3a', category: 'kina', dark: true, isNew: true },
+  { key: 'narcicegi', name: 'Nar Çiçeği', c1: '#d9522f', c2: '#f7d4b8', category: 'kina', dark: false, isNew: true },
+  { key: 'mistikfener', name: 'Mistik Fener', c1: '#e0a84a', c2: '#8a5a2a', category: 'kina', dark: true, isNew: true },
+  { key: 'serbetlianilar', name: 'Şerbetli Anılar', c1: '#c9707d', c2: '#f5dde0', category: 'kina', dark: false, isNew: true },
+  { key: 'osmanlimotif', name: 'Osmanlı Motifleri', c1: '#c9973d', c2: '#1c5a5a', category: 'kina', dark: true, isNew: true },
+  { key: 'kinatepsisi', name: 'Kına Tepsisi', c1: '#b5702a', c2: '#f0d4a8', category: 'kina', dark: false, isNew: true },
+  { key: 'mehndibahce', name: 'Mehndi Bahçesi', c1: '#7a2a3a', c2: '#e8d4a8', category: 'kina', dark: false, isNew: true },
   // ===== Doğum Günü =====
   { key: 'balon', name: 'Renkli Balon', c1: '#e84393', c2: '#ffd6e8', category: 'dogumgunu', dark: false },
   { key: 'konfeti', name: 'Konfeti Partisi', c1: '#120a24', c2: '#f5c542', category: 'dogumgunu', dark: true },
   { key: 'uzaypartisi', name: 'Uzay Partisi', c1: '#7dd3ff', c2: '#bfe9ff', category: 'dogumgunu', dark: true, isNew: true },
   { key: 'denizkizipartisi', name: 'Deniz Kızı Partisi', c1: '#2aa8a0', c2: '#c8f0ec', category: 'dogumgunu', dark: false, isNew: true },
   { key: 'superkahraman', name: 'Süper Kahraman Partisi', c1: '#e63946', c2: '#ffd1d1', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'dinozorpartisi', name: 'Dinozor Partisi', c1: '#4a8f3d', c2: '#d4ecc4', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'perimasali', name: 'Peri Masalı', c1: '#b07fd6', c2: '#f0e0fa', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'korsanadasi', name: 'Korsanlar Adası', c1: '#c9973d', c2: '#e8c98a', category: 'dogumgunu', dark: true, isNew: true },
+  { key: 'vahsisafari', name: 'Vahşi Safari', c1: '#c98a3d', c2: '#f0dcae', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'dondurmapartisi', name: 'Dondurma Partisi', c1: '#f2a5c4', c2: '#fde3ee', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'robotfabrikasi', name: 'Robot Fabrikası', c1: '#4a90c9', c2: '#cfe4f5', category: 'dogumgunu', dark: true, isNew: true },
+  { key: 'ormandostlari', name: 'Orman Dostları', c1: '#7a6a3f', c2: '#e8ddc0', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'gokkusagi', name: 'Gökkuşağı Bulutları', c1: '#e8a5d6', c2: '#fff4d4', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'retroarcade', name: 'Retro Oyun Salonu', c1: '#ff4fd8', c2: '#4fe0ff', category: 'dogumgunu', dark: true, isNew: true },
+  { key: 'ciftlikpartisi', name: 'Çiftlik Partisi', c1: '#a8442a', c2: '#f2ddc4', category: 'dogumgunu', dark: false, isNew: true },
   // ===== Kutlama =====
   { key: 'kutlamaPop', name: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', category: 'kutlama', dark: false },
   { key: 'kutlamaGece', name: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', category: 'kutlama', dark: true },
