@@ -373,7 +373,8 @@
   .env-card .ec-date{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.7}
   .env-gate.open .env-flap{transform:rotateX(-175deg)}
   .env-gate.open .env-card{transform:translateY(-46%) scale(1.06)}
-  .env-hint{position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;opacity:.85;white-space:nowrap;animation:intro-pulse 1.8s ease-in-out infinite;padding:9px 18px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+  .env-hint{position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;opacity:.85;white-space:nowrap;animation:env-hint-pulse 1.8s ease-in-out infinite;padding:9px 18px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+  @keyframes env-hint-pulse{0%,100%{transform:translateX(-50%) translateY(0);box-shadow:0 0 0 0 rgba(255,255,255,.24)}50%{transform:translateX(-50%) translateY(-2px);box-shadow:0 0 0 10px rgba(255,255,255,0)}}
   .env-gate.open .env-hint{opacity:0;transition:opacity .4s}
 
   /* ===== Çiçek patlaması introsu ===== */
