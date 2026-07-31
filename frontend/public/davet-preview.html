@@ -373,9 +373,39 @@
   .env-card .ec-date{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.7}
   .env-gate.open .env-flap{transform:rotateX(-175deg)}
   .env-gate.open .env-card{transform:translateY(-46%) scale(1.06)}
-  .env-hint{position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;opacity:.85;white-space:nowrap;animation:env-hint-pulse 1.8s ease-in-out infinite;padding:9px 18px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
+  .env-hint{position:absolute;bottom:-68px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#fff;opacity:.85;white-space:nowrap;animation:env-hint-pulse 1.8s ease-in-out infinite;padding:9px 18px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(8px)}
   @keyframes env-hint-pulse{0%,100%{transform:translateX(-50%) translateY(0);box-shadow:0 0 0 0 rgba(255,255,255,.24)}50%{transform:translateX(-50%) translateY(-2px);box-shadow:0 0 0 10px rgba(255,255,255,0)}}
   .env-gate.open .env-hint{opacity:0;transition:opacity .4s}
+
+  /* ===== Mühürlü kart: mühüre dokununca davetiye ışıkla açılır ===== */
+  .seal-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .8s,visibility .8s}
+  .seal-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .seal-sheet{position:relative;width:min(82vw,420px);padding:58px 30px 54px;text-align:center;background:#fffdf7;border-radius:5px;box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 0 0 8px rgba(255,255,255,.36);transition:transform 1s ease,opacity .7s ease}
+  .seal-sheet::before,.seal-sheet::after{content:'';position:absolute;inset:12px;border:1px solid currentColor;opacity:.25;pointer-events:none}.seal-sheet::after{inset:18px;border-style:dashed}
+  .seal-kicker{font-size:10px;letter-spacing:4px;text-transform:uppercase;opacity:.64}.seal-names{position:relative;margin:20px 0 10px;font-size:clamp(31px,9vw,54px);line-height:1.05}.seal-date{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;opacity:.65}
+  .seal-mark{position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-size:27px;box-shadow:0 8px 20px rgba(0,0,0,.28);transition:transform .8s ease,opacity .45s;animation:seal-bob 1.8s ease-in-out infinite}
+  @keyframes seal-bob{50%{transform:translateX(-50%) translateY(-5px)}}
+  .seal-gate.open .seal-sheet{transform:scale(1.08) rotate(-1deg);opacity:0}.seal-gate.open .seal-mark{transform:translateX(-50%) scale(2.5);opacity:0;animation:none}
+
+  /* ===== Yıldız geçidi: yıldızlar iki yana açılır ===== */
+  .star-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .8s,visibility .8s}.star-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .star-field{position:absolute;inset:0}.star-dot{position:absolute;color:#fff;opacity:.8;animation:star-tw 1.8s ease-in-out infinite}@keyframes star-tw{50%{opacity:.2;transform:scale(.55)}}
+  .star-card{position:relative;width:min(84vw,410px);padding:42px 26px;text-align:center;border:1px solid rgba(255,255,255,.42);border-radius:28px;background:rgba(13,18,43,.42);backdrop-filter:blur(12px);color:#fff;box-shadow:0 20px 65px rgba(0,0,0,.35);transition:transform .9s ease,opacity .6s}
+  .star-moon{font-size:42px;margin-bottom:12px}.star-card .star-names{font-size:clamp(31px,9vw,52px);line-height:1.08}.star-card p{margin-top:12px;font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.72}.star-gate.open .star-card{transform:translateY(-34px) scale(.88);opacity:0}.star-gate.open .star-dot{animation:star-fly .9s forwards}@keyframes star-fly{to{transform:translateY(-80vh) scale(0);opacity:0}}
+
+  /* ===== Kurdele: iki renkli kurdele ortadan ayrılır ===== */
+  .ribbon-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .8s,visibility .8s}.ribbon-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .ribbon-gate .ribbon{position:absolute;top:-8%;bottom:-8%;width:52%;transition:transform 1.25s cubic-bezier(.72,0,.2,1);box-shadow:inset 0 0 70px rgba(255,255,255,.18)}.ribbon-gate .ribbon.left{left:0;clip-path:polygon(0 0,100% 8%,90% 50%,100% 92%,0 100%)}.ribbon-gate .ribbon.right{right:0;clip-path:polygon(0 8%,100% 0,100% 100%,0 92%,10% 50%)}.ribbon-gate.open .ribbon.left{transform:translateX(-106%) rotate(-5deg)}.ribbon-gate.open .ribbon.right{transform:translateX(106%) rotate(5deg)}
+  .ribbon-note{position:relative;z-index:2;text-align:center;color:#fff;transition:opacity .35s}.ribbon-note b{display:block;font-size:clamp(34px,10vw,62px);line-height:1.04;font-family:'Cormorant Garamond',serif}.ribbon-note span{display:inline-block;margin-top:16px;padding:10px 20px;border:1px solid rgba(255,255,255,.58);border-radius:999px;font-size:11px;letter-spacing:2px}.ribbon-gate.open .ribbon-note{opacity:0}
+
+  /* ===== Kutlama balonları: balonlara dokununca gökyüzüne uçar ===== */
+  .balloon-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .8s,visibility .8s}.balloon-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .balloon{position:absolute;width:62px;height:76px;border-radius:50% 50% 48% 48%;box-shadow:inset -10px -10px 18px rgba(0,0,0,.14),inset 10px 9px 15px rgba(255,255,255,.28);transition:transform 1.2s cubic-bezier(.22,.7,.25,1),opacity .7s}.balloon::after{content:'';position:absolute;left:50%;top:72px;width:1px;height:92px;background:rgba(255,255,255,.72)}.balloon-center{position:relative;z-index:2;text-align:center;color:#fff;padding:28px}.balloon-center h2{font-size:clamp(34px,10vw,58px);line-height:1.04}.balloon-center p{margin-top:12px;font-size:11px;letter-spacing:2.5px;text-transform:uppercase}.balloon-gate.open .balloon{transform:translate(var(--x),-115vh) rotate(22deg);opacity:0}.balloon-gate.open .balloon-center{opacity:0;transition:opacity .35s}
+
+  /* ===== Film şeridi: kareler sahneden uzaklaşır ===== */
+  .film-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:opacity .8s,visibility .8s}.film-gate.done{opacity:0;visibility:hidden;pointer-events:none}
+  .film-strip{position:absolute;left:-6%;right:-6%;height:116px;background:repeating-linear-gradient(90deg,#111 0 22px,#e7d59c 22px 122px,#111 122px 144px);border-top:8px solid #111;border-bottom:8px solid #111;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform 1.2s cubic-bezier(.68,0,.23,1)}.film-strip.top{top:16%;transform:rotate(-4deg)}.film-strip.bottom{bottom:16%;transform:rotate(4deg)}.film-gate.open .film-strip.top{transform:translateX(-110%) rotate(-12deg)}.film-gate.open .film-strip.bottom{transform:translateX(110%) rotate(12deg)}
+  .film-title{position:relative;z-index:2;text-align:center;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.45);transition:opacity .3s}.film-title small{display:block;font-size:11px;letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}.film-title h2{font-size:clamp(36px,10vw,62px);line-height:1.02}.film-gate.open .film-title{opacity:0}
 
   /* ===== Çiçek patlaması introsu ===== */
   .fl-gate{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;overflow:hidden;transition:opacity .8s ease,visibility .8s ease}
@@ -618,11 +648,16 @@ function firstPhoto(cfg){
 function initials(name){
   return String(name||'').split(/\s+/).filter(function(x){return x && x!=='&';}).slice(0,2).map(function(x){return x.charAt(0).toUpperCase();}).join('');
 }
-/* İstenen açılış stilini seçip uygular: perde (varsayılan) | zarf | cicek */
+/* İstenen açılış stilini seçip uygular. Her stil ayrı bir sahne/etkileşim kullanır. */
 function showIntro(cfg,T,couple,isThumb,lang){
   var style = String((cfg&&cfg.introStyle)||'perde');
   if(style==='zarf') return showEnvelopeIntro(cfg,T,couple,isThumb,lang);
   if(style==='cicek') return showFlowerIntro(cfg,T,couple,isThumb,lang);
+  if(style==='muhur') return showSealIntro(cfg,T,couple,isThumb,lang);
+  if(style==='yildiz') return showStarIntro(cfg,T,couple,isThumb,lang);
+  if(style==='kurdele') return showRibbonIntro(cfg,T,couple,isThumb,lang);
+  if(style==='balon') return showBalloonIntro(cfg,T,couple,isThumb,lang);
+  if(style==='film') return showFilmIntro(cfg,T,couple,isThumb,lang);
   return showCurtainIntro(cfg,T,couple,isThumb,lang);
 }
 
@@ -685,6 +720,63 @@ function showFlowerIntro(cfg,T,couple,isThumb,lang){
   gate.addEventListener('touchend',open);
   document.body.appendChild(gate);
   if(!previewMode) setTimeout(open,4500);
+}
+
+function finishStageIntro(gate,previewMode,duration){
+  gate.classList.add('open');
+  setTimeout(function(){ if(previewMode) introPreviewDismissed=true; gate.classList.add('done'); setTimeout(function(){gate.remove();},850); },duration);
+}
+
+/* Mühür: kullanıcı mühüre dokunur, kart mührün etrafında açılır. */
+function showSealIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode=!!(cfg&&cfg.__showIntroPreview);
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate,.seal-gate,.star-gate,.ribbon-gate,.balloon-gate,.film-gate').forEach(function(x){x.remove();});
+  var gate=el('div','seal-gate');
+  gate.style.background='radial-gradient(circle at 50% 42%,'+T.soft+'77,transparent 37%),'+(T.dark?T.page:'#35291c');
+  gate.style.color=T.accent;
+  gate.innerHTML='<div class="seal-sheet"><div class="seal-kicker">Size özel bir davet</div><div class="seal-names" style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive;color:'+T.accent+'">'+esc(couple)+'</div><div class="seal-date">'+esc(fmtDate(cfg.date,lang))+'</div><button class="seal-mark" style="background:'+T.accent+'" aria-label="Daveti aç">'+esc(initials(couple))+'</button></div>';
+  var opened=false; function open(){if(opened)return;opened=true;finishStageIntro(gate,previewMode,900);} gate.addEventListener('click',open); document.body.appendChild(gate); if(!previewMode)setTimeout(open,4500);
+}
+
+/* Yıldızlar: gece göğü, yıldızlar uçarak dağılır. */
+function showStarIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode=!!(cfg&&cfg.__showIntroPreview),stars='';
+  for(var i=0;i<46;i++)stars+='<span class="star-dot" style="left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;font-size:'+(7+Math.random()*13)+'px;animation-delay:'+(Math.random()*1.8)+'s">✦</span>';
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate,.seal-gate,.star-gate,.ribbon-gate,.balloon-gate,.film-gate').forEach(function(x){x.remove();});
+  var gate=el('div','star-gate'); gate.style.background='radial-gradient(circle at 50% 35%,'+T.soft+'66,transparent 32%),linear-gradient(160deg,#101b42,'+(T.dark?T.page:'#20162e')+')';
+  gate.innerHTML='<div class="star-field">'+stars+'</div><div class="star-card"><div class="star-moon">☾</div><div class="star-names" style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive">'+esc(couple)+'</div><p>Yıldızlar eşliğinde davetlisin</p></div>';
+  var opened=false;function open(){if(opened)return;opened=true;finishStageIntro(gate,previewMode,1050);}gate.addEventListener('click',open);document.body.appendChild(gate);if(!previewMode)setTimeout(open,4500);
+}
+
+/* Kurdele: iki panel sahnenin iki yanına açılır. */
+function showRibbonIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode=!!(cfg&&cfg.__showIntroPreview);
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate,.seal-gate,.star-gate,.ribbon-gate,.balloon-gate,.film-gate').forEach(function(x){x.remove();});
+  var gate=el('div','ribbon-gate');gate.style.background=T.dark?T.page:'#2c2418';
+  gate.innerHTML='<div class="ribbon left" style="background:linear-gradient(145deg,'+T.accent+','+T.soft+')"></div><div class="ribbon right" style="background:linear-gradient(215deg,'+T.accent+','+T.soft+')"></div><div class="ribbon-note"><b style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive">'+esc(couple)+'</b><span>KURDELEYİ AÇ</span></div>';
+  var opened=false;function open(){if(opened)return;opened=true;finishStageIntro(gate,previewMode,1300);}gate.addEventListener('click',open);document.body.appendChild(gate);if(!previewMode)setTimeout(open,4500);
+}
+
+/* Balonlar: dokunuşla gökyüzüne yükselir. */
+function showBalloonIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode=!!(cfg&&cfg.__showIntroPreview),balloons='',colors=[T.accent,T.soft,'#f09cab','#f3ca63','#7ab4e1'];
+  for(var i=0;i<10;i++)balloons+='<i class="balloon" style="left:'+(2+i*10)+'%;top:'+(20+(i%4)*15)+'%;background:'+colors[i%colors.length]+';--x:'+((-90+Math.random()*180).toFixed(0))+'px"></i>';
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate,.seal-gate,.star-gate,.ribbon-gate,.balloon-gate,.film-gate').forEach(function(x){x.remove();});
+  var gate=el('div','balloon-gate');gate.style.background='linear-gradient(180deg,'+T.soft+' 0%,'+T.page+' 100%)';gate.innerHTML=balloons+'<div class="balloon-center"><h2 style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive;color:'+T.accent+'">'+esc(couple)+'</h2><p style="color:'+T.accent+'">Dokun, kutlama başlasın</p></div>';
+  var opened=false;function open(){if(opened)return;opened=true;finishStageIntro(gate,previewMode,1200);}gate.addEventListener('click',open);document.body.appendChild(gate);if(!previewMode)setTimeout(open,4500);
+}
+
+/* Film: iki film şeridi farklı yönlere kayarak davetiyeyi ortaya çıkarır. */
+function showFilmIntro(cfg,T,couple,isThumb,lang){
+  if(!introAllowed(cfg,isThumb)) return;
+  var previewMode=!!(cfg&&cfg.__showIntroPreview);
+  document.querySelectorAll('.env-gate,.intro-gate,.fl-gate,.seal-gate,.star-gate,.ribbon-gate,.balloon-gate,.film-gate').forEach(function(x){x.remove();});
+  var gate=el('div','film-gate');gate.style.background='radial-gradient(circle at 50% 45%,'+T.soft+'55,transparent 38%),'+(T.dark?T.page:'#15120f');gate.innerHTML='<div class="film-strip top"></div><div class="film-strip bottom"></div><div class="film-title"><small>Birlikte yeni bir sahne</small><h2 style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive">'+esc(couple)+'</h2></div>';
+  var opened=false;function open(){if(opened)return;opened=true;finishStageIntro(gate,previewMode,1250);}gate.addEventListener('click',open);document.body.appendChild(gate);if(!previewMode)setTimeout(open,4500);
 }
 
 function showCurtainIntro(cfg,T,couple,isThumb,lang){

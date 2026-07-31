@@ -699,6 +699,11 @@ const Editor = () => {
                     <option value="perde">🎬 Sinematik Perde (varsayılan)</option>
                     <option value="zarf">💌 Zarf Açılışı</option>
                     <option value="cicek">🌸 Çiçek Patlaması</option>
+                    <option value="muhur">🔖 Mühürlü Davetiye</option>
+                    <option value="yildiz">✨ Yıldız Geçidi</option>
+                    <option value="kurdele">🎀 Kurdele Açılışı</option>
+                    <option value="balon">🎈 Kutlama Balonları</option>
+                    <option value="film">🎞️ Film Şeridi</option>
                   </select>
                   <small className="hint">Misafir daveti ilk açtığında oynayan giriş animasyonu.</small>
                 </Field>
