@@ -44,6 +44,7 @@
 
 .dashboard-main {
   flex: 1;
+  min-width: 0;
   padding: 48px;
   overflow-y: auto;
 }
@@ -405,4 +406,16 @@
   .db-hero h2 { font-size: 18px; }
   .db-banner { font-size: 12.5px; padding: 10px 12px; }
   .settings-form { max-width: 100%; }
+  .db-notif-drop { width: min(320px, calc(100vw - 24px)); right: 0; }
+  .content-section { min-width: 0; }
+}
+
+@media (max-width: 380px) {
+  .dashboard-sidebar { padding-left: 10px; padding-right: 10px; }
+  .db-new { padding: 8px 10px; font-size: 12px; }
+  .db-user-name { display: none; }
+  .db-cards { grid-template-columns: 1fr; }
+  .db-count { gap: 5px; }
+  .db-count > div { padding: 8px 2px; }
+  .db-panel { padding: 13px; }
 }

@@ -233,7 +233,7 @@ const Editor = () => {
   };
   const hoverCfgUrl = (key: string) => {
     const preview = { ...cfgRef.current, theme: key, __skipIntro: true };
-    return `/davet-preview.html?thumb=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(preview))))}`;
+    return `/davet-preview.html?thumb=1&embed=1#cfg=${btoa(unescape(encodeURIComponent(JSON.stringify(preview))))}`;
   };
   // Aktif bölüm görünür değilse temaya dön (kutlama ↔ davet geçişinde)
   useEffect(() => {
@@ -1011,7 +1011,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-            <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?v=20260719c" onLoad={post} />
+          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20260731" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>

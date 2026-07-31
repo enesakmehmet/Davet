@@ -344,3 +344,12 @@ section { padding: 96px 0; }
   .lead-form { width: 100%; }
   .lead-form input { flex: 1; min-width: 0; }
 }
+
+@media (max-width: 360px) {
+  .hero-title { font-size: 34px; }
+  .mockup-frame { width: min(250px, calc(100vw - 44px)); height: auto; aspect-ratio: 310 / 630; }
+  .hero-visuals::before { width: 260px; height: 260px; }
+  .m-title { font-size: 34px; }
+  .m-countdown { gap: 5px; }
+  .m-countdown span { padding: 6px 5px; }
+}

@@ -9,9 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Amatic+SC:wght@700&family=Italianno&family=Sacramento&family=Pacifico&family=Caveat:wght@500;600&family=Allura&family=Petit+Formal+Script&family=Montserrat:wght@300;400;500;600&family=Mulish:wght@300;400;600&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Monoton&family=Amiri:ital,wght@0,400;0,700&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=IBM+Plex+Mono:wght@400;600&family=Shadows+Into+Light&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{font-family:'Montserrat',sans-serif;color:#444;overflow-x:hidden;background:#fff}
-  #app{min-height:100vh}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body{font-family:'Montserrat',sans-serif;color:#444;overflow-x:clip;background:#fff;min-width:0;overscroll-behavior-x:none}
+  #app{min-height:100vh;min-height:100dvh;max-width:100%;overflow:hidden}
+  img,video,canvas,svg{max-width:100%;height:auto}
+  .embedded-preview{scrollbar-width:none;-ms-overflow-style:none}
+  .embedded-preview::-webkit-scrollbar{display:none}
   section{padding:64px 24px;text-align:center;position:relative}
   .intro-gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#fff;background:#111;cursor:pointer;transition:opacity .75s ease,visibility .75s ease}
   .intro-gate.done{opacity:0;visibility:hidden;pointer-events:none}
@@ -411,7 +414,11 @@
 
   /* ===== Dar ekran / telefon önizleme uyumu ===== */
   @media(max-width:560px){
-    section{padding:52px 18px}
+    section{padding:48px 18px}
+    .intro-card{width:min(calc(100vw - 36px),520px);padding:22px 12px}
+    .intro-open{min-width:0;max-width:calc(100vw - 48px);padding:12px 18px;letter-spacing:2px}
+    .env-hint{max-width:calc(100vw - 32px);white-space:normal;text-align:center;line-height:1.35}
+    .dini-msg{max-width:calc(100vw - 42px);letter-spacing:1.8px}
     .names{font-size:clamp(44px,15vw,80px) !important}
     .countdown{gap:8px}
     .cd-box{min-width:0;flex:1 1 0;padding:14px 4px}
@@ -432,6 +439,13 @@
     .fab.music .mp-icon{width:23px;height:23px}
     .gal{max-width:100%}
   }
+  @media(max-width:360px){
+    section{padding-left:14px;padding-right:14px}
+    .intro-kicker{letter-spacing:3px}
+    .intro-date{letter-spacing:2px}
+    .btn{max-width:100%;justify-content:center}
+    .dini-card{padding:26px 18px}
+  }
   @media(max-width:380px){
     .cd-num{font-size:25px}
     .cd-lab{font-size:9px;letter-spacing:1px}
@@ -442,6 +456,7 @@
 <div id="app"></div>
 
 <script>
+if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embedded-preview');
 /* ============ TEMA ÖN AYARLARI ============ */
 var THEMES = {
   altin:    {label:'Zarif Altın', accent:'#9c7a31', soft:'#e8d6a8', dark:false, bg:'linear-gradient(160deg,#fbf7ef,#f3ead7)', page:'#fbf7ef', nameFont:'Great Vibes', decor:['✦'], decorKind:'rain'},

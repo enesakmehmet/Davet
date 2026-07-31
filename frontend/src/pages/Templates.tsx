@@ -40,10 +40,15 @@ const previewUrl = (key: string) => {
   return `/davet-preview.html#cfg=${cfg}`;
 };
 
+const embeddedPreviewUrl = (key: string) => {
+  const cfg = btoa(unescape(encodeURIComponent(JSON.stringify({ theme: key }))));
+  return `/davet-preview.html?embed=1#cfg=${cfg}`;
+};
+
 /** Kart içi küçük önizleme: thumb=1 → müzik otomatik çalmaz, intro/parallax kapalı (bkz. davet-preview.html isThumb). */
 const thumbPreviewUrl = (key: string) => {
   const cfg = btoa(unescape(encodeURIComponent(JSON.stringify({ theme: key }))));
-  return `/davet-preview.html?thumb=1#cfg=${cfg}`;
+  return `/davet-preview.html?thumb=1&embed=1#cfg=${cfg}`;
 };
 
 const Templates = () => {
@@ -233,7 +238,7 @@ const TemplatePreviewModal = ({ tpl, onClose }: { tpl: (typeof TEMPLATES)[number
           <X size={20} />
         </button>
         <div className="tpl-modal-phone">
-          <iframe title={`${tpl.name} büyük önizleme`} src={previewUrl(tpl.key)} style={{ width: '100%', height: '100%', border: 0 }} />
+          <iframe title={`${tpl.name} büyük önizleme`} src={embeddedPreviewUrl(tpl.key)} style={{ width: '100%', height: '100%', border: 0 }} />
         </div>
         <div className="tpl-modal-info">
           <span className="tc-category">{CATEGORY_LABEL[tpl.category]}</span>

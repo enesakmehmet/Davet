@@ -1,5 +1,5 @@
 /* ===== Davet Editörü — Premium altın-koyu ===== */
-.ed{height:100vh;display:flex;flex-direction:column;background:var(--color-bg,#fcfcfc);font-family:var(--font-sans,'Inter',sans-serif)}
+.ed{height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--color-bg,#fcfcfc);font-family:var(--font-sans,'Inter',sans-serif);overflow:hidden}
 
 /* Üst bar */
 .ed-head{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 20px;
@@ -141,10 +141,11 @@
 
   .ed-preview{display:none}
   .ed-preview.open{
-    display:flex;position:fixed;inset:0;z-index:80;padding:20px;
+    display:flex;position:fixed;inset:0;z-index:80;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(18px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
     background:radial-gradient(120% 120% at 50% 0%,#1c2740 0%,#0d1220 70%);align-items:center;justify-content:center;
+    overflow:hidden;
   }
-  .ed-preview.open .phone{width:min(340px,88vw);height:min(700px,82vh)}
+  .ed-preview.open .phone{width:min(340px,calc(100vw - 32px));max-width:calc(100vw - 32px);height:min(700px,calc(100dvh - 120px));max-height:calc(100dvh - 120px)}
   .ed-preview-close{
     display:flex;position:absolute;top:16px;right:16px;z-index:81;
     width:38px;height:38px;border-radius:50%;align-items:center;justify-content:center;
@@ -164,4 +165,9 @@
   .ed-head-r{gap:6px;overflow-x:auto;flex-shrink:0}
   .ed-btn{padding:8px 10px;font-size:12px;white-space:nowrap}
   .ed-published,.ed-saveerr{display:none}
+  .ed-preview.open{justify-content:center}
+  .ed-preview.open .phone{width:calc(100vw - 24px);max-width:calc(100vw - 24px);height:calc(100dvh - 104px);max-height:calc(100dvh - 104px);border-radius:28px;padding:8px}
+  .ed-preview.open .phone iframe{border-radius:21px}
+  .phone-top{top:11px}
+  .preview-hint{max-width:calc(100vw - 32px);text-align:center;line-height:1.35}
 }

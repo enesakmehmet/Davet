@@ -301,9 +301,23 @@
 }
 
 @media (max-width: 560px) {
+  .templates-page { padding-top: 34px; padding-bottom: 64px; }
+  .templates-header { margin-bottom: 28px; }
   .templates-title { font-size: 32px; }
+  .templates-subtitle { font-size: 15px; }
   .templates-grid { grid-template-columns: 1fr; gap: 24px; }
   .templates-toolbar { margin-bottom: 36px; gap: 16px; }
   .filter-tags { gap: 8px; }
   .filter-tag { padding: 7px 14px; font-size: 13px; }
+  .tc-info { padding: 18px; }
+  .tc-overlay { gap: 10px; padding: 14px; }
+  .btn-outline-white, .btn-primary-white { width: 100%; justify-content: center; }
+  .tpl-modal-backdrop { padding: 12px; }
+  .tpl-modal-phone { max-height: 56dvh; }
+}
+
+@media (max-width: 360px) {
+  .search-box { padding: 11px 14px; }
+  .filter-tags { justify-content: flex-start; }
+  .filter-tag { padding: 7px 11px; }
 }
