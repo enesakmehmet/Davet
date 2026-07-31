@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException, Logger, BadRequestException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { UpdateInvitationDto } from './dto/update-invitation.dto';
@@ -16,6 +16,12 @@ export class InvitationsService {
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto, userId: string) {
+    if (createInvitationDto.isPasswordProtected && !createInvitationDto.password) {
+      throw new BadRequestException('Şifre korumasını açmak için bir şifre belirlemelisiniz.');
+    }
+    if (createInvitationDto.password && createInvitationDto.password.length < 6) {
+      throw new BadRequestException('Davetiye şifresi en az 6 karakter olmalıdır.');
+    }
     // Yayınlamak için e-posta doğrulaması zorunlu (sahte hesap koruması)
     const owner = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -107,6 +113,10 @@ export class InvitationsService {
       if (!password) {
         throw new ForbiddenException('Bu davetiye şifre korumalıdır. Lütfen şifre giriniz.');
       }
+      if (!invitation.passwordHash) {
+        // Eski veya hatalı kayıtların 500 vermesi yerine sahibinin korumayı yeniden ayarlamasını sağla.
+        throw new ForbiddenException('Bu davetiyenin şifre ayarı eksik. Davetiye sahibi şifreyi yeniden belirlemelidir.');
+      }
       const bcrypt = require('bcrypt');
       const isMatch = await bcrypt.compare(password, invitation.passwordHash);
       if (!isMatch) {
@@ -126,6 +136,13 @@ export class InvitationsService {
     if (invitation.userId !== userId) throw new ForbiddenException('Bu davetiyeyi düzenleme yetkiniz yok.');
 
     const { pages, password, ...updateData } = updateInvitationDto as any;
+
+    if (updateData.isPasswordProtected === true && password === undefined && !invitation.passwordHash) {
+      throw new BadRequestException('Şifre korumasını açmak için bir şifre belirlemelisiniz.');
+    }
+    if (password && password.length < 6) {
+      throw new BadRequestException('Davetiye şifresi en az 6 karakter olmalıdır.');
+    }
 
     // Slug değişiyorsa çakışma kontrolü (özel link seçme desteği)
     if (updateData.slug && updateData.slug !== invitation.slug) {

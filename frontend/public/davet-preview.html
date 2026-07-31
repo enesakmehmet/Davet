@@ -939,9 +939,10 @@ function render(cfg){
   var s1=sec(); s1.innerHTML=titleHTML(cfg.greeting,isBday?t.bdayCelebrate:t.specialDay)+'<p class="lead" style="color:'+ink+'">'+esc(cfg.message)+'</p>'; wrap.appendChild(s1);
 
   /* HİKAYEMİZ */
-  if(cfg.story && cfg.story.length){
+  var storyItems=(cfg.story||[]).filter(function(it){return it&&String(it.when||'').trim()||it&&String(it.title||'').trim()||it&&String(it.text||'').trim();});
+  if(storyItems.length){
     var s2=sec(); var h='<div class="tl" style="--c:'+T.accent+'">';
-    cfg.story.forEach(function(it){h+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(it.when)+'</div><h4 style="color:'+T.accent+'">'+esc(it.title)+'</h4><p style="color:'+inkSoft+'">'+esc(it.text)+'</p></div>';});
+    storyItems.forEach(function(it){h+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(it.when)+'</div><h4 style="color:'+T.accent+'">'+esc(it.title)+'</h4><p style="color:'+inkSoft+'">'+esc(it.text)+'</p></div>';});
     h+='</div>'; s2.innerHTML=titleHTML(t.storyTitle,isBday?t.storyBday:t.storyWed)+h; wrap.appendChild(s2);
   }
 
@@ -972,17 +973,19 @@ function render(cfg){
   }
 
   /* GALERİ */
-  if(cfg.photos && cfg.photos.length){
+  var photos=(cfg.photos||[]).filter(function(photo){return typeof photo==='string'?photo.trim():photo&&String(photo.url||'').trim();});
+  if(photos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
-    g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
+    photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    g+='</div><div class="dots">'+photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
   }
 
   /* AİLELER */
-  if(cfg.families && cfg.families.length){
+  var families=(cfg.families||[]).filter(function(item){return item&&String(item.names||'').trim();});
+  if(families.length){
     var s6=sec(); var f='<div class="fam">';
-    cfg.families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+(isBday?esc(x.side):esc(x.side)+t.famSuffix)+'</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
+    families.forEach(function(x){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+(isBday?esc(x.side):esc(x.side)+t.famSuffix)+'</div><div class="n" style="color:'+ink+'">'+esc(x.names)+'</div></div>';});
     f+='</div>'; s6.innerHTML=titleHTML(isBday?t.famBday:t.famWed, t.famSub)+f; wrap.appendChild(s6);
   }
 
@@ -1002,6 +1005,8 @@ function render(cfg){
         '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnYes+'</button>'+
         '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">E-posta</label><input id="ge" type="email" autocomplete="email" placeholder="ornek@eposta.com" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">Telefon</label><input id="gp" type="tel" inputmode="tel" autocomplete="tel" placeholder="905551112233" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
         '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
         '<div class="field" id="xf">'+
           '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
@@ -1010,7 +1015,7 @@ function render(cfg){
           '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'">'+
         '</div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
-        '<button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>'+t.btnSend+'</button></form>'+
+        '<div id="re" style="display:none;margin:0 0 12px;color:#b3261e;font-size:13px"></div><button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>'+t.btnSend+'</button></form>'+
       '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
     '</div>';
   wrap.appendChild(s8);
@@ -1128,6 +1133,13 @@ function renderDini(cfg, T, wrap, x){
   wrap.appendChild(sW);
 
   /* EK BİLGİLER (kıyafet kodu, ulaşım, konaklama, canlı yayın) */
+  var diniStory=(cfg.story||[]).filter(function(item){return item&&(String(item.when||'').trim()||String(item.title||'').trim()||String(item.text||'').trim());});
+  if(diniStory.length){
+    var sStory=sec(); var storyHtml='<div class="tl" style="--c:'+T.accent+'">';
+    diniStory.forEach(function(item){storyHtml+='<div class="it"><div class="w" style="color:'+inkSoft+'">'+esc(item.when)+'</div><h4 style="color:'+T.accent+'">'+esc(item.title)+'</h4><p style="color:'+inkSoft+'">'+esc(item.text)+'</p></div>';});
+    storyHtml+='</div>'; sStory.innerHTML=titleHTML(t.storyTitle,t.storyWed)+storyHtml; wrap.appendChild(sStory);
+  }
+
   function xcard(ic,ti,p){return '<div class="card" style="background:'+surface+';border:1px solid '+border+'"><div class="ico">'+ic+'</div><h3 style="color:'+T.accent+'">'+ti+'</h3><p style="color:'+inkSoft+'">'+p+'</p></div>';}
   var extras=[];
   if(cfg.dressCode) extras.push(xcard('👗',t.lblDress,esc(cfg.dressCode)));
@@ -1140,17 +1152,19 @@ function renderDini(cfg, T, wrap, x){
   }
 
   /* GALERİ (opsiyonel) */
-  if(cfg.photos && cfg.photos.length){
+  var diniPhotos=(cfg.photos||[]).filter(function(photo){return typeof photo==='string'?photo.trim():photo&&String(photo.url||'').trim();});
+  if(diniPhotos.length){
     var s5=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
-    g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
+    diniPhotos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    g+='</div><div class="dots">'+diniPhotos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s5.innerHTML=titleHTML(t.galTitle, t.galSub)+g; wrap.appendChild(s5);
   }
 
   /* AİLELER (opsiyonel) */
-  if(cfg.families && cfg.families.length){
+  var diniFamilies=(cfg.families||[]).filter(function(item){return item&&String(item.names||'').trim();});
+  if(diniFamilies.length){
     var s6=sec(); var f='<div class="fam">';
-    cfg.families.forEach(function(fx){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(fx.side)+t.famSuffix+'</div><div class="n" style="color:'+ink+'">'+esc(fx.names)+'</div></div>';});
+    diniFamilies.forEach(function(fx){f+='<div class="fc" style="background:'+surface+';border:1px solid '+border+'"><div class="s" style="color:'+inkSoft+'">'+esc(fx.side)+t.famSuffix+'</div><div class="n" style="color:'+ink+'">'+esc(fx.names)+'</div></div>';});
     f+='</div>'; s6.innerHTML=titleHTML(t.famWed, t.famSub)+f; wrap.appendChild(s6);
   }
 
@@ -1162,6 +1176,8 @@ function renderDini(cfg, T, wrap, x){
         '<button type="button" data-v="evet" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnYes+'</button>'+
         '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">E-posta</label><input id="ge" type="email" autocomplete="email" placeholder="ornek@eposta.com" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
+        '<div class="field"><label style="color:'+inkSoft+'">Telefon</label><input id="gp" type="tel" inputmode="tel" autocomplete="tel" placeholder="905551112233" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
         '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:#fff"></div>'+
         '<div class="field" id="xf">'+
           '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
@@ -1170,6 +1186,7 @@ function renderDini(cfg, T, wrap, x){
           '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:#fff">'+
         '</div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:#fff"></textarea></div>'+
+        '<div id="re" style="display:none;margin:0 0 12px;color:#b3261e;font-size:13px"></div>'+
         '<button type="submit" class="send" id="sb" style="background:linear-gradient(120deg,#8a6420,'+T.accent+' 50%,#8a6420);color:#fff8e3;opacity:.5" disabled>'+t.btnSend+' ✦</button></form>'+
       '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
     '</div>';
@@ -1250,10 +1267,11 @@ function renderCelebration(cfg, T, wrap, x){
   wrap.appendChild(sCake);
 
   /* GALERİ */
-  if(cfg.photos && cfg.photos.length){
+  var celebrationPhotos=(cfg.photos||[]).filter(function(photo){return typeof photo==='string'?photo.trim():photo&&String(photo.url||'').trim();});
+  if(celebrationPhotos.length){
     var s2=sec(); var g='<div class="gal" style="background:'+surface+';border:1px solid '+border+'"><div class="fr"></div>';
-    cfg.photos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
-    g+='</div><div class="dots">'+cfg.photos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
+    celebrationPhotos.forEach(function(src,i){var u=escUrl(typeof src==='string'?src:(src.url||''));var cap=typeof src==='string'?'':(src.caption||'');var capHtml=cap?'<div class="sl-cap">'+esc(cap)+'</div>':'';g+='<div class="sl'+(i===0?' on':'')+'"><div class="bg" style="background-image:url(\''+u+'\')"></div><div class="fg" style="background-image:url(\''+u+'\')"></div>'+capHtml+'</div>';});
+    g+='</div><div class="dots">'+celebrationPhotos.map(function(_,i){return '<span class="'+(i===0?'on':'')+'" style="background:'+T.accent+'"></span>';}).join('')+'</div>';
     s2.innerHTML=titleHTML('Anılarımız','Birlikte güzel anlar')+g; wrap.appendChild(s2);
   }
 
@@ -1777,6 +1795,63 @@ function setupRSVP(cfg, couple, T){
     document.getElementById('wl').href='https://wa.me/'+phone+'?text='+waText;
     document.getElementById('th').classList.add('show');});
 }
+/* RSVP'nin güvenilir sürümü: kayıt başarılı olmadan teşekkür ekranını göstermez. */
+function setupRSVP(cfg, couple, T){
+  var ownerPhone=String(cfg.phone||'').replace(/\D/g,'');
+  var choice=null, buttons=document.querySelectorAll('.choice button');
+  buttons.forEach(function(button){button.addEventListener('click',function(){
+    buttons.forEach(function(item){item.style.background='transparent';});
+    button.style.background=T.soft; choice=button.getAttribute('data-v');
+    var show=choice==='evet'?'block':'none';
+    var countField=document.getElementById('cf'); if(countField)countField.style.display=show;
+    var extraField=document.getElementById('xf'); if(extraField)extraField.style.display=show;
+    var submit=document.getElementById('sb'); if(submit){submit.disabled=false;submit.style.opacity='1';}
+  });});
+  var form=document.getElementById('rf'); if(!form)return;
+  var deadline=cfg.rsvpDeadlineDate?new Date(cfg.rsvpDeadlineDate+'T23:59:59'):null;
+  if(deadline&&!isNaN(deadline.getTime())&&deadline.getTime()<Date.now()){
+    var deadlineError=document.getElementById('re');
+    var deadlineSubmit=document.getElementById('sb');
+    if(deadlineError){deadlineError.textContent='Kat\u0131l\u0131m bildirim s\u00fcresi sona erdi.';deadlineError.style.display='block';}
+    if(deadlineSubmit){deadlineSubmit.disabled=true;deadlineSubmit.style.opacity='.55';deadlineSubmit.textContent='S\u00fcre sona erdi';}
+    buttons.forEach(function(button){button.disabled=true;});
+    return;
+  }
+  form.addEventListener('submit',function(event){event.preventDefault();
+    var name=document.getElementById('gn').value.trim();
+    var emailEl=document.getElementById('ge'), phoneEl=document.getElementById('gp');
+    var email=emailEl?emailEl.value.trim():'';
+    var guestPhone=phoneEl?phoneEl.value.replace(/\D/g,''):'';
+    var error=document.getElementById('re');
+    var submit=document.getElementById('sb');
+    function fail(message){if(error){error.textContent=message;error.style.display='block';}if(submit){submit.disabled=false;submit.style.opacity='1';submit.textContent=T.btnSend||'Gonder';}}
+    if(!choice)return fail('Lutfen katilim durumunuzu secin.');
+    if(!name)return fail('Lutfen adinizi yazin.');
+    if(!email&&!guestPhone)return fail('Lutfen e-posta veya telefon numaranizi yazin.');
+    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return fail('Gecerli bir e-posta adresi yazin.');
+    if(guestPhone&&!/^\d{8,15}$/.test(guestPhone))return fail('Gecerli bir telefon numarasi yazin.');
+    if(error)error.style.display='none';
+    if(submit){submit.disabled=true;submit.style.opacity='.65';submit.textContent='Gonderiliyor...';}
+    var coming=choice==='evet', count=(document.getElementById('gc').value||1);
+    var mealEl=document.getElementById('gmeal'), allergyEl=document.getElementById('gallergy');
+    var meal=coming&&mealEl?mealEl.value:'', allergy=coming&&allergyEl?allergyEl.value.trim():'';
+    var payload={invitationId:cfg.invitationId,name:name,email:email||undefined,phone:guestPhone||undefined,status:coming?'attending':'not_attending',companionCount:coming?parseInt(count,10)||1:0,message:(document.getElementById('gm').value||'').trim()};
+    if(meal)payload.mealPreference=meal; if(allergy)payload.allergyNote=allergy;
+    function success(){
+      form.style.display='none'; document.getElementById('tt').textContent=coming?'Harika, gorusmek uzere!':'Anlayisiniz icin tesekkurler';
+      document.getElementById('tm').textContent=coming?name+', '+count+' kisilik katiliminiz alindi.':name+', katilamayacaginizi bildirdiniz.';
+      var wa=document.getElementById('wl');
+      if(ownerPhone&&/^\d{8,15}$/.test(ownerPhone)){wa.href='https://wa.me/'+ownerPhone+'?text='+encodeURIComponent((coming?'Katilacagim':'Katilamayacagim')+'\nAd: '+name);}
+      else if(wa){wa.style.display='none';}
+      document.getElementById('th').classList.add('show');
+    }
+    if(!cfg.invitationId||!cfg.apiBase)return success();
+    fetch(cfg.apiBase.replace(/\/$/,'')+'/guests',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(response){if(!response.ok)return response.json().catch(function(){return {};}).then(function(body){throw new Error(body.message||'Katilim bildirimi kaydedilemedi.');});return response.json();})
+      .then(success).catch(function(err){fail((err&&err.message)||'Katilim bildirimi kaydedilemedi. Lutfen tekrar deneyin.');});
+  });
+}
+
 function fmtICS(d){
   return d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + 'T' + 
          ('0'+d.getHours()).slice(-2) + ('0'+d.getMinutes()).slice(-2) + ('0'+d.getSeconds()).slice(-2);

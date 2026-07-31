@@ -4,6 +4,9 @@
 export const slugify = (s: string): string =>
   (s || '')
     .toLowerCase()
+    // "İ" küçük harfe dönerken görünmez nokta işareti (combining dot) üretir;
+    // normalize etmek özel bağlantının "gul-i-rem" yerine "gul-irem" kalmasını sağlar.
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u')
     .replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c')
     .replace(/[^a-z0-9]+/g, '-')

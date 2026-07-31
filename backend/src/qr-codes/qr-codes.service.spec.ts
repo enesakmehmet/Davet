@@ -19,7 +19,7 @@ describe('QrCodesService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     prisma = {
-      invitation: { findUnique: jest.fn() },
+      invitation: { findFirst: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -34,22 +34,22 @@ describe('QrCodesService', () => {
   });
 
   it('davetiye yoksa NotFoundException fırlatır (generateQRCode)', async () => {
-    prisma.invitation.findUnique.mockResolvedValue(null);
-    await expect(service.generateQRCode('yok')).rejects.toBeInstanceOf(NotFoundException);
+    prisma.invitation.findFirst.mockResolvedValue(null);
+    await expect(service.generateQRCode('yok', 'u1')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('davetiye yoksa NotFoundException fırlatır (generateQRCodeBuffer)', async () => {
-    prisma.invitation.findUnique.mockResolvedValue(null);
-    await expect(service.generateQRCodeBuffer('yok')).rejects.toBeInstanceOf(NotFoundException);
+    prisma.invitation.findFirst.mockResolvedValue(null);
+    await expect(service.generateQRCodeBuffer('yok', 'u1')).rejects.toBeInstanceOf(NotFoundException);
   });
 
   // Regresyon testi: QR kod, gerçek davet route'u olan /davet/{slug} adresine işaret etmeli.
   // (Daha önce yanlışlıkla var olmayan /invitation/{slug} route'una işaret ediyordu.)
   it('QR kod, /davet/{slug} bağlantısını kodlamalı, /invitation/{slug} DEĞİL', async () => {
-    prisma.invitation.findUnique.mockResolvedValue({ slug: 'ayse-mehmet-a1b2' });
+    prisma.invitation.findFirst.mockResolvedValue({ slug: 'ayse-mehmet-a1b2', userId: 'u1' });
     process.env.FRONTEND_URL = 'https://example.com';
 
-    const dataUrl = await service.generateQRCode('inv1');
+    const dataUrl = await service.generateQRCode('inv1', 'u1');
 
     expect(QRCode.toDataURL).toHaveBeenCalledWith('https://example.com/davet/ayse-mehmet-a1b2', expect.any(Object));
     expect(dataUrl).toBe('data:image/png;base64,xyz');
@@ -58,10 +58,10 @@ describe('QrCodesService', () => {
   });
 
   it('generateQRCodeBuffer de /davet/{slug} bağlantısını kullanmalı', async () => {
-    prisma.invitation.findUnique.mockResolvedValue({ slug: 'zeynep-ahmet-c3d4' });
+    prisma.invitation.findFirst.mockResolvedValue({ slug: 'zeynep-ahmet-c3d4', userId: 'u1' });
     process.env.FRONTEND_URL = 'https://example.com';
 
-    await service.generateQRCodeBuffer('inv2');
+    await service.generateQRCodeBuffer('inv2', 'u1');
 
     expect(QRCode.toBuffer).toHaveBeenCalledWith('https://example.com/davet/zeynep-ahmet-c3d4', expect.any(Object));
 

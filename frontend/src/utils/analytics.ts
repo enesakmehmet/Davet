@@ -42,7 +42,8 @@ function initMetaPixel(pixelId: string) {
   n.queue = [];
   n.loaded = true;
   n.version = '2.0';
-  window.fbq = n;
+  const fbq = n as NonNullable<Window['fbq']>;
+  window.fbq = fbq;
   window._fbq = n;
 
   const script = document.createElement('script');
@@ -50,8 +51,8 @@ function initMetaPixel(pixelId: string) {
   script.src = 'https://connect.facebook.net/en_US/fbevents.js';
   document.head.appendChild(script);
 
-  window.fbq('init', pixelId);
-  window.fbq('track', 'PageView');
+  fbq('init', pixelId);
+  fbq('track', 'PageView');
 }
 
 export function initAnalytics() {

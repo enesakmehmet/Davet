@@ -9,6 +9,7 @@ import {
 import { invitationService, assetService } from '../services/api';
 import { slugify } from '../utils/format';
 import { THEMES as CANONICAL_THEMES } from '../data/themes';
+import MapPicker from '../components/MapPicker';
 import './Editor.css';
 
 /* Onizleme motorundaki temalarla birebir ayni anahtarlar.
@@ -26,6 +27,15 @@ const isCelebTheme = (key: string) => CELEB_KEYS.includes(key);
 // (besmele + kına gecesi kartı + dua) — bu yüzden form alanları da aynı şekilde açılır.
 const DINI_KEYS = THEMES.filter((t) => t.cat === 'dini' || t.cat === 'kina').map((t) => t.key);
 const isDiniTheme = (key: string) => DINI_KEYS.includes(key);
+
+const isHttpUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+};
 
 /* Dini düğün temasına geçilince (kullanıcı hâlâ varsayılanlardaysa) uygulanan içerik */
 const DINI_CONTENT: Partial<Cfg> = {
@@ -100,7 +110,7 @@ type Cfg = {
   photos: any[]; // Backward uyumluluk için any kullanıp çalışma anında nesneye dönüştürüyoruz
   families: Family[];
   story: Story[];
-  rsvpDeadline: string; phone: string;
+  rsvpDeadline: string; rsvpDeadlineDate?: string; phone: string;
   // dini düğün modu (kına gecesi + dua)
   kinaDate?: string; kinaVenueName?: string; kinaVenueCity?: string; kinaMapQuery?: string; dua?: string;
   // görsel kişiselleştirme
@@ -140,7 +150,7 @@ const DEFAULT_CFG: Cfg = {
     { when: '2022', title: 'İlk Seyahat', text: 'Birlikte çıktığımız ilk yolculukta birbirimize bağlandık.' },
     { when: '2025', title: 'Teklif', text: 'Mum ışığında bir evet ile yollarımızı birleştirdik.' },
   ],
-  rsvpDeadline: '1 Eylül', phone: '905555555555',
+  rsvpDeadline: '1 Eylül', rsvpDeadlineDate: '2026-09-01', phone: '905555555555',
   kinaDate: '', kinaVenueName: '', kinaVenueCity: '', kinaMapQuery: '', dua: '',
   introStyle: 'perde', nameFont: '',
   liveStreamUrl: '', accommodation: '', dressCode: '', transport: '',
@@ -246,6 +256,7 @@ const Editor = () => {
   cfgRef.current = cfg;
   
   const [isProtected, setIsProtected] = useState(false);
+  const [storedPasswordProtection, setStoredPasswordProtection] = useState(false);
   const [password, setPassword] = useState('');
   const [customSlug, setCustomSlug] = useState(''); // kullanıcı kendi linkini seçebilsin
 
@@ -277,7 +288,7 @@ const Editor = () => {
           if (inv.config) setCfg(normalizeCfg(inv.config));
           if (inv.id) idRef.current = inv.id;
           if (inv.slug) setSavedSlug(inv.slug);
-          if (inv.isPasswordProtected) setIsProtected(true);
+          if (inv.isPasswordProtected) { setIsProtected(true); setStoredPasswordProtection(true); }
           localStorage.removeItem('davetim_edit_temp');
           return;
         }
@@ -290,7 +301,7 @@ const Editor = () => {
               if (inv.config) setCfg(normalizeCfg(inv.config));
               idRef.current = inv.id;
               setSavedSlug(inv.slug);
-              if (inv.isPasswordProtected) setIsProtected(true);
+              if (inv.isPasswordProtected) { setIsProtected(true); setStoredPasswordProtection(true); }
             })
             .catch(() => { /* giriş yoksa / hata olursa varsayılanla devam */ });
           return;
@@ -306,7 +317,7 @@ const Editor = () => {
         setCfg(normalizeCfg(draft.cfg));
         if (draft.id) idRef.current = draft.id;
         if (draft.slug) setSavedSlug(draft.slug);
-        if (draft.isProtected) setIsProtected(true);
+        if (draft.isProtected) { setIsProtected(true); setStoredPasswordProtection(true); }
       } else {
         localStorage.removeItem(DRAFT_KEY);
       }
@@ -466,6 +477,30 @@ const Editor = () => {
     if (!isCeleb && !cfg.venueName?.trim()) {
       return { section: 'venue', message: 'Lütfen mekan adını girin.' };
     }
+    if (!isCeleb && !cfg.rsvpDeadlineDate) {
+      return { section: 'rsvp', message: 'Lütfen RSVP için son bildirim tarihini seçin.' };
+    }
+    if (!isCeleb && cfg.rsvpDeadlineDate && new Date(`${cfg.rsvpDeadlineDate}T23:59:59`).getTime() < Date.now()) {
+      return { section: 'rsvp', message: 'RSVP son bildirim tarihi geçmişte olamaz.' };
+    }
+    if (!isCeleb && !/^\d{8,15}$/.test(String(cfg.phone || '').replace(/\D/g, ''))) {
+      return { section: 'rsvp', message: 'Lütfen geçerli bir WhatsApp numarası girin (ülke kodu ile, + olmadan).' };
+    }
+    if (isProtected && !password && !storedPasswordProtection) {
+      return { section: 'settings', message: 'Şifre koruması için bir şifre belirleyin.' };
+    }
+    if (isProtected && password && password.length < 6) {
+      return { section: 'settings', message: 'Davetiye şifresi en az 6 karakter olmalı.' };
+    }
+    if (cfg.musicUrl && !isHttpUrl(cfg.musicUrl)) {
+      return { section: 'music', message: 'Müzik bağlantısı geçerli bir http/https adresi olmalı.' };
+    }
+    if (cfg.liveStreamUrl && !isHttpUrl(cfg.liveStreamUrl)) {
+      return { section: 'venue', message: 'Canlı yayın bağlantısı geçerli bir http/https adresi olmalı.' };
+    }
+    if (cfg.photos.some((photo: any) => photo?.url && !isHttpUrl(String(photo.url)))) {
+      return { section: 'photos', message: 'Fotoğraf bağlantıları geçerli bir http/https adresi olmalı.' };
+    }
     return null;
   };
 
@@ -501,6 +536,8 @@ const Editor = () => {
         idRef.current = inv.id;
         setSavedSlug(inv.slug);
       }
+      setStoredPasswordProtection(isProtected);
+      setPassword('');
     } catch (err: any) {
       setSaveError(err?.response?.data?.message || 'Kaydedilemedi. Lütfen tekrar deneyin.');
     } finally {
@@ -516,6 +553,12 @@ const Editor = () => {
     setCfg((c) => ({ ...c, [key]: [...(c[key] as any[]), val] }));
   const delArr = (key: 'photos' | 'families' | 'story', idx: number) =>
     setCfg((c) => ({ ...c, [key]: (c[key] as any[]).filter((_, i) => i !== idx) }));
+  const removePhoto = async (idx: number) => {
+    const url = String(cfg.photos[idx]?.url || '');
+    delArr('photos', idx);
+    const id = url.match(/\/assets\/file\/([0-9a-f-]{36})/i)?.[1];
+    if (id) await assetService.remove(id).catch(() => undefined);
+  };
 
   return (
     <div className="ed">
@@ -575,6 +618,9 @@ const Editor = () => {
                 </button>
                 <button className={`cat-tab ${themeCat === 'dini' ? 'on' : ''}`} onClick={() => setThemeCat('dini')}>
                   🕌 Dini Düğün
+                </button>
+                <button className={`cat-tab ${themeCat === 'kina' ? 'on' : ''}`} onClick={() => setThemeCat('kina')}>
+                  🌹 Kına Gecesi
                 </button>
                 <button className={`cat-tab ${themeCat === 'dogumgunu' ? 'on' : ''}`} onClick={() => setThemeCat('dogumgunu')}>
                   🎂 Doğum Günü Daveti
@@ -683,10 +729,16 @@ const Editor = () => {
               <Field label="Mekan adı"><input value={cfg.venueName} onChange={(e) => set('venueName', e.target.value)} /></Field>
               <Field label="Şehir / İlçe"><input value={cfg.venueCity} onChange={(e) => set('venueCity', e.target.value)} /></Field>
               <Field label="Karşılama notu"><input value={cfg.reception} onChange={(e) => set('reception', e.target.value)} /></Field>
-              <Field label="Harita araması (Google Maps'te aranacak metin)">
-                <input value={cfg.mapQuery} onChange={(e) => set('mapQuery', e.target.value)} />
-                <small className="hint">Örn: "Çırağan Sarayı İstanbul". Harita ve yol tarifi bu metne göre çalışır.</small>
-              </Field>
+              <MapPicker
+                value={cfg.mapQuery}
+                onLocationSelect={({ mapQuery, venueName, venueCity }) => setCfg((current) => ({
+                  ...current,
+                  mapQuery,
+                  venueName: venueName || current.venueName,
+                  venueCity: venueCity || current.venueCity,
+                }))}
+              />
+              {!cfg.venueName.trim() && <small className="field-warning">Konum seçildiğinde mekan adı bulunamazsa, yayınlamadan önce mekan adını yazın.</small>}
 
               {!isCeleb && (
                 <>
@@ -717,10 +769,16 @@ const Editor = () => {
                   </Field>
                   <Field label="Kına mekanı"><input value={cfg.kinaVenueName || ''} onChange={(e) => set('kinaVenueName', e.target.value)} /></Field>
                   <Field label="Kına şehir / ilçe"><input value={cfg.kinaVenueCity || ''} onChange={(e) => set('kinaVenueCity', e.target.value)} /></Field>
-                  <Field label="Kına harita araması">
-                    <input value={cfg.kinaMapQuery || ''} onChange={(e) => set('kinaMapQuery', e.target.value)} />
-                    <small className="hint">Kına kartındaki "Yol Tarifi Al" butonu bu metne göre çalışır.</small>
-                  </Field>
+                  <MapPicker
+                    value={cfg.kinaMapQuery}
+                    onLocationSelect={({ mapQuery, venueName, venueCity }) => setCfg((current) => ({
+                      ...current,
+                      kinaMapQuery: mapQuery,
+                      kinaVenueName: venueName || current.kinaVenueName,
+                      kinaVenueCity: venueCity || current.kinaVenueCity,
+                    }))}
+                  />
+                  {!String(cfg.kinaVenueName || '').trim() && <small className="field-warning">Kına kartı için mekan adını yazmanız önerilir.</small>}
                 </>
               )}
             </div>
@@ -793,7 +851,7 @@ const Editor = () => {
                   >
                     <UploadCloud size={14} />
                   </button>
-                  <button className="icon-del" onClick={() => delArr('photos', i)}><Trash2 size={14} /></button>
+                  <button className="icon-del" type="button" title="Fotoğrafı kaldır" onClick={() => removePhoto(i)}><Trash2 size={14} /></button>
                 </div>
               ))}
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -808,10 +866,10 @@ const Editor = () => {
               <h3>Arka Plan Müziği</h3>
               <p className="grp-sub">Davette sağ altta bir müzik düğmesi belirir; misafir dokununca çalar (tarayıcı kuralları gereği otomatik başlamaz).</p>
 
-              <label className="switch-row">
+              <div className="switch-row">
                 <span>Arka plan müziğini göster</span>
-                <span className={`switch ${cfg.music ? 'on' : ''}`} onClick={() => set('music', !cfg.music)}><span className="knob" /></span>
-              </label>
+                <button type="button" className={`switch ${cfg.music ? 'on' : ''}`} role="switch" aria-checked={cfg.music} aria-label="Arka plan müziğini göster" onClick={() => set('music', !cfg.music)}><span className="knob" /></button>
+              </div>
 
               <div className="field-row" style={{ marginTop: 18 }}>
                 <label>MP3 yükle (bilgisayardan)</label>
@@ -829,7 +887,12 @@ const Editor = () => {
                 <div className="field-row">
                   <label>Seçili müzik</label>
                   <audio controls src={cfg.musicUrl} style={{ width: '100%' }} />
-                  <button className="add-btn" style={{ marginTop: 8 }} onClick={() => set('musicUrl', '')}>Müziği kaldır</button>
+                  <button className="add-btn" style={{ marginTop: 8 }} onClick={async () => {
+                    const url = cfg.musicUrl;
+                    set('musicUrl', '');
+                    const id = url.match(/\/assets\/file\/([0-9a-f-]{36})/i)?.[1];
+                    if (id) await assetService.remove(id).catch(() => undefined);
+                  }}>Müziği kaldır</button>
                 </div>
               )}
             </div>
@@ -838,9 +901,22 @@ const Editor = () => {
           {active === 'rsvp' && (
             <div className="grp">
               <h3>RSVP (Katılım Bildirimi)</h3>
-              <Field label="Son bildirim tarihi (metin)"><input value={cfg.rsvpDeadline} onChange={(e) => set('rsvpDeadline', e.target.value)} /></Field>
+              <Field label="Son bildirim tarihi">
+                <input
+                  type="date"
+                  value={cfg.rsvpDeadlineDate || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const display = value
+                      ? new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long' }).format(new Date(`${value}T12:00:00`))
+                      : '';
+                    setCfg((current) => ({ ...current, rsvpDeadlineDate: value, rsvpDeadline: display }));
+                  }}
+                />
+                <small className="hint">Bu tarihten sonra katılım formu otomatik kapanır.</small>
+              </Field>
               <Field label="WhatsApp numarası (ülke kodu ile, + olmadan)">
-                <input value={cfg.phone} onChange={(e) => set('phone', e.target.value)} placeholder="905551112233" />
+                <input value={cfg.phone} inputMode="tel" onChange={(e) => set('phone', e.target.value.replace(/\D/g, ''))} placeholder="905551112233" />
                 <small className="hint">Misafirlerin "WhatsApp ile bildir" yanıtları bu numaraya gelir.</small>
               </Field>
             </div>
@@ -877,6 +953,9 @@ const Editor = () => {
             <div className="grp">
               <h3>Davetiye Ayarları</h3>
               <p className="grp-sub">Davetiyenizi sadece belirlediğiniz kişilerin görmesini istiyorsanız şifre ile koruyun ve varsayılan dilini ayarlayın.</p>
+              {(Boolean(customSlug && customSlug !== savedSlug) || isProtected !== storedPasswordProtection || Boolean(password)) && (
+                <p className="settings-pending">Bu ayarlar henüz yayınlanmadı. Kaydetmek için üstteki “Güncelle” düğmesine basın.</p>
+              )}
               
               <Field label="Davetiye Dili">
                 <select value={cfg.lang || 'tr'} onChange={(e) => set('lang', e.target.value)}>
@@ -906,8 +985,8 @@ const Editor = () => {
 
               {isProtected && (
                 <Field label="Davetiye Şifresi">
-                  <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Yeni bir şifre belirleyin..." />
-                  <small className="hint">Eğer davetiyenizi daha önce şifrelediyseniz ve değiştirmek istemiyorsanız burayı boş bırakabilirsiniz.</small>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={storedPasswordProtection ? 'Şifreyi değiştirmek için yeni şifre yazın...' : 'En az 6 karakterlik bir şifre belirleyin...'} />
+                  <small className="hint">{storedPasswordProtection ? 'Şifreyi değiştirmek istemiyorsanız boş bırakabilirsiniz.' : 'Şifre korumasını açmak için bu alan zorunludur.'}</small>
                 </Field>
               )}
             </div>

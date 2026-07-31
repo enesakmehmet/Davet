@@ -1,153 +1,126 @@
-import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Fix leafet default icon issue
-let DefaultIcon = L.icon({
+const defaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
   iconSize: [25, 41],
-  iconAnchor: [12, 41]
+  iconAnchor: [12, 41],
 });
-L.Marker.prototype.options.icon = DefaultIcon;
+L.Marker.prototype.options.icon = defaultIcon;
+
+type Coordinates = [number, number];
+
+export type SelectedMapLocation = {
+  mapQuery: string;
+  venueName?: string;
+  venueCity?: string;
+};
 
 interface MapPickerProps {
-  onLocationSelect: (venue: string, address: string) => void;
+  /** Önceden kaydedilmiş "enlem,boylam" değeri. Eski metin tabanlı konumlar da çalışmaya devam eder. */
+  value?: string;
+  onLocationSelect: (location: SelectedMapLocation) => void;
 }
 
-const LocationMarker = ({ position, onSelect }: { position: [number, number] | null, onSelect: (lat: number, lng: number) => void }) => {
+const parseCoordinates = (value?: string): Coordinates | null => {
+  const match = String(value || '').trim().match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (!match) return null;
+  const lat = Number(match[1]);
+  const lng = Number(match[2]);
+  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+    ? [lat, lng]
+    : null;
+};
+
+const MapClickHandler = ({ onSelect }: { onSelect: (lat: number, lng: number) => void }) => {
   useMapEvents({
-    click(e) {
-      onSelect(e.latlng.lat, e.latlng.lng);
+    click(event) {
+      onSelect(event.latlng.lat, event.latlng.lng);
     },
   });
+  return null;
+};
 
-  return position === null ? null : (
-    <Marker position={position}></Marker>
-  );
+const RecenterMap = ({ position }: { position: Coordinates | null }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (position) map.setView(position, Math.max(map.getZoom(), 16));
+  }, [map, position]);
+  return null;
 };
 
 const LocateControl = ({ onLocate }: { onLocate: (lat: number, lng: number) => void }) => {
   const map = useMap();
-  
-  const handleLocate = (e: React.MouseEvent) => {
-    e.preventDefault();
-    map.locate({ setView: true, maxZoom: 16 });
-  };
 
   useEffect(() => {
-    map.on('locationfound', (e) => {
-      onLocate(e.latlng.lat, e.latlng.lng);
-    });
+    const handleLocationFound = (event: L.LocationEvent) => onLocate(event.latlng.lat, event.latlng.lng);
+    map.on('locationfound', handleLocationFound);
+    return () => { map.off('locationfound', handleLocationFound); };
   }, [map, onLocate]);
 
   return (
-    <button 
-      onClick={handleLocate}
-      style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '10px',
-        zIndex: 1000,
-        background: 'white',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '8px 12px',
-        cursor: 'pointer',
-        boxShadow: 'var(--shadow-md)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontWeight: '600',
-        fontSize: '13px',
-        color: 'var(--color-text-primary)'
-      }}
-      title="Beni Bul"
+    <button
+      type="button"
+      className="map-locate-btn"
+      onClick={() => map.locate({ setView: true, maxZoom: 16 })}
+      title="Konumumu bul"
     >
-      📍 Konumumu Bul
+      Konumumu bul
     </button>
   );
 };
 
-const MapPicker = ({ onLocationSelect }: MapPickerProps) => {
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const [fetchedAddress, setFetchedAddress] = useState('');
-  const [fetchedVenue, setFetchedVenue] = useState('');
-  const [loading, setLoading] = useState(false);
+const MapPicker = ({ value, onLocationSelect }: MapPickerProps) => {
+  const [status, setStatus] = useState('Haritada bir noktaya tıklayarak mekanı seçin.');
+  // Seçilen konum ana formdaki value'dan türetilir; böylece editörden gelen güncellemeler
+  // ek bir state senkronizasyonuna ihtiyaç duymadan haritaya hemen yansır.
+  const position = parseCoordinates(value);
 
   const handleSelect = async (lat: number, lng: number) => {
-    setPosition([lat, lng]);
-    setLoading(true);
+    const mapQuery = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+    setStatus('Konum davetiyeye eklendi. Adres bilgisi alınıyor…');
+    // Koordinatı hemen kaydet: ters adres araması başarısız olsa bile davetiye doğru noktayı gösterir.
+    onLocationSelect({ mapQuery });
+
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
-      const data = await res.json();
-      if (data && data.address) {
-        const road = data.address.road || '';
-        const suburb = data.address.suburb || data.address.neighbourhood || '';
-        const city = data.address.city || data.address.town || data.address.village || data.address.county || data.address.province || '';
-        const state = data.address.state || '';
-        const name = data.name || '';
-        
-        let addr = `${road} ${suburb}`.trim();
-        if (!addr) addr = data.display_name.split(',')[0];
-        
-        const fullAddress = `${addr}\n${city}${state ? ', ' + state : ''}`.trim();
-        const venueName = name || 'Seçilen Konum';
-        
-        setFetchedAddress(fullAddress);
-        setFetchedVenue(venueName);
-      }
-    } catch (err) {
-      console.error('Error fetching address:', err);
-    } finally {
-      setLoading(false);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+      );
+      const data = await response.json();
+      const address = data?.address || {};
+      const venueName = data?.name || address.amenity || address.tourism || address.shop || address.building;
+      const venueCity = address.city || address.town || address.village || address.county || address.province || address.state;
+      onLocationSelect({ mapQuery, venueName, venueCity });
+      setStatus(data?.display_name ? `Seçilen konum: ${data.display_name}` : 'Konum davetiyeye eklendi.');
+    } catch {
+      setStatus('Konum davetiyeye eklendi. Mekan adını isterseniz yukarıdan düzenleyebilirsiniz.');
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ height: '300px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-        <MapContainer center={[41.0082, 28.9784]} zoom={11} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+    <div className="map-picker">
+      <div className="map-picker-head">
+        <strong>Haritadan mekan seçin</strong>
+        <span>İğneyi seçtiğiniz noktaya bırakın; davetiyedeki harita anında güncellenir.</span>
+      </div>
+      <div className="map-picker-canvas">
+        <MapContainer center={position || [39.0, 35.0]} zoom={position ? 16 : 6} scrollWheelZoom style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <LocationMarker position={position} onSelect={handleSelect} />
+          <MapClickHandler onSelect={handleSelect} />
+          <RecenterMap position={position} />
           <LocateControl onLocate={handleSelect} />
+          {position && <Marker position={position} />}
         </MapContainer>
       </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Bulunan Mekan</label>
-        <input 
-          type="text" 
-          value={fetchedVenue} 
-          onChange={(e) => setFetchedVenue(e.target.value)}
-          placeholder={loading ? "Aranıyor..." : "Mekan adı"} 
-          style={{ padding: '8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)' }} 
-        />
-        
-        <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Bulunan Adres</label>
-        <textarea 
-          value={fetchedAddress} 
-          onChange={(e) => setFetchedAddress(e.target.value)}
-          placeholder={loading ? "Aranıyor..." : "Adres detayı"} 
-          rows={3}
-          style={{ padding: '8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)' }} 
-        />
-        
-        <button 
-          className="btn-primary" 
-          style={{ width: '100%', marginTop: '8px' }}
-          onClick={() => onLocationSelect(fetchedVenue, fetchedAddress)}
-          disabled={!fetchedAddress}
-        >
-          Haritayı Davetiyeye Ekle
-        </button>
-      </div>
+      <p className="map-picker-status" aria-live="polite">{status}</p>
     </div>
   );
 };

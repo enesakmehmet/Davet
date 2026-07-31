@@ -42,7 +42,19 @@
 .field-row input:focus,.field-row textarea:focus{outline:none;border-color:#c9a14e;box-shadow:0 0 0 3px rgba(201,161,78,.14)}
 .field-row textarea{resize:vertical}
 .hint{display:block;margin-top:6px;font-size:12px;color:#9a9a9a;line-height:1.4}
+.field-warning{display:block;margin:-14px 0 18px;font-size:12px;line-height:1.4;color:#9c6b20}
+.settings-pending{margin:0 0 18px;padding:10px 12px;border-radius:9px;background:#fdf8ec;border:1px solid #ead69b;color:#806223;font-size:12.5px;line-height:1.45}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Haritadan mekan seçimi */
+.map-picker{margin:6px 0 22px;padding:14px;background:#fff;border:1px solid var(--color-border,#eae8e1);border-radius:12px}
+.map-picker-head{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.map-picker-head strong{font-size:13px;color:#3b3324}
+.map-picker-head span,.map-picker-status{font-size:12px;line-height:1.45;color:#8a8a8a}
+.map-picker-canvas{height:280px;border:1px solid #e6dfcf;border-radius:9px;overflow:hidden;position:relative}
+.map-locate-btn{position:absolute;z-index:1000;left:10px;bottom:10px;padding:8px 10px;border:1px solid #ded7c7;border-radius:7px;background:#fff;color:#5a4a2f;font:600 12px var(--font-sans,'Inter',sans-serif);box-shadow:0 2px 8px rgba(0,0,0,.14);cursor:pointer}
+.map-locate-btn:hover{background:#fdf8ec;border-color:#c9a14e}
+.map-picker-status{margin:9px 2px 0;min-height:18px}
 
 /* Kategori sekmeleri (Düğün / Doğum Günü / Kutlama) */
 .cat-tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
@@ -96,7 +108,7 @@
 /* Switch */
 .switch-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;border:1px solid var(--color-border,#eae8e1);border-radius:12px;font-size:14px;color:#2a2a2a;cursor:pointer;transition:border-color .2s}
 .switch-row:hover{border-color:#d9c58a}
-.switch{width:46px;height:26px;border-radius:20px;background:#d8d8d8;position:relative;transition:.25s;flex-shrink:0}
+.switch{width:46px;height:26px;border:0;border-radius:20px;background:#d8d8d8;position:relative;transition:.25s;flex-shrink:0;cursor:pointer;padding:0}
 .switch.on{background:linear-gradient(135deg,#d9b64a,#b5952f)}
 .switch .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .switch.on .knob{left:23px}

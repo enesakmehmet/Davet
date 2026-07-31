@@ -14,8 +14,14 @@ export class AssetsController {
   @UseInterceptors(FileInterceptor('file', {
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+    fileFilter: (_req, file, cb) => {
+      const ok = /^image\/(jpe?g|png|webp|gif|heic|heif)$/i.test(file.mimetype)
+        || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.originalname);
+      cb(ok ? null : new BadRequestException('Sadece JPG/PNG/WEBP/GIF/HEIC görsel dosyaları yüklenebilir.'), ok);
+    },
   }))
   uploadImage(@UploadedFile() file: Express.Multer.File, @Request() req) {
+    if (!file) throw new BadRequestException('Dosya bulunamadı.');
     return this.assetsService.create(file, 'image', req.user.id);
   }
 

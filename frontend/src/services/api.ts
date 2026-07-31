@@ -222,6 +222,10 @@ export const assetService = {
     }
     return res.json();
   },
+  remove: async (id: string) => {
+    const { data } = await api.delete(`/assets/${id}`);
+    return data;
+  },
 };
 
 // Auth (giriş / kayıt / profil)

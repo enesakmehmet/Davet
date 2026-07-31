@@ -3,6 +3,8 @@ import { NotFoundException } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
+import { LeadsService } from '../leads/leads.service';
 
 describe('AdminService', () => {
   let service: AdminService;
@@ -20,6 +22,8 @@ describe('AdminService', () => {
         AdminService,
         { provide: PrismaService, useValue: prisma },
         { provide: AnalyticsService, useValue: {} },
+        { provide: WhatsappService, useValue: {} },
+        { provide: LeadsService, useValue: {} },
       ],
     }).compile();
 

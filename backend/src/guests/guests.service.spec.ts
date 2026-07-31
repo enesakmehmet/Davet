@@ -11,9 +11,9 @@ describe('GuestsService', () => {
 
   beforeEach(async () => {
     prisma = {
-      invitation: { findUnique: jest.fn() },
+      invitation: { findFirst: jest.fn() },
       subscription: { findFirst: jest.fn() },
-      guest: { count: jest.fn(), create: jest.fn() },
+      guest: { findFirst: jest.fn(), count: jest.fn(), create: jest.fn(), update: jest.fn() },
     };
     notifications = { create: jest.fn().mockResolvedValue({}) };
 
@@ -33,14 +33,14 @@ describe('GuestsService', () => {
   });
 
   it('davetiye yoksa NotFoundException fırlatır', async () => {
-    prisma.invitation.findUnique.mockResolvedValue(null);
+    prisma.invitation.findFirst.mockResolvedValue(null);
     await expect(
       service.create({ invitationId: 'yok', name: 'Ali', status: 'attending' } as any),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('misafir limiti dolduğunda ForbiddenException fırlatır', async () => {
-    prisma.invitation.findUnique.mockResolvedValue({ id: 'inv1', userId: 'u1' });
+    prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'u1' });
     prisma.subscription.findFirst.mockResolvedValue(null); // free plan -> limit 50
     prisma.guest.count.mockResolvedValue(50);
     await expect(
@@ -49,7 +49,7 @@ describe('GuestsService', () => {
   });
 
   it('geçerli RSVP misafiri oluşturur ve sahibe bildirim gönderir', async () => {
-    prisma.invitation.findUnique.mockResolvedValue({ id: 'inv1', userId: 'u1' });
+    prisma.invitation.findFirst.mockResolvedValue({ id: 'inv1', userId: 'u1' });
     prisma.subscription.findFirst.mockResolvedValue(null);
     prisma.guest.count.mockResolvedValue(3);
     prisma.guest.create.mockResolvedValue({ id: 'g1', name: 'Ayşe', status: 'attending' });
