@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { hasAnalyticsConsent } from '../utils/consent';
 
 const API = (import.meta as any).env?.VITE_API_URL || '/api';
 
@@ -16,7 +17,16 @@ const getSessionId = (): string => {
 /** Her rota değişiminde backend'e sayfa görüntüleme kaydı atar (dahili analytics) */
 const PageTracker = () => {
   const location = useLocation();
+  const [hasConsent, setHasConsent] = useState(hasAnalyticsConsent);
+
   useEffect(() => {
+    const syncConsent = () => setHasConsent(hasAnalyticsConsent());
+    window.addEventListener('cookie-consent-changed', syncConsent);
+    return () => window.removeEventListener('cookie-consent-changed', syncConsent);
+  }, []);
+
+  useEffect(() => {
+    if (!hasConsent) return;
     fetch(API.replace(/\/$/, '') + '/analytics/pageview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -26,7 +36,7 @@ const PageTracker = () => {
         referrer: document.referrer || '',
       }),
     }).catch(() => {});
-  }, [location.pathname]);
+  }, [hasConsent, location.pathname]);
   return null;
 };
 

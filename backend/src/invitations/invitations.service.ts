@@ -15,6 +15,45 @@ export class InvitationsService {
     private mailService: MailService,
   ) {}
 
+  private sanitizeConfig(config: unknown): Prisma.InputJsonObject | undefined {
+    if (config === undefined) return undefined;
+    if (!config || typeof config !== 'object' || Array.isArray(config)) {
+      throw new BadRequestException('Davetiye ayarları geçersiz.');
+    }
+
+    let safe: Record<string, any>;
+    try {
+      safe = JSON.parse(JSON.stringify(config));
+    } catch {
+      throw new BadRequestException('Davetiye ayarları kaydedilemedi.');
+    }
+
+    const ensureHttpUrl = (value: unknown, field: string) => {
+      if (value === undefined || value === null || value === '') return;
+      try {
+        const url = new URL(String(value));
+        if (!['http:', 'https:'].includes(url.protocol)) throw new Error('protocol');
+      } catch {
+        throw new BadRequestException(`${field} yalnızca http veya https bağlantısı olabilir.`);
+      }
+    };
+
+    for (const field of ['musicUrl', 'videoUrl', 'liveStreamUrl']) {
+      ensureHttpUrl(safe[field], field);
+    }
+    if (Array.isArray(safe.photos)) {
+      safe.photos.forEach((photo: unknown) => {
+        const url = typeof photo === 'string' ? photo : (photo as Record<string, unknown>)?.url;
+        ensureHttpUrl(url, 'Fotoğraf bağlantısı');
+      });
+    }
+    if (safe.nameFont !== undefined && !/^[a-zA-Z0-9 ,_-]{1,80}$/.test(String(safe.nameFont))) {
+      throw new BadRequestException('Yazı tipi geçersiz.');
+    }
+
+    return safe as Prisma.InputJsonObject;
+  }
+
   async create(createInvitationDto: CreateInvitationDto, userId: string) {
     if (createInvitationDto.isPasswordProtected && !createInvitationDto.password) {
       throw new BadRequestException('Şifre korumasını açmak için bir şifre belirlemelisiniz.');
@@ -51,6 +90,7 @@ export class InvitationsService {
     }
 
     const { pages, password, ...invitationData } = createInvitationDto as any;
+    invitationData.config = this.sanitizeConfig(invitationData.config);
     
     let passwordHash = null;
     let isPasswordProtected = false;
@@ -136,6 +176,9 @@ export class InvitationsService {
     if (invitation.userId !== userId) throw new ForbiddenException('Bu davetiyeyi düzenleme yetkiniz yok.');
 
     const { pages, password, ...updateData } = updateInvitationDto as any;
+    if (Object.prototype.hasOwnProperty.call(updateData, 'config')) {
+      updateData.config = this.sanitizeConfig(updateData.config);
+    }
 
     if (updateData.isPasswordProtected === true && password === undefined && !invitation.passwordHash) {
       throw new BadRequestException('Şifre korumasını açmak için bir şifre belirlemelisiniz.');

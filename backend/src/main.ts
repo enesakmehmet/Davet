@@ -57,8 +57,8 @@ async function bootstrap() {
   // İhtiyaç halinde üretimde açmak isterseniz SWAGGER_ENABLED=true ortam değişkenini ayarlayın
   // (yine de üretimde bunu önermiyoruz).
   const swaggerEnabled =
-    (process.env.NODE_ENV || 'development') !== 'production' ||
-    process.env.SWAGGER_ENABLED === 'true';
+    process.env.SWAGGER_ENABLED === 'true' ||
+    (process.env.NODE_ENV === 'development' && process.env.SWAGGER_ENABLED !== 'false');
 
   if (swaggerEnabled) {
     const config = new DocumentBuilder()

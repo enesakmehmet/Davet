@@ -118,13 +118,21 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Geçersiz e-posta veya şifre.');
     }
+    if (!user.emailVerified) {
+      throw new UnauthorizedException('Giriş yapmadan önce e-posta adresinizi doğrulamanız gerekiyor.');
+    }
 
     return this.generateTokens(user, platform);
   }
 
   async refresh(refreshDto: RefreshDto, platform?: string) {
-    const payload = this.jwtService.decode(refreshDto.refreshToken) as any;
-    if (!payload || !payload.sub) {
+    let payload: any;
+    try {
+      payload = await this.jwtService.verifyAsync(refreshDto.refreshToken);
+    } catch {
+      throw new UnauthorizedException('Geçersiz refresh token.');
+    }
+    if (!payload?.sub || payload.tokenType !== 'refresh') {
       throw new UnauthorizedException('Geçersiz refresh token.');
     }
 
@@ -221,7 +229,7 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id };
 
     const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
+    const refreshToken = this.jwtService.sign({ ...payload, tokenType: 'refresh' }, { expiresIn: '30d' });
 
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     // Admin panelde takip için: bu isteğin geldiği platform (mobil uygulama "mobile" gönderir, aksi halde web sayılır)

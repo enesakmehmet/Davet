@@ -576,11 +576,19 @@ var DEFAULT = {
 var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,master:null,step:0};
 var introPlayed=false, introPreviewDismissed=false;
 
-function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function safeHttpUrl(u){
+  try { var parsed=new URL(String(u||'').trim()); return /^https?:$/.test(parsed.protocol)?parsed.href:''; }
+  catch(_) { return ''; }
+}
+function safeFont(value,fallback){
+  var font=String(value||'').trim();
+  return /^[a-zA-Z0-9 ,_-]{1,80}$/.test(font)?font:fallback;
+}
 // Kullanıcı tarafından girilen görsel URL'lerini style="background-image:url(...)" içine güvenle gömmek için:
 // tehlikeli şemaları reddeder, attribute/CSS bağlamından kaçmayı sağlayacak karakterleri (' " ) \ < >) yüzde-kodlar.
 function escUrl(u){
-  u=(u==null?'':String(u)).trim();
+  u=safeHttpUrl(u);
   if(!u) return '';
   if(/^(javascript|vbscript|data:text\/html)/i.test(u)) return '';
   return u.replace(/\\/g,'%5C').replace(/'/g,'%27').replace(/"/g,'%22').replace(/\)/g,'%29').replace(/</g,'%3C').replace(/>/g,'%3E');
@@ -618,7 +626,7 @@ function showEnvelopeIntro(cfg,T,couple,isThumb,lang){
   gate.style.background='radial-gradient(120% 100% at 50% 25%,'+T.soft+'33,transparent 60%),'+(T.dark?T.page:'#2c2418');
   gate.innerHTML=
     '<div class="env-wrap">'+
-      '<div class="env-card"><div class="ec-names" style="font-family:\''+(cfg.nameFont||T.nameFont)+'\',cursive;color:'+T.accent+'">'+esc(couple)+'</div><div class="ec-date" style="color:#7c6a4a">'+esc(fmtDate(cfg.date,lang))+'</div></div>'+
+      '<div class="env-card"><div class="ec-names" style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive;color:'+T.accent+'">'+esc(couple)+'</div><div class="ec-date" style="color:#7c6a4a">'+esc(fmtDate(cfg.date,lang))+'</div></div>'+
       '<div class="env-flap" style="background:linear-gradient(180deg,'+T.accent+','+T.soft+')"></div>'+
       '<div class="env-body" style="background:linear-gradient(160deg,'+T.soft+','+T.accent+')"></div>'+
       '<div class="env-hint">DAVETİYEYİ AÇ</div>'+
@@ -645,7 +653,7 @@ function showFlowerIntro(cfg,T,couple,isThumb,lang){
   var petals='';
   for(var i=0;i<36;i++){ petals+='<span class="fl-petal">'+(['🌸','🌺','🌷','💮','✿'][i%5])+'</span>'; }
   gate.innerHTML=petals+
-    '<div class="fl-names" style="font-family:\''+(cfg.nameFont||T.nameFont)+'\',cursive">'+esc(couple)+'</div>'+
+    '<div class="fl-names" style="font-family:\''+safeFont(cfg.nameFont,T.nameFont)+'\',cursive">'+esc(couple)+'</div>'+
     '<div class="fl-hint">✿ DOKUN, ÇİÇEKLER AÇSIN ✿</div>';
   var opened=false;
   function open(){
@@ -713,7 +721,7 @@ function render(cfg){
   var isCelebKey = /^kutlama/.test(String(cfg.theme||''));
   var T = THEMES[cfg.theme] || (isCelebKey ? THEMES.kutlamaPop : THEMES.altin);
   // Kullanıcı isim yazı tipini seçtiyse tema varsayılanını ez (tüm türlerde geçerli)
-  if (cfg.nameFont) T = Object.assign({}, T, { nameFont: String(cfg.nameFont) });
+  if (cfg.nameFont) T = Object.assign({}, T, { nameFont: safeFont(cfg.nameFont, T.nameFont) });
   var isBday = (T.kind==='birthday');
   var isCeleb = (T.mode==='celebration') || isCelebKey;
   var couple = isBday ? (cfg.brideName||'') : ((cfg.brideName||'')+' & '+(cfg.groomName||''));
@@ -966,7 +974,8 @@ function render(cfg){
   if(cfg.dressCode) extras.push(card('👗',t.lblDress,esc(cfg.dressCode)));
   if(cfg.transport) extras.push(card('🚌',t.lblTransport,esc(cfg.transport)));
   if(cfg.accommodation) extras.push(card('🏨',t.lblStay,esc(cfg.accommodation)));
-  if(cfg.liveStreamUrl) extras.push(card('📺',t.lblLive,'<a href="'+esc(cfg.liveStreamUrl)+'" target="_blank" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
+  var liveStreamUrl=safeHttpUrl(cfg.liveStreamUrl);
+  if(liveStreamUrl) extras.push(card('📺',t.lblLive,'<a href="'+esc(liveStreamUrl)+'" target="_blank" rel="noopener noreferrer" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
   if(extras.length){
     var sx=sec(); sx.innerHTML=titleHTML(t.xtraTitle,t.xtraSub)+'<div class="cards">'+extras.join('')+'</div>';
     wrap.appendChild(sx);
@@ -1145,7 +1154,8 @@ function renderDini(cfg, T, wrap, x){
   if(cfg.dressCode) extras.push(xcard('👗',t.lblDress,esc(cfg.dressCode)));
   if(cfg.transport) extras.push(xcard('🚌',t.lblTransport,esc(cfg.transport)));
   if(cfg.accommodation) extras.push(xcard('🏨',t.lblStay,esc(cfg.accommodation)));
-  if(cfg.liveStreamUrl) extras.push(xcard('📺',t.lblLive,'<a href="'+esc(cfg.liveStreamUrl)+'" target="_blank" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
+  var diniLiveStreamUrl=safeHttpUrl(cfg.liveStreamUrl);
+  if(diniLiveStreamUrl) extras.push(xcard('📺',t.lblLive,'<a href="'+esc(diniLiveStreamUrl)+'" target="_blank" rel="noopener noreferrer" style="color:'+T.accent+';font-weight:600">'+t.lblLiveBtn+'</a>'));
   if(extras.length){
     var sxd=sec(); sxd.innerHTML=titleHTML(t.xtraTitle,t.xtraSub)+'<div class="cards">'+extras.join('')+'</div>';
     wrap.appendChild(sxd);
@@ -1304,6 +1314,7 @@ function renderCelebration(cfg, T, wrap, x){
 
 /* ===== Anı Albümü: misafirler fotoğraf yükler, herkes görür ===== */
 function setupGuestAlbum(cfg, T, wrap, x){
+  if(cfg.guestAlbumEnabled!==true) return;
   if(!cfg.invitationId || !cfg.apiBase) return; // yalnızca yayınlanmış davetlerde
   var inkSoft=x.inkSoft, surface=x.surface, border=x.border;
   var apiBase=cfg.apiBase.replace(/\/$/,'');
@@ -1344,7 +1355,7 @@ function setupGuestAlbum(cfg, T, wrap, x){
   fileIn.addEventListener('change',function(){
     var f=fileIn.files && fileIn.files[0];
     if(!f) return;
-    if(f.size>10*1024*1024){ status.textContent='Fotoğraf en fazla 10 MB olabilir.'; return; }
+    if(f.size>5*1024*1024){ status.textContent='Fotoğraf en fazla 5 MB olabilir.'; return; }
     var name='';
     try{ name=window.prompt('Adınız (fotoğrafın altında görünür, boş bırakabilirsiniz):','')||''; }catch(e){}
     btn.disabled=true; status.textContent='Yükleniyor…';
@@ -1677,7 +1688,7 @@ function gcalUrl(cfg,couple){
 }
 
 function videoEmbed(url,border){
-  if(!url) return '';
+  url=safeHttpUrl(url); if(!url) return '';
   var yt=String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
   var inner = yt
     ? '<iframe src="https://www.youtube.com/embed/'+yt[1]+'" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>'

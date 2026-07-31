@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-const MAX_PHOTOS_PER_INVITATION = Number(process.env.GUEST_ALBUM_LIMIT || 60);
+const MAX_PHOTOS_PER_INVITATION = Number(process.env.GUEST_ALBUM_LIMIT || 30);
 
 @Injectable()
 export class GuestPhotosService {
@@ -32,15 +32,19 @@ export class GuestPhotosService {
     if (!file || !/^image\/(jpe?g|png|webp|heic|heif)$/i.test(file.mimetype)) {
       throw new BadRequestException('Yalnızca fotoğraf yükleyebilirsiniz (JPG/PNG/WebP).');
     }
-    if (file.size > 10 * 1024 * 1024) {
-      throw new BadRequestException('Fotoğraf en fazla 10 MB olabilir.');
+    if (file.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('Fotoğraf en fazla 5 MB olabilir.');
     }
 
     const invitation = await this.prisma.invitation.findFirst({
       where: { id: invitationId, deletedAt: null },
-      select: { id: true },
+      select: { id: true, config: true },
     });
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
+
+    if ((invitation.config as Record<string, unknown> | null)?.guestAlbumEnabled !== true) {
+      throw new ForbiddenException('Guest album is disabled for this invitation.');
+    }
 
     const count = await this.prisma.guestPhoto.count({ where: { invitationId } });
     if (count >= MAX_PHOTOS_PER_INVITATION) {
@@ -67,9 +71,9 @@ export class GuestPhotosService {
     // Davet silinmişse (çöp kutusunda) albümü artık kimseye göstermiyoruz.
     const invitation = await this.prisma.invitation.findFirst({
       where: { id: invitationId, deletedAt: null },
-      select: { id: true },
+      select: { id: true, config: true },
     });
-    if (!invitation) return [];
+    if (!invitation || (invitation.config as Record<string, unknown> | null)?.guestAlbumEnabled !== true) return [];
 
     const photos = await this.prisma.guestPhoto.findMany({
       where: { invitationId },
@@ -83,9 +87,18 @@ export class GuestPhotosService {
   async getFile(id: string) {
     const photo = await this.prisma.guestPhoto.findFirst({
       where: { id, invitation: { deletedAt: null } },
-      select: { data: true, mime: true },
+      select: {
+        data: true,
+        mime: true,
+        invitation: { select: { config: true } },
+      },
     });
-    if (!photo) throw new NotFoundException('Fotoğraf bulunamadı.');
+    if (
+      !photo ||
+      (photo.invitation.config as Record<string, unknown> | null)?.guestAlbumEnabled !== true
+    ) {
+      throw new NotFoundException('Fotoğraf bulunamadı.');
+    }
     return photo;
   }
 

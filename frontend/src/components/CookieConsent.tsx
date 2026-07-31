@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { initAnalytics } from '../utils/analytics';
+import { saveAnalyticsConsent } from '../utils/consent';
 
 const STORAGE_KEY = 'cookieConsent'; // 'accepted' | 'rejected'
 
@@ -20,7 +21,7 @@ const CookieConsent = () => {
   if (!hasAnalytics || choice) return null;
 
   const decide = (value: 'accepted' | 'rejected') => {
-    localStorage.setItem(STORAGE_KEY, value);
+    saveAnalyticsConsent(value);
     setChoice(value);
   };
 

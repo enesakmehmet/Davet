@@ -333,6 +333,12 @@ export const statsService = {
   },
   // Public: davet açıldığında görüntülenme kaydı (fire-and-forget)
   recordView: async (invitationId: string) => {
+    // Davet analitiği, ziyaretçi açıkça izin vermeden kalıcı kimlik veya konum toplamaz.
+    try {
+      if (localStorage.getItem('cookieConsent') !== 'accepted') return;
+    } catch {
+      return;
+    }
     // Tekil ziyaretçi tespiti: bu tarayıcı bu daveti daha önce açtı mı?
     let isNewVisitor = true;
     try {

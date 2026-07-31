@@ -5,6 +5,7 @@ import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../../mail/mail.service';
 import { EmailValidatorService } from './email-validator.service';
+import * as bcrypt from 'bcrypt';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -23,6 +24,7 @@ describe('AuthService', () => {
   const mockJwtService = {
     sign: jest.fn(() => 'signed-token'),
     decode: jest.fn(),
+    verifyAsync: jest.fn(),
   };
 
   const mockMailService = {
@@ -156,6 +158,33 @@ describe('AuthService', () => {
       await expect(
         service.login({ email: 'yok@b.com', password: '123456' }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
+    it('doğrulanmamış kullanıcı için şifre doğru olsa bile token vermez', async () => {
+      const passwordHash = await bcrypt.hash('123456', 4);
+      mockUsersService.findByEmail.mockResolvedValue({ id: 'u1', passwordHash, emailVerified: false });
+      await expect(service.login({ email: 'a@b.com', password: '123456' })).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+  });
+
+  describe('refresh', () => {
+    it('imzası geçersiz veya süresi dolmuş refresh tokenı reddeder', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('expired'));
+      await expect(service.refresh({ refreshToken: 'expired-token' })).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+
+    it('yalnızca geçerli refresh token tipini yeniler', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue({ sub: 'u1', tokenType: 'refresh' });
+      mockUsersService.findById.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', refreshToken: await bcrypt.hash('valid-refresh', 4), emailVerified: true,
+      });
+      mockUsersService.update.mockResolvedValue({});
+
+      const result = await service.refresh({ refreshToken: 'valid-refresh' });
+
+      expect(result.access_token).toBe('signed-token');
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('valid-refresh');
+      expect(mockJwtService.sign).toHaveBeenCalledWith(expect.objectContaining({ tokenType: 'refresh' }), { expiresIn: '30d' });
     });
   });
 

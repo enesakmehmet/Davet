@@ -12,10 +12,8 @@ export class AnalyticsController {
   // Şehir/ülke bilgisi tarayıcıdan gelmezse (adblocker geojs'i engellemiş olabilir)
   // ziyaretçinin IP'sinden backend'de tespit edilir.
   @Post('view')
-  recordView(@Body() recordViewDto: RecordViewDto, @Request() req) {
-    const fwd = String(req.headers?.['x-forwarded-for'] || '');
-    const ip = (fwd.split(',')[0] || '').trim() || req.ip || '';
-    return this.analyticsService.recordView(recordViewDto, ip);
+  recordView(@Body() recordViewDto: RecordViewDto) {
+    return this.analyticsService.recordView(recordViewDto);
   }
 
   // Public: site sayfa görüntüleme kaydı (dahili analytics). Normal gezinme sırasında

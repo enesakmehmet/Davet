@@ -13,8 +13,8 @@ export class GuestPhotosController {
 
   /** Public: misafir fotoğraf yükler — IP başına dakikada 6 yükleme */
   @Post()
-  @Throttle({ default: { limit: 6, ttl: 60000 } })
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
   upload(
     @UploadedFile() file: Express.Multer.File,
     @Body('invitationId') invitationId: string,

@@ -108,6 +108,7 @@ type Cfg = {
   music: boolean;
   musicUrl: string;
   photos: any[]; // Backward uyumluluk için any kullanıp çalışma anında nesneye dönüştürüyoruz
+  guestAlbumEnabled?: boolean;
   families: Family[];
   story: Story[];
   rsvpDeadline: string; rsvpDeadlineDate?: string; phone: string;
@@ -141,6 +142,7 @@ const DEFAULT_CFG: Cfg = {
     { url: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=900&q=80', caption: 'İlk tatilimizden' },
     { url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80', caption: '' },
   ],
+  guestAlbumEnabled: false,
   families: [
     { side: 'Gelin', names: 'Sevgi & Kemal Aydın' },
     { side: 'Damat', names: 'Nurten & Hasan Yıldız' },
@@ -454,7 +456,11 @@ const Editor = () => {
   const downloadHtml = async () => {
     const res = await fetch('/davet-preview.html?v=20260719c');
     let html = await res.text();
-    const inject = `<script>window.__INITIAL_CFG__=${JSON.stringify(cfg)};<\/script>`;
+    const initialConfig = JSON.stringify(cfg)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026');
+    const inject = `<script>window.__INITIAL_CFG__=${initialConfig}</script>`;
     html = html.replace('</head>', inject + '</head>');
     const blob = new Blob([html], { type: 'text/html' });
     const a = document.createElement('a');
@@ -825,6 +831,11 @@ const Editor = () => {
             <div className="grp">
               <h3>Fotoğraf Galerisi</h3>
               <p className="grp-sub">Bilgisayarından fotoğraf yükle veya bir bağlantı (URL) yapıştır. Slayt otomatik döner.</p>
+              <div className="switch-row" style={{ marginBottom: 14 }}>
+                <span>Misafir Anı Albümünü aç</span>
+                <button type="button" className={`switch ${cfg.guestAlbumEnabled ? 'on' : ''}`} role="switch" aria-checked={Boolean(cfg.guestAlbumEnabled)} aria-label="Misafir albümünü aç" onClick={() => set('guestAlbumEnabled', !cfg.guestAlbumEnabled)}><span className="knob" /></button>
+              </div>
+              {cfg.guestAlbumEnabled && <small className="hint" style={{ display: 'block', marginBottom: 10 }}>Misafirler en fazla 5 MB fotoğraf yükleyebilir. İstediğiniz zaman bu anahtardan kapatabilirsiniz.</small>}
               {photoUploadErr && <small className="hint" style={{ color: '#b3261e', display: 'block', marginBottom: 10 }}>{photoUploadErr}</small>}
               {cfg.photos.map((p, i) => (
                 <div className="photo-row" key={i}>

@@ -8,6 +8,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
@@ -24,11 +25,8 @@ export class SubscriptionsController {
   // Gerçekte bu işlem Payments Webhook'u tarafından yapılır
   // Test/Mock amaçlı manuel abonelik başlatma ucu
   @Post()
-  async create(
-    @Body() createSubscriptionDto: CreateSubscriptionDto,
-    @GetUser('id') userId: string,
-  ) {
-    return this.subscriptionsService.create(createSubscriptionDto, userId);
+  async create() {
+    throw new ForbiddenException('Abonelik başlatma yalnızca doğrulanmış ödeme sonrasında yapılabilir.');
   }
 
   @Get('me')
@@ -43,18 +41,12 @@ export class SubscriptionsController {
   }
 
   @Patch('upgrade')
-  async upgradeSubscription(
-    @GetUser('id') userId: string,
-    @Body() upgradeDto: UpgradeSubscriptionDto,
-  ) {
-    return this.subscriptionsService.upgradeSubscription(userId, upgradeDto.newPlan);
+  async upgradeSubscription() {
+    throw new ForbiddenException('Paket değişikliği yalnızca doğrulanmış ödeme sonrasında yapılabilir.');
   }
 
   @Patch('renew')
-  async renewSubscription(
-    @GetUser('id') userId: string,
-    @Body() renewDto: RenewSubscriptionDto,
-  ) {
-    return this.subscriptionsService.renewSubscription(userId, renewDto.months);
+  async renewSubscription() {
+    throw new ForbiddenException('Abonelik yenileme yalnızca doğrulanmış ödeme sonrasında yapılabilir.');
   }
 }

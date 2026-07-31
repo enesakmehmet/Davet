@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { ThrottlerStorage } from '@nestjs/throttler';
+import { ThrottlerStorage, ThrottlerStorageService } from '@nestjs/throttler';
 import Redis from 'ioredis';
 import { redisConnection } from './redis.util';
 
@@ -13,13 +13,14 @@ type StorageRecord = {
 /**
  * Rate limit sayaçlarını Redis'te tutar — böylece birden fazla instance/replika
  * çalışsa bile limitler tüm sunucularda ortak işler.
- * Redis'e ulaşılamazsa istekleri ENGELLEMEZ (fail-open): sayaç 1 kabul edilir.
+ * Redis'e ulaşılamazsa uygulama içi sayaçla rate-limit devam eder.
  */
 @Injectable()
 export class RedisThrottlerStorage implements ThrottlerStorage, OnModuleDestroy {
   private readonly logger = new Logger(RedisThrottlerStorage.name);
   private redis: Redis;
   private healthy = false;
+  private readonly fallback = new ThrottlerStorageService();
 
   constructor() {
     this.redis = new Redis({
@@ -32,7 +33,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage, OnModuleDestroy 
     this.redis.on('ready', () => { this.healthy = true; });
     this.redis.connect().catch(() => {
       this.healthy = false;
-      this.logger.warn('Redis bağlantısı kurulamadı — rate limit fail-open modda.');
+      this.logger.warn('Redis bağlantısı kurulamadı — uygulama içi rate limit kullanılacak.');
     });
   }
 
@@ -43,8 +44,7 @@ export class RedisThrottlerStorage implements ThrottlerStorage, OnModuleDestroy 
     blockDuration: number,
     throttlerName: string,
   ): Promise<StorageRecord> {
-    const failOpen: StorageRecord = { totalHits: 1, timeToExpire: ttl, isBlocked: false, timeToBlockExpire: 0 };
-    if (!this.healthy) return failOpen;
+    if (!this.healthy) return this.fallback.increment(key, ttl, limit, blockDuration, throttlerName);
 
     try {
       const k = `throttle:${throttlerName}:${key}`;
@@ -63,11 +63,12 @@ export class RedisThrottlerStorage implements ThrottlerStorage, OnModuleDestroy 
         timeToBlockExpire: isBlocked ? (blockDuration > 0 ? blockDuration : ttlLeft) : 0,
       };
     } catch {
-      return failOpen;
+      return this.fallback.increment(key, ttl, limit, blockDuration, throttlerName);
     }
   }
 
   onModuleDestroy() {
     this.redis.disconnect();
+    this.fallback.onApplicationShutdown();
   }
 }
