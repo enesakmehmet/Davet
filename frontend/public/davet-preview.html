@@ -126,6 +126,9 @@
   footer{padding:44px 18px;text-align:center}
   footer .fn{line-height:1}
   footer p{font-size:12px;letter-spacing:2px;margin-top:8px;opacity:.85}
+  /* Müzik butonu (fixed, sabit yükseklikte) açıkken footer imzasının (çift adı/tarih) üzerine
+     binmesin diye ekstra alt boşluk — bkz. ensureMusicBtn/removeMusicBtn body sınıfı */
+  body.has-music-fab footer{padding-bottom:130px}
 
   .fab{position:fixed;right:16px;z-index:9999;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:18px;
     box-shadow:0 8px 20px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .25s}
@@ -469,6 +472,7 @@
     .fab.music{left:50%;bottom:calc(66px + env(safe-area-inset-bottom, 0px));padding:7px 14px 7px 7px;font-size:12px}
     .fab.music .mp-icon{width:23px;height:23px}
     .gal{max-width:100%}
+    body.has-music-fab footer{padding-bottom:112px}
   }
   @media(max-width:360px){
     section{padding-left:14px;padding-right:14px}
@@ -2001,8 +2005,9 @@ function ensureMusicBtn(T){
   musicBtn.style.background=T.accent;musicBtn.style.color=T.dark?'#0b0b0d':'#fff';musicBtn.style.position='fixed';
   musicBtn.addEventListener('click',function(){musicState.playing?stopMusic():startMusic();});
   document.body.appendChild(musicBtn);
+  document.body.classList.add('has-music-fab'); // footer'a ekstra alt boşluk ekler, buton imzanın üzerine binmesin
 }
-function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;}
+function removeMusicBtn(){document.querySelectorAll('.fab.music').forEach(function(x){x.remove();});musicBtn=null;document.body.classList.remove('has-music-fab');}
 var SEQ=[[392,493.88,587.33],[329.63,392,493.88],[261.63,329.63,392],[293.66,369.99,440]];
 function setPlaying(on){
   var ms=musicState;ms.playing=on;

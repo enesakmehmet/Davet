@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api';
 import './Home.css';
-import './Templates.css'; // demo modalının telefon çerçevesi (.tpl-modal-*) için Templates.tsx ile aynı stiller kullanılıyor
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 const PRICE = '59,90';
@@ -395,41 +394,36 @@ const DemoModal = ({ demo, onClose }: { demo: any; onClose: () => void }) => {
 
   return (
     <motion.div
-      className="tpl-modal-backdrop"
+      className="demo-modal-backdrop"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClose}
     >
+      <button type="button" className="demo-modal-close" onClick={onClose} aria-label="Kapat">
+        <X size={20} />
+      </button>
       <motion.div
-        className="tpl-modal-panel"
-        initial={{ opacity: 0, scale: 0.92, y: 12 }}
+        className="demo-modal-phone"
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.94, y: 8 }}
+        exit={{ opacity: 0, scale: 0.94, y: 10 }}
         transition={{ duration: 0.25, ease: 'easeOut' as const }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button type="button" className="tpl-modal-close" onClick={onClose} aria-label="Kapat">
-          <X size={20} />
-        </button>
-        <div className="tpl-modal-phone">
-          <iframe
-            ref={iframeRef}
-            title="Demo davetiye"
-            src="/davet-preview.html?embed=1"
-            style={{ width: '100%', height: '100%', border: 0 }}
-            onLoad={postCfg}
-          />
-        </div>
-        <div className="tpl-modal-info">
-          <span className="tc-category">Canlı Örnek</span>
-          <h3>{demo.title || 'Örnek Davetiye'}</h3>
-          <div className="tpl-modal-actions">
-            <Link to="/editor" className="btn-primary-large">Sen de Tasarla</Link>
-          </div>
-        </div>
+        <iframe
+          ref={iframeRef}
+          title="Demo davetiye"
+          src="/davet-preview.html?embed=1"
+          onLoad={postCfg}
+        />
       </motion.div>
+      <div className="demo-modal-caption" onClick={(e) => e.stopPropagation()}>
+        <span className="demo-modal-tag">● Canlı Örnek</span>
+        <h3>{demo.title || 'Örnek Davetiye'}</h3>
+        <Link to="/editor" className="btn-primary-large">Sen de Tasarla</Link>
+      </div>
     </motion.div>
   );
 };
