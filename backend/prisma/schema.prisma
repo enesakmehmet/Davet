@@ -104,6 +104,7 @@ model Invitation {
   config              Json? // Yeni form tabanlı editörün davet ayarları (tema, çift, mekan, müzik, galeri, aile, hikaye, RSVP)
   isPasswordProtected Boolean   @default(false)
   passwordHash        String?
+  isHomepageDemo      Boolean   @default(false) // true ise anasayfadaki "Demoyu İncele" butonu bu daveti gösterir (admin panelden tek tıkla seçilir)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?

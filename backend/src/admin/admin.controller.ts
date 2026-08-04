@@ -172,6 +172,18 @@ export class AdminController {
     return this.adminService.restoreInvitation(id);
   }
 
+  @Patch('invitations/:id/homepage-demo')
+  @AdminOnly() @Roles('admin')
+  async setHomepageDemo(@Param('id') id: string) {
+    return this.adminService.setHomepageDemo(id);
+  }
+
+  @Delete('invitations/:id/homepage-demo')
+  @AdminOnly() @Roles('admin')
+  async unsetHomepageDemo(@Param('id') id: string) {
+    return this.adminService.unsetHomepageDemo(id);
+  }
+
   @Get('invitations/:id/guests')
   @AdminOnly() @Roles('admin')
   async getInvitationGuests(@Param('id') id: string) {

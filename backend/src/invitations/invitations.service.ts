@@ -139,6 +139,21 @@ export class InvitationsService {
     });
   }
 
+  /**
+   * Anasayfadaki "Demoyu İncele" butonunun gösterdiği gerçek davetiye (admin panelden seçilir).
+   * Herkese açık: giriş gerektirmez, şifre korumalı olsa bile demo daveti şifresiz gösterilir
+   * (zaten admin bilerek bunu vitrin daveti yapmıştır).
+   */
+  async findHomepageDemo() {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { isHomepageDemo: true, deletedAt: null },
+      include: { pages: true },
+    });
+    if (!invitation) return null;
+    const { passwordHash, ...safeInvitation } = invitation as any;
+    return safeInvitation;
+  }
+
   async findOneBySlug(slug: string, password?: string) {
     const invitation = await this.prisma.invitation.findFirst({
       where: { slug, deletedAt: null },

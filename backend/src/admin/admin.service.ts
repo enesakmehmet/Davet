@@ -355,6 +355,7 @@ export class AdminService {
           slug: true,
           eventDate: true,
           createdAt: true,
+          isHomepageDemo: true,
           user: { select: { email: true, name: true } },
           _count: { select: { guests: true } },
         },
@@ -362,6 +363,37 @@ export class AdminService {
       this.prisma.invitation.count({ where }),
     ]);
     return { data, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+  }
+
+  // Anasayfadaki "Demoyu İncele" butonunun göstereceği daveti seçer — aynı anda yalnızca bir tane olabilir,
+  // bu yüzden önce diğer tüm davetlerden bayrağı kaldırıp sonra seçileni işaretliyoruz.
+  async setHomepageDemo(invitationId: string) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id: invitationId, deletedAt: null },
+    });
+    if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
+
+    await this.prisma.$transaction([
+      this.prisma.invitation.updateMany({
+        where: { isHomepageDemo: true },
+        data: { isHomepageDemo: false },
+      }),
+      this.prisma.invitation.update({
+        where: { id: invitationId },
+        data: { isHomepageDemo: true },
+      }),
+    ]);
+
+    return { message: 'Bu davetiye anasayfa demosu olarak ayarlandı.' };
+  }
+
+  // Anasayfa demosunu kaldırır (buton anasayfadan gizlenir)
+  async unsetHomepageDemo(invitationId: string) {
+    await this.prisma.invitation.update({
+      where: { id: invitationId },
+      data: { isHomepageDemo: false },
+    });
+    return { message: 'Anasayfa demosu kaldırıldı.' };
   }
 
   // Çöp kutusundaki (kullanıcı ya da admin tarafından silinmiş) tüm davetiyeler — kim, ne zaman

@@ -28,6 +28,15 @@ export class InvitationsController {
   }
 
   /**
+   * Anasayfadaki "Demoyu İncele" butonunun çektiği gerçek davetiye (admin panelden seçilir).
+   * Herkese açık — giriş gerekmez. Henüz seçilmemişse null döner (frontend butonu gizler).
+   */
+  @Get('homepage-demo')
+  getHomepageDemo() {
+    return this.invitationsService.findHomepageDemo();
+  }
+
+  /**
    * Public OG önizleme sayfası — WhatsApp/Telegram link paylaşılınca bu HTML'i okur,
    * başlık + görsel kartı gösterir; gerçek ziyaretçi anında davet sayfasına yönlenir.
    */

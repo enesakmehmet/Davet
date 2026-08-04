@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Clock, MapPin, MailOpen, Music, Image as ImageIcon,
   LayoutTemplate, CreditCard, Share2, Check, ChevronDown, Star, Heart,
-  Globe, Lock, Link2, QrCode, Eye, Bell
+  Globe, Lock, Link2, QrCode, Eye, Bell, X
 } from 'lucide-react';
 import { api } from '../services/api';
 import './Home.css';
+import './Templates.css'; // demo modalının telefon çerçevesi (.tpl-modal-*) için Templates.tsx ile aynı stiller kullanılıyor
 
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 const PRICE = '59,90';
 const FREE = true; // Şu an tüm davetler ücretsiz
 
@@ -72,6 +74,14 @@ const Home = () => {
     api.get('/stats/public').then(({ data }) => setPublicStats(data)).catch(() => {});
   }, []);
 
+  // Admin panelden "Anasayfa Demosu" olarak işaretlenmiş gerçek, yayında bir davetiye varsa
+  // "Demoyu İncele" butonu onu gösterir — henüz seçilmediyse buton eski jenerik önizlemeye gider.
+  const [demo, setDemo] = useState<any>(null);
+  const [showDemo, setShowDemo] = useState(false);
+  useEffect(() => {
+    api.get('/invitations/homepage-demo').then(({ data }) => setDemo(data || null)).catch(() => setDemo(null));
+  }, []);
+
   // Görünen SSS ile Google için FAQPage yapılandırılmış verisi aynı tek kaynaktan gelsin
   const faqs = [
     { q: 'Ücretli mi?', a: FREE ? 'Şu an lansmana özel olarak tüm davetler ve tüm özellikler tamamen ücretsiz. Abonelik veya gizli ücret yok.' : `Abonelik yok. Her davet için tek seferlik ${PRICE} ₺ ödersiniz. Oluşturduğunuz davet size aittir.` },
@@ -104,7 +114,11 @@ const Home = () => {
             </motion.div>
             <motion.div variants={fadeIn} className="hero-actions">
               <Link to="/editor" className="btn-primary-large">Hemen Tasarla</Link>
-              <a href="/davet-preview.html" target="_blank" rel="noreferrer" className="btn-outline-large">▶ Örnek Daveti Aç</a>
+              {demo ? (
+                <button type="button" className="btn-outline-large" onClick={() => setShowDemo(true)}>▶ Demoyu İncele</button>
+              ) : (
+                <a href="/davet-preview.html" target="_blank" rel="noreferrer" className="btn-outline-large">▶ Örnek Daveti Aç</a>
+              )}
             </motion.div>
             <motion.p variants={fadeIn} className="hero-trust">
               <Check size={15} /> {FREE ? 'Şu an tamamen ücretsiz' : `Davet başına tek seferlik ${PRICE} ₺`} &nbsp;·&nbsp; anında teslim &nbsp;·&nbsp; sınırsız düzenleme
@@ -340,7 +354,83 @@ const Home = () => {
           <LeadCapture />
         </div>
       </section>
+
+      <AnimatePresence>
+        {showDemo && demo && <DemoModal demo={demo} onClose={() => setShowDemo(false)} />}
+      </AnimatePresence>
     </div>
+  );
+};
+
+/**
+ * "Demoyu İncele" tıklanınca açılan, gerçek yayındaki demo davetiyeyi telefon çerçevesi içinde
+ * gösteren modal. Templates.tsx'teki TemplatePreviewModal ile aynı .tpl-modal-* stillerini kullanır,
+ * ama bir tema anahtarı yerine DavetView.tsx'teki gibi gerçek davetiyenin tam config'ini
+ * postMessage ile davet-preview.html'e gönderir (misafirin gerçekte göreceğiyle birebir aynı).
+ */
+const DemoModal = ({ demo, onClose }: { demo: any; onClose: () => void }) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const cfg = { ...(demo.config || {}), invitationId: demo.id, apiBase: API_BASE };
+    const onMsg = (e: MessageEvent) => {
+      if (e.data && e.data.__davetReady) iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg }, '*');
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [demo]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const postCfg = () => {
+    const cfg = { ...(demo.config || {}), invitationId: demo.id, apiBase: API_BASE };
+    iframeRef.current?.contentWindow?.postMessage({ __davet: true, cfg }, '*');
+  };
+
+  return (
+    <motion.div
+      className="tpl-modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="tpl-modal-panel"
+        initial={{ opacity: 0, scale: 0.92, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 8 }}
+        transition={{ duration: 0.25, ease: 'easeOut' as const }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button type="button" className="tpl-modal-close" onClick={onClose} aria-label="Kapat">
+          <X size={20} />
+        </button>
+        <div className="tpl-modal-phone">
+          <iframe
+            ref={iframeRef}
+            title="Demo davetiye"
+            src="/davet-preview.html?embed=1"
+            style={{ width: '100%', height: '100%', border: 0 }}
+            onLoad={postCfg}
+          />
+        </div>
+        <div className="tpl-modal-info">
+          <span className="tc-category">Canlı Örnek</span>
+          <h3>{demo.title || 'Örnek Davetiye'}</h3>
+          <div className="tpl-modal-actions">
+            <Link to="/editor" className="btn-primary-large">Sen de Tasarla</Link>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
