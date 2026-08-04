@@ -7,7 +7,7 @@ section { padding: 96px 0; }
   position: fixed; inset: 0; z-index: 200;
   background: rgba(10, 12, 20, 0.82); backdrop-filter: blur(6px);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 18px; padding: 24px;
+  gap: 18px; padding: 24px; overflow-y: auto; /* kısa pencerelerde başlık/buton kesilmesin */
 }
 .demo-modal-close {
   position: absolute; top: 20px; right: 20px; z-index: 5;
@@ -18,22 +18,30 @@ section { padding: 96px 0; }
 }
 .demo-modal-close:hover { background: rgba(255,255,255,.22); }
 .demo-modal-phone {
-  width: 380px; max-width: 88vw; aspect-ratio: 9 / 18.5; max-height: 74vh;
+  /* min() ile genişlik hem 380px'i hem de dar viewport'u aşmaz — sabit medya sorgusu yerine
+     akıcı ölçeklenir (tablet/katlanabilir gibi ara genişliklerde de doğru davranır). */
+  width: min(380px, 90vw);
+  aspect-ratio: 9 / 18.5;
+  max-height: 74vh; max-height: 74dvh; /* dvh desteklenmiyorsa vh'ye düşer, iOS Safari adres çubuğu sorununu önler */
   border-radius: 38px; overflow: hidden; background: #000;
   border: 8px solid #16181f; box-shadow: 0 40px 90px rgba(0,0,0,.55);
   position: relative; flex-shrink: 0;
 }
 .demo-modal-phone iframe { width: 100%; height: 100%; border: 0; display: block; }
-.demo-modal-caption { text-align: center; color: #fff; max-width: 380px; }
+.demo-modal-caption { text-align: center; color: #fff; max-width: min(380px, 90vw); }
 .demo-modal-tag {
   display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 1.5px;
   text-transform: uppercase; color: var(--color-accent-gold); font-weight: 700; margin-bottom: 8px;
 }
 .demo-modal-caption h3 { font-family: var(--font-serif); font-size: 20px; margin: 0 0 16px; }
 
+/* Not: gerçek telefonlarda (<=560px) buton bu modalı hiç açmıyor, bunun yerine doğrudan
+   gerçek /davet/:slug sayfasına tam ekran yönlendiriyor (bkz. Home.tsx openDemo) — DavetView
+   zaten mobil için optimize. Bu blok yalnızca dar masaüstü/tablet pencereleri için güvenlik ağı. */
 @media (max-width: 560px) {
-  .demo-modal-phone { width: 100%; aspect-ratio: 9 / 17.5; max-height: 68vh; border-radius: 28px; border-width: 6px; }
-  .demo-modal-caption h3 { font-size: 17px; }
+  .demo-modal-backdrop { padding: 16px; }
+  .demo-modal-phone { width: min(300px, 82vw); aspect-ratio: 9 / 17.5; max-height: 60vh; max-height: 60dvh; border-radius: 28px; border-width: 6px; }
+  .demo-modal-caption h3 { font-size: 16px; margin-bottom: 12px; }
   .demo-modal-close { top: 14px; right: 14px; }
 }
 

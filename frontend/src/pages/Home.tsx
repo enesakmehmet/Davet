@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Clock, MapPin, MailOpen, Music, Image as ImageIcon,
@@ -75,11 +75,24 @@ const Home = () => {
 
   // Admin panelden "Anasayfa Demosu" olarak işaretlenmiş gerçek, yayında bir davetiye varsa
   // "Demoyu İncele" butonu onu gösterir — henüz seçilmediyse buton eski jenerik önizlemeye gider.
+  const navigate = useNavigate();
   const [demo, setDemo] = useState<any>(null);
   const [showDemo, setShowDemo] = useState(false);
   useEffect(() => {
     api.get('/invitations/homepage-demo').then(({ data }) => setDemo(data || null)).catch(() => setDemo(null));
   }, []);
+
+  // Telefon genişliğinde "telefon içinde telefon" mockup'ı yerine, misafirin gerçekte
+  // göreceği gibi gerçek /davet/:slug sayfasına tam ekran gidiyoruz — DavetView zaten
+  // mobil için optimize edilmiş, ekstra bir çerçeve sadece yer kaybettirir.
+  const openDemo = () => {
+    if (!demo?.slug) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 560px)').matches) {
+      navigate(`/davet/${demo.slug}`);
+    } else {
+      setShowDemo(true);
+    }
+  };
 
   // Görünen SSS ile Google için FAQPage yapılandırılmış verisi aynı tek kaynaktan gelsin
   const faqs = [
@@ -114,7 +127,7 @@ const Home = () => {
             <motion.div variants={fadeIn} className="hero-actions">
               <Link to="/editor" className="btn-primary-large">Hemen Tasarla</Link>
               {demo ? (
-                <button type="button" className="btn-outline-large" onClick={() => setShowDemo(true)}>▶ Demoyu İncele</button>
+                <button type="button" className="btn-outline-large" onClick={openDemo}>▶ Demoyu İncele</button>
               ) : (
                 <a href="/davet-preview.html" target="_blank" rel="noreferrer" className="btn-outline-large">▶ Örnek Daveti Aç</a>
               )}
