@@ -86,11 +86,6 @@ const MainLayout = () => {
           <Link to="/hakkimizda">Hakkımızda</Link>
           <Link to="/contact">İletişim</Link>
         </div>
-        <div className="footer-col">
-          <h4>Bizi Takip Edin</h4>
-          <a href="#">Instagram</a>
-          <a href="#">Pinterest</a>
-        </div>
       </footer>
     </div>
   );

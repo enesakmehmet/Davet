@@ -28,6 +28,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const DavetView = lazy(() => import('./pages/DavetView'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
               <Route path="privacy" element={<Privacy />} />
               <Route path="terms" element={<Terms />} />
               <Route path="contact" element={<Contact />} />
+              {/* Tanımsız her yol (yazım hatası, kaldırılmış link vb.) — daha önce hiç 404 sayfası
+                  yoktu, eşleşmeyen bir URL'de nav/footer bile olmayan bomboş bir sayfa görünüyordu. */}
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* Auth */}
