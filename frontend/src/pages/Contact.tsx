@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { contactService } from '../services/api';
 
 const Contact = () => {
@@ -35,28 +35,12 @@ const Contact = () => {
       <div className="contact-grid">
         <div>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '24px' }}>Bize Ulaşın</h3>
-          
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
-            <MapPin color="var(--color-accent-gold)" />
-            <div>
-              <h4 style={{ marginBottom: '4px' }}>Ofis Adresimiz</h4>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Levent, Büyükdere Cd. No:1<br/>Beşiktaş / İstanbul</p>
-            </div>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
             <Mail color="var(--color-accent-gold)" />
             <div>
               <h4 style={{ marginBottom: '4px' }}>E-posta</h4>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>hello@benimdavetim.com</p>
-            </div>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-            <Phone color="var(--color-accent-gold)" />
-            <div>
-              <h4 style={{ marginBottom: '4px' }}>Telefon</h4>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>+90 (850) 123 45 67</p>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>enesakmehmet7@gmail.com</p>
             </div>
           </div>
         </div>
