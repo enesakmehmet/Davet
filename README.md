@@ -87,3 +87,7 @@ backend `CORS_ORIGINS` içinde `http://localhost:3002` olsun. Giriş: seed admin
 - RSVP ucu IP başına dakikada 5 yanıtla sınırlıdır.
 - Üretimde `ADMIN_OPEN` yok sayılır (kod emniyeti); güçlü bir `JWT_SECRET` kullanın.
 - Yüklenen dosyalar (MP3/görsel) veritabanında saklanır; görseller otomatik küçültülüp WebP'ye çevrilir.
+
+
+
+////////////////////
