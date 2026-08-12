@@ -87,6 +87,9 @@ const MainLayout = () => {
           <Link to="/contact">İletişim</Link>
         </div>
       </footer>
+      <div className="developer-bar">
+        <span>Bu site <strong>Enes Akmehmet</strong> tarafından geliştirildi.</span>
+      </div>
     </div>
   );
 };

@@ -88,6 +88,22 @@
   color: var(--color-accent-gold);
 }
 
+.developer-bar {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(90deg, #131a2b, #1c2740 50%, #131a2b);
+  border-top: 1px solid rgba(212, 175, 55, 0.22);
+  color: rgba(255, 255, 255, 0.68);
+  text-align: center;
+  font-size: 12.5px;
+  letter-spacing: 0.15px;
+}
+
+.developer-bar strong {
+  color: #e6c65c;
+  font-weight: 600;
+}
+
 .menu-toggle {
   display: none;
   align-items: center;
@@ -137,4 +153,5 @@
   /* Sütunlar row düzeninden kalan flex-grow:1 yüzünden dikey eksende gereksiz yer
      kaplayıp bölümler arasında büyük boşluklar oluşturuyordu — burada sıfırlıyoruz. */
   .footer-col, .footer-col.brand { flex: none; }
+  .developer-bar { padding: 13px 16px calc(13px + env(safe-area-inset-bottom, 0px)); font-size: 12px; line-height: 1.5; }
 }
