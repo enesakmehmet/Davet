@@ -47,7 +47,13 @@ export class InvitationsService {
         ensureHttpUrl(url, 'Fotoğraf bağlantısı');
       });
     }
-    if (safe.nameFont !== undefined && !/^[a-zA-Z0-9 ,_-]{1,80}$/.test(String(safe.nameFont))) {
+    /* Editördeki "Tema varsayılanı" seçeneği nameFont olarak BOŞ metin gönderir (bkz. Editor.tsx
+       <option value="">). Eski kural `{1,80}` ile en az bir karakter şart koştuğu için bu boş
+       değeri reddediyordu; yani yazı tipini elle seçmeyen herkes "Yazı tipi geçersiz." hatası
+       alıp daveti hiç yayınlayamıyordu. Boş/null artık "tema varsayılanını kullan" demektir. */
+    const nameFont = safe.nameFont;
+    if (nameFont !== undefined && nameFont !== null && String(nameFont) !== '' &&
+        !/^[a-zA-Z0-9 ,_-]{1,80}$/.test(String(nameFont))) {
       throw new BadRequestException('Yazı tipi geçersiz.');
     }
 
