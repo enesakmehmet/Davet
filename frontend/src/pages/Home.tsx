@@ -428,7 +428,7 @@ const DemoModal = ({ demo, onClose }: { demo: any; onClose: () => void }) => {
         <iframe
           ref={iframeRef}
           title="Demo davetiye"
-          src="/davet-preview.html?embed=1"
+          src="/davet-preview.html?embed=1&v=20260829a"
           onLoad={postCfg}
         />
       </motion.div>

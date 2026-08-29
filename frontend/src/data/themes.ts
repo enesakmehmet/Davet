@@ -112,6 +112,7 @@ export const THEMES: ThemeDef[] = [
   { key: 'gokkusagi', name: 'Gökkuşağı Bulutları', c1: '#e8a5d6', c2: '#fff4d4', category: 'dogumgunu', dark: false, isNew: true },
   { key: 'retroarcade', name: 'Retro Oyun Salonu', c1: '#ff4fd8', c2: '#4fe0ff', category: 'dogumgunu', dark: true, isNew: true },
   { key: 'ciftlikpartisi', name: 'Çiftlik Partisi', c1: '#a8442a', c2: '#f2ddc4', category: 'dogumgunu', dark: false, isNew: true },
+  { key: 'pembekedicik', name: 'Pembe Kedicik', c1: '#e8467f', c2: '#ffd9e6', category: 'dogumgunu', dark: false, isNew: true },
   // ===== Kutlama =====
   { key: 'kutlamaPop', name: 'Renkli Kutlama', c1: '#ff5e8a', c2: '#ffd1e0', category: 'kutlama', dark: false },
   { key: 'kutlamaGece', name: 'Işıltılı Gece', c1: '#0f0a22', c2: '#ffd86b', category: 'kutlama', dark: true },
