@@ -37,6 +37,24 @@ const isHttpUrl = (value: string) => {
   }
 };
 
+/**
+ * "datetime-local" alanı saat dilimi taşımayan bir metin verir ("2026-09-04T15:00").
+ * new Date(...) bunu DAVETİ OLUŞTURANIN yerel saatine göre yorumlar; davet sahibi yurt
+ * dışındaysa sunucuya yanlış an kaydedilir ve "etkinliğine 3 gün kaldı" hatırlatması
+ * yanlış günde gider. Davetiyenin gösterdiği saatle (davet-preview.html içindeki evTime)
+ * tutarlı olmak için burada da girilen saat daima Türkiye saati (UTC+3) kabul edilir.
+ */
+const toEventISO = (value?: string): string | undefined => {
+  const s = String(value || '').trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?$/);
+  if (!m) {
+    const fallback = new Date(s);
+    return isNaN(fallback.getTime()) ? undefined : fallback.toISOString();
+  }
+  const ms = Date.UTC(+m[1], +m[2] - 1, +m[3], m[4] ? +m[4] : 0, m[5] ? +m[5] : 0) - 3 * 3600000;
+  return new Date(ms).toISOString();
+};
+
 /* Dini düğün temasına geçilince (kullanıcı hâlâ varsayılanlardaysa) uygulanan içerik */
 const DINI_CONTENT: Partial<Cfg> = {
   brideName: 'Dilan', groomName: 'Emre',
@@ -347,7 +365,7 @@ const Editor = () => {
     setAutoSave('saving');
     const t = setTimeout(async () => {
       try {
-        const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? new Date(cfg.date).toISOString() : undefined;
+        const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? toEventISO(cfg.date) : undefined;
         await invitationService.saveInvitation(idRef.current as string, { eventDate, config: cfg });
         setAutoSave('saved');
       } catch {
@@ -454,7 +472,7 @@ const Editor = () => {
   };
 
   const downloadHtml = async () => {
-    const res = await fetch('/davet-preview.html?v=20260829b');
+    const res = await fetch('/davet-preview.html?v=20260829c');
     let html = await res.text();
     const initialConfig = JSON.stringify(cfg)
       .replace(/</g, '\\u003c')
@@ -525,7 +543,7 @@ const Editor = () => {
         : isBirthdayTheme(cfg.theme)
           ? `${cfg.brideName} — Doğum Günü Davetiyesi`
           : `${cfg.brideName} & ${cfg.groomName} — Düğün Davetiyesi`;
-      const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? new Date(cfg.date).toISOString() : undefined;
+      const eventDate = (cfg.date && !isCelebTheme(cfg.theme)) ? toEventISO(cfg.date) : undefined;
       const payload: any = { title, eventDate, config: cfg, isPasswordProtected: isProtected };
       if (isProtected && password) payload.password = password;
       if (!isProtected) payload.password = ''; // clear password
@@ -1016,7 +1034,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20260829b" onLoad={post} />
+          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20260829c" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>

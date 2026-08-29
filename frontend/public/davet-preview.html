@@ -823,9 +823,37 @@ function days(lang){
   if (lang === 'de') return ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
   return ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
 }
-function fmtDate(d, lang){var dt=new Date(d);if(isNaN(dt))return '';return dt.getDate()+' '+months(lang)[dt.getMonth()]+' '+dt.getFullYear();}
-function fmtTime(d){var dt=new Date(d);if(isNaN(dt))return '';return ('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);}
-function fmtDay(d, lang){var dt=new Date(d);if(isNaN(dt))return '';return days(lang)[dt.getDay()];}
+/* ===== Etkinlik zamanı — DAİMA Türkiye saati (UTC+3) =====
+   Editördeki "datetime-local" alanı saat dilimi taşımayan bir metin üretir ("2026-09-04T15:00").
+   new Date(...) bunu İZLEYENİN yerel saati sayıyordu; yani aynı davetiye Berlin'deki misafirde
+   1 saat, New York'takinde 7 saat kaymış bir geri sayım gösteriyordu (sayaç düğün başladıktan
+   sonra sıfırlanıyordu). Artık girilen saat, misafir nerede olursa olsun Türkiye saati kabul
+   edilir. Türkiye 2016'dan beri yıl boyu UTC+3'tür (yaz saati uygulaması yok), bu yüzden sabit
+   ofset güvenlidir. */
+var TR_OFFSET_MS = 3 * 3600000;
+
+/* Etkinliğin Türkiye saatindeki takvim parçaları — GÖSTERİM için (tarih/saat/gün yazıları). */
+function evParts(v){
+  var s = String(v == null ? '' : v).trim(); if(!s) return null;
+  /* Saat dilimi bilgisi taşımayan biçim: zaten Türkiye saati kabul ediliyor, çevirme yapma. */
+  if(/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?)?$/.test(s)){
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    return {y:+m[1], mo:+m[2], d:+m[3], h:m[4]?+m[4]:0, mi:m[5]?+m[5]:0};
+  }
+  /* Saat dilimli/ISO biçim (ör. backend'den gelen "...Z"): Türkiye saatine çevirip parçala. */
+  var t = new Date(s); if(isNaN(t.getTime())) return null;
+  var tr = new Date(t.getTime() + TR_OFFSET_MS);
+  return {y:tr.getUTCFullYear(), mo:tr.getUTCMonth()+1, d:tr.getUTCDate(), h:tr.getUTCHours(), mi:tr.getUTCMinutes()};
+}
+/* Etkinliğin mutlak anı (ms) — GERİ SAYIM ve takvim dosyaları için. */
+function evTime(v){
+  var p = evParts(v); if(!p) return NaN;
+  return Date.UTC(p.y, p.mo-1, p.d, p.h, p.mi) - TR_OFFSET_MS;
+}
+
+function fmtDate(d, lang){var p=evParts(d);if(!p)return '';return p.d+' '+months(lang)[p.mo-1]+' '+p.y;}
+function fmtTime(d){var p=evParts(d);if(!p)return '';return ('0'+p.h).slice(-2)+':'+('0'+p.mi).slice(-2);}
+function fmtDay(d, lang){var p=evParts(d);if(!p)return '';return days(lang)[new Date(Date.UTC(p.y,p.mo-1,p.d)).getUTCDay()];}
 
 /* ============ RENDER ============ */
 function render(cfg){
@@ -1797,8 +1825,9 @@ function setupParallax(){
 
 /* Google Calendar "tek tık ekle" bağlantısı */
 function gcalUrl(cfg,couple){
-  var start=new Date(cfg.date); if(isNaN(start.getTime())) return '';
-  var end=new Date(start.getTime()+5*3600000);
+  var startMs=evTime(cfg.date); if(isNaN(startMs)) return '';
+  var start=new Date(startMs);
+  var end=new Date(startMs+5*3600000);
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE'+
     '&text='+encodeURIComponent(couple+' Düğünü')+
     '&dates='+fmtICS(start)+'/'+fmtICS(end)+
@@ -1816,7 +1845,7 @@ function videoEmbed(url,border){
 }
 
 function startCountdown(date){
-  var target=new Date(date).getTime();
+  var target=evTime(date); /* Türkiye saatine sabit — izleyicinin saat dilimine göre kaymaz */
   function tk(){var diff=target-Date.now();if(isNaN(diff))diff=0;if(diff<0)diff=0;
     var v=[Math.floor(diff/86400000),Math.floor(diff%86400000/3600000),Math.floor(diff%3600000/60000),Math.floor(diff%60000/1000)];
     for(var i=0;i<4;i++){var e=document.getElementById('cd'+i);if(e)e.textContent=(v[i]<10?'0'+v[i]:''+v[i]);}}
@@ -1908,8 +1937,10 @@ function setupRSVP(cfg, couple, T){
     var submit=document.getElementById('sb'); if(submit){submit.disabled=false;submit.style.opacity='1';}
   });});
   var form=document.getElementById('rf'); if(!form)return;
-  var deadline=cfg.rsvpDeadlineDate?new Date(cfg.rsvpDeadlineDate+'T23:59:59'):null;
-  if(deadline&&!isNaN(deadline.getTime())&&deadline.getTime()<Date.now()){
+  /* Son tarih de Türkiye saatiyle değerlendirilir — aksi halde yurt dışındaki misafirde
+     katılım bildirimi saatler önce/sonra kapanıyordu. */
+  var deadlineMs=cfg.rsvpDeadlineDate?evTime(cfg.rsvpDeadlineDate+'T23:59'):NaN;
+  if(!isNaN(deadlineMs)&&deadlineMs<Date.now()){
     var deadlineError=document.getElementById('re');
     var deadlineSubmit=document.getElementById('sb');
     if(deadlineError){deadlineError.textContent='Kat\u0131l\u0131m bildirim s\u00fcresi sona erdi.';deadlineError.style.display='block';}
@@ -1959,14 +1990,19 @@ function setupRSVP(cfg, couple, T){
   });
 }
 
+/* UTC biçiminde (sonda "Z") üretir. Eskiden yerel saat alanlarını yazıyordu ve sonuna Z
+   koymadığı için takvim uygulamaları saati "kayan saat" sayıp misafirin kendi saat dilimine
+   göre yorumluyordu — yurt dışındaki misafirin takviminde düğün yanlış saate düşüyordu.
+   UTC + "Z" ile her takvim uygulaması doğru yerel karşılığa çevirir. */
 function fmtICS(d){
-  return d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + 'T' + 
-         ('0'+d.getHours()).slice(-2) + ('0'+d.getMinutes()).slice(-2) + ('0'+d.getSeconds()).slice(-2);
+  return d.getUTCFullYear() + ('0'+(d.getUTCMonth()+1)).slice(-2) + ('0'+d.getUTCDate()).slice(-2) + 'T' +
+         ('0'+d.getUTCHours()).slice(-2) + ('0'+d.getUTCMinutes()).slice(-2) + ('0'+d.getUTCSeconds()).slice(-2) + 'Z';
 }
 function setupCalendar(cfg, couple){
   var b=document.getElementById('calBtn'); if(!b)return;
   b.addEventListener('click',function(){
-    var start=new Date(cfg.date), end=new Date(start.getTime()+5*3600000);
+    var startMs=evTime(cfg.date); if(isNaN(startMs))return;
+    var start=new Date(startMs), end=new Date(startMs+5*3600000);
     var ics='BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:'+fmtICS(start)+'\nDTEND:'+fmtICS(end)+'\nSUMMARY:'+couple+' Düğünü\nLOCATION:'+(cfg.venueName||'')+'\nDESCRIPTION:Düğünümüze davetlisiniz!\nEND:VEVENT\nEND:VCALENDAR';
     var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));a.download='dugun.ics';a.click();});
 }
