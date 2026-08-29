@@ -1128,15 +1128,21 @@ function render(cfg){
         '<button type="button" data-v="hayir" style="border-color:'+border+';color:'+inkSoft+'">'+t.btnNo+'</button></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">'+t.lblName+'</label><input id="gn" placeholder="'+t.plcName+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
         '<div class="field"><label style="color:'+inkSoft+'">E-posta</label><input id="ge" type="email" autocomplete="email" placeholder="ornek@eposta.com" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
-        '<div class="field"><label style="color:'+inkSoft+'">Telefon</label><input id="gp" type="tel" inputmode="tel" autocomplete="tel" placeholder="905551112233" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
-        '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
-        '<div class="field" id="xf">'+
-          '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
-          '<select id="gmeal" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid '+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+';font-family:inherit;font-size:15px">'+t.mealOpts.map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>';}).join('')+'</select>'+
-          '<label style="color:'+inkSoft+';margin-top:10px;display:block">'+t.lblAllergy+'</label>'+
-          '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'">'+
-        '</div>'+
-        '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'+
+        /* Doğum günü davetlerinde form kasıtlı olarak kısa tutuluyor: yalnızca katılım
+           seçimi + ad soyad + e-posta. Telefon, kişi sayısı, yemek tercihi, alerji notu ve
+           serbest mesaj alanları düğün/nikah gibi oturma düzeni ve ikram planlaması
+           gerektiren etkinliklere özgü — doğum gününde gereksiz sürtünme yaratıyorlardı. */
+        (isBday ? '' :
+          '<div class="field"><label style="color:'+inkSoft+'">Telefon</label><input id="gp" type="tel" inputmode="tel" autocomplete="tel" placeholder="905551112233" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+          '<div class="field" id="cf"><label style="color:'+inkSoft+'">'+t.lblCount+'</label><input id="gc" type="number" min="1" value="1" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></div>'+
+          '<div class="field" id="xf">'+
+            '<label style="color:'+inkSoft+'">'+t.lblMeal+'</label>'+
+            '<select id="gmeal" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid '+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+';font-family:inherit;font-size:15px">'+t.mealOpts.map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>';}).join('')+'</select>'+
+            '<label style="color:'+inkSoft+';margin-top:10px;display:block">'+t.lblAllergy+'</label>'+
+            '<input id="gallergy" placeholder="'+t.plcAllergy+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'">'+
+          '</div>'+
+          '<div class="field"><label style="color:'+inkSoft+'">'+t.lblMsg+'</label><textarea id="gm" rows="2" placeholder="'+t.plcMsg+'" style="border-color:'+border+';color:'+ink+';background:'+(T.dark?'rgba(255,255,255,.04)':'#fff')+'"></textarea></div>'
+        )+
         '<div id="re" style="display:none;margin:0 0 12px;color:#b3261e;font-size:13px"></div><button type="submit" class="send" id="sb" style="background:'+T.accent+';color:'+(T.dark?'#0b0b0d':'#fff')+';opacity:.5" disabled>'+t.btnSend+'</button></form>'+
       '<div class="thanks" id="th"><div class="ck">💛</div><h3 id="tt" style="color:'+T.accent+'"></h3><p id="tm" style="color:'+inkSoft+'"></p><a class="wa" id="wl" target="_blank">'+t.waBtn+'</a></div>'+
     '</div>';
@@ -1885,40 +1891,10 @@ function spawnRoses(){
   }
   setTimeout(function(){ host.remove(); }, 6500);
 }
-function setupRSVP(cfg, couple, T){
-  var phone=cfg.phone;
-  var choice=null, btns=document.querySelectorAll('.choice button');
-  btns.forEach(function(b){b.addEventListener('click',function(){btns.forEach(function(x){x.style.background='transparent';});b.style.background=T.soft;choice=b.getAttribute('data-v');
-    var show=choice==='evet'?'block':'none';
-    var cf=document.getElementById('cf'); if(cf)cf.style.display=show;
-    var xf=document.getElementById('xf'); if(xf)xf.style.display=show;
-    var sb=document.getElementById('sb');sb.disabled=false;sb.style.opacity='1';});});
-  var rf=document.getElementById('rf'); if(!rf)return;
-  rf.addEventListener('submit',function(e){e.preventDefault();
-    var name=document.getElementById('gn').value.trim()||'Bir misafir';var count=document.getElementById('gc').value||1;var msg=document.getElementById('gm').value.trim();var coming=choice==='evet';
-    var mealEl=document.getElementById('gmeal'), alEl=document.getElementById('gallergy');
-    var meal=(coming&&mealEl)?mealEl.value:''; var allergy=(coming&&alEl)?alEl.value.trim():'';
-    /* Kayıtlı davette yanıtı backend'e de yaz */
-    if(cfg.invitationId && cfg.apiBase){
-      try{
-        var payload={ invitationId:cfg.invitationId, name:name,
-          status: coming?'attending':'not_attending',
-          companionCount: coming?parseInt(count,10)||1:0, message:msg };
-        if(meal) payload.mealPreference=meal;
-        if(allergy) payload.allergyNote=allergy;
-        fetch(cfg.apiBase.replace(/\/$/,'')+'/guests',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(payload)
-        }).catch(function(){});
-      }catch(err){}
-    }
-    rf.style.display='none';
-    document.getElementById('tt').textContent=coming?'Harika, görüşmek üzere!':'Anlayışınız için teşekkürler';
-    document.getElementById('tm').textContent=coming?name+', '+count+' kişilik katılımınız alındı. Sizi aramızda görmek için sabırsızlanıyoruz!':name+', katılamayacağınızı bildirdiniz. Sevgiyle, sizi düşüneceğiz.';
-    var waText=encodeURIComponent((coming?'Düğününüze katılıyorum ✅':'Maalesef katılamıyorum ❌')+'\nAd: '+name+(coming?'\nKişi: '+count:'')+(meal?'\nYemek: '+meal:'')+(allergy?'\nAlerji: '+allergy:'')+(msg?'\nNot: '+msg:'')+'\n— '+couple);
-    document.getElementById('wl').href='https://wa.me/'+phone+'?text='+waText;
-    document.getElementById('th').classList.add('show');});
-}
+/* Not: burada eskiden ikinci (eski) bir setupRSVP tanımı vardı. JavaScript'te aynı isimli
+   iki fonksiyon bildiriminden SONRAKİ kazandığı için hiçbir zaman çalışmıyordu — yani ölü
+   koddu ve e-posta/telefon doğrulaması, süre dolumu kontrolü gibi yenilikleri içermiyordu.
+   Kaldırıldı; geçerli uygulama aşağıdaki tek setupRSVP tanımıdır. */
 /* RSVP'nin güvenilir sürümü: kayıt başarılı olmadan teşekkür ekranını göstermez. */
 function setupRSVP(cfg, couple, T){
   var ownerPhone=String(cfg.phone||'').replace(/\D/g,'');
@@ -1951,19 +1927,26 @@ function setupRSVP(cfg, couple, T){
     function fail(message){if(error){error.textContent=message;error.style.display='block';}if(submit){submit.disabled=false;submit.style.opacity='1';submit.textContent=T.btnSend||'Gonder';}}
     if(!choice)return fail('Lutfen katilim durumunuzu secin.');
     if(!name)return fail('Lutfen adinizi yazin.');
-    if(!email&&!guestPhone)return fail('Lutfen e-posta veya telefon numaranizi yazin.');
+    /* Telefon alanı yoksa (doğum günü) hata metni de telefondan bahsetmemeli. */
+    if(!email&&!guestPhone)return fail(phoneEl?'Lutfen e-posta veya telefon numaranizi yazin.':'Lutfen e-posta adresinizi yazin.');
     if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return fail('Gecerli bir e-posta adresi yazin.');
     if(guestPhone&&!/^\d{8,15}$/.test(guestPhone))return fail('Gecerli bir telefon numarasi yazin.');
     if(error)error.style.display='none';
     if(submit){submit.disabled=true;submit.style.opacity='.65';submit.textContent='Gonderiliyor...';}
-    var coming=choice==='evet', count=(document.getElementById('gc').value||1);
+    /* Not: doğum günü davetlerinde kişi sayısı/yemek/alerji/mesaj alanları hiç basılmıyor
+       (bkz. RSVP formu render'ı), bu yüzden buradaki tüm okumalar null-güvenli olmalı. */
+    var coming=choice==='evet';
+    var countEl=document.getElementById('gc');
+    var count=(countEl&&countEl.value)||1;
     var mealEl=document.getElementById('gmeal'), allergyEl=document.getElementById('gallergy');
+    var msgEl=document.getElementById('gm');
     var meal=coming&&mealEl?mealEl.value:'', allergy=coming&&allergyEl?allergyEl.value.trim():'';
-    var payload={invitationId:cfg.invitationId,name:name,email:email||undefined,phone:guestPhone||undefined,status:coming?'attending':'not_attending',companionCount:coming?parseInt(count,10)||1:0,message:(document.getElementById('gm').value||'').trim()};
+    var payload={invitationId:cfg.invitationId,name:name,email:email||undefined,phone:guestPhone||undefined,status:coming?'attending':'not_attending',companionCount:coming?parseInt(count,10)||1:0,message:msgEl?(msgEl.value||'').trim():''};
     if(meal)payload.mealPreference=meal; if(allergy)payload.allergyNote=allergy;
     function success(){
       form.style.display='none'; document.getElementById('tt').textContent=coming?'Harika, gorusmek uzere!':'Anlayisiniz icin tesekkurler';
-      document.getElementById('tm').textContent=coming?name+', '+count+' kisilik katiliminiz alindi.':name+', katilamayacaginizi bildirdiniz.';
+      /* Kişi sayısı sorulmadıysa (doğum günü) "1 kisilik" demek anlamsız olur. */
+      document.getElementById('tm').textContent=coming?(countEl?name+', '+count+' kisilik katiliminiz alindi.':name+', katiliminiz alindi.'):name+', katilamayacaginizi bildirdiniz.';
       var wa=document.getElementById('wl');
       if(ownerPhone&&/^\d{8,15}$/.test(ownerPhone)){wa.href='https://wa.me/'+ownerPhone+'?text='+encodeURIComponent((coming?'Katilacagim':'Katilamayacagim')+'\nAd: '+name);}
       else if(wa){wa.style.display='none';}
