@@ -491,7 +491,12 @@
 <div id="app"></div>
 
 <script>
-if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embedded-preview');
+/* embed=1 → davet, kendi arayüzümüzün içinde önizleniyor (editör paneli, şablon galerisi,
+   anasayfa demosu). Gerçek misafir bağlantısı (/davet/:slug) bu parametreyi kullanmaz.
+   Müziğin kendiliğinden başlaması yalnızca gerçek davette istenir; editörde çalışırken
+   her tıklamada müzik başlaması rahatsız edici olurdu. */
+var IS_EMBED_PREVIEW = new URLSearchParams(location.search).has('embed');
+if (IS_EMBED_PREVIEW) document.body.classList.add('embedded-preview');
 /* ============ TEMA ÖN AYARLARI ============ */
 var THEMES = {
   altin:    {label:'Zarif Altın', accent:'#9c7a31', soft:'#e8d6a8', dark:false, bg:'linear-gradient(160deg,#fbf7ef,#f3ead7)', page:'#fbf7ef', nameFont:'Great Vibes', decor:['✦'], decorKind:'rain'},
@@ -1193,7 +1198,7 @@ function render(cfg){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music && !isThumb){ ensureMusicBtn(T); } else removeMusicBtn();
+  if(cfg.music && !isThumb){ ensureMusicBtn(T); if(!IS_EMBED_PREVIEW) armMusicAutostart(); } else removeMusicBtn();
 }
 
 /* ============ DİNİ DÜĞÜN RENDER (besmele + kına & düğün kartları + dua) ============ */
@@ -1378,7 +1383,7 @@ function renderDini(cfg, T, wrap, x){
   setupCalendar(cfg, couple);
   setupFabs(cfg, couple, T);
   currentMusicUrl = cfg.musicUrl || null;
-  if(cfg.music && !isThumb){ ensureMusicBtn(T); } else removeMusicBtn();
+  if(cfg.music && !isThumb){ ensureMusicBtn(T); if(!IS_EMBED_PREVIEW) armMusicAutostart(); } else removeMusicBtn();
 }
 
 /* ============ KUTLAMA RENDER (davet değil, kişiye gönderilen kutlama) ============ */
@@ -1455,7 +1460,7 @@ function renderCelebration(cfg, T, wrap, x){
     setupCake();
     setupFabs(cfg, cfg.brideName||'', T);
     currentMusicUrl = cfg.musicUrl || null;
-    if(cfg.music){ ensureMusicBtn(T); } else removeMusicBtn();
+    if(cfg.music){ ensureMusicBtn(T); if(!IS_EMBED_PREVIEW && !isThumb) armMusicAutostart(); } else removeMusicBtn();
   }
 }
 
@@ -2065,9 +2070,29 @@ function startMusic(silent){
   chord();ms.loop=setInterval(chord,1700);setPlaying(true);
 }
 function stopMusic(){var ms=musicState;clearInterval(ms.loop);if(ms.audio){try{ms.audio.pause();}catch(e){}}if(ms.master&&ms.actx){try{ms.master.gain.exponentialRampToValueAtTime(0.0001,ms.actx.currentTime+0.4);}catch(e){}}setPlaying(false);}
-/* Otomatik oynatma denemesi YOK: tarayıcılar zaten çoğu zaman engelliyordu ve garip bir
-   davranışa yol açıyordu. Müzik artık yalnızca kullanıcı "Arka Plan Müziği" butonuna
-   dokununca başlar — bkz. ensureMusicBtn() ve buradaki click dinleyicisi. */
+/* ==== Davet açılır açılmaz müzik ====
+   Tarayıcılar (Chrome, Safari, Firefox) sesli otomatik oynatmayı kesin olarak engeller:
+   misafir sayfayla ETKİLEŞMEDEN ses çalınamaz, denenirse istek reddedilir. Bu yüzden
+   "sayfa yüklenince çal" mümkün değil; onun yerine müziği misafirin İLK dokunuşuna
+   bağlıyoruz. Pratikte fark edilmez: açılış animasyonu olan davetlerde bu dokunuş zaten
+   "Davetiyeyi Aç"tır, olmayanlarda (doğum günü vb.) sayfaya ilk dokunuş/tıklamadır.
+   Yani misafir için müzik davet açılır açılmaz başlamış gibi olur.
+
+   Sadece gerçek "kullanıcı etkinleştirmesi" sayılan olaylar dinlenir — kaydırma (scroll)
+   tarayıcı tarafından etkinleştirme sayılmadığı için listede yoktur, olsaydı ses yine
+   engellenir ve tek şansımızı boşa harcamış olurduk. */
+var musicArmed = false;
+var MUSIC_GESTURES = ['pointerdown','touchend','click','keydown'];
+function armMusicAutostart(){
+  if(musicArmed) return; musicArmed = true;
+  function go(){
+    MUSIC_GESTURES.forEach(function(ev){ window.removeEventListener(ev, go, true); });
+    /* Zaten çalıyorsa (misafir müzik düğmesine bastıysa) tekrar başlatma. */
+    if(musicState && musicState.playing) return;
+    try{ startMusic(true); }catch(e){} /* silent=true: engellenirse uyarı kutusu çıkmasın */
+  }
+  MUSIC_GESTURES.forEach(function(ev){ window.addEventListener(ev, go, true); });
+}
 
 /* ==== Havai fişek ==== */
 var fwRAF=null;
