@@ -8,6 +8,7 @@ import {
   Globe, Lock, Link2, QrCode, Eye, Bell, X
 } from 'lucide-react';
 import { api } from '../services/api';
+import { THEMES } from '../data/themes';
 import './Home.css';
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
@@ -42,7 +43,23 @@ const CATEGORY_PRETITLE: Record<Category, string> = {
   kutlama: 'BİRLİKTE KUTLAYALIM',
 };
 
-const SHOWCASE: { key: string; name: string; g: string; font: string; accent: string; couple: string; date: string; targetDate: string; category: Category }[] = [
+/**
+ * Vitrin örneklerinin tarihleri sabit yazılamaz: zaman geçince geçmişte kalıyor ve anasayfadaki
+ * telefon önizlemesinin geri sayımı "00 gün 00 saat 00 dk 00 sn"de donuyordu (canlıda yaşandı —
+ * ziyaretçiye ilk izlenim olarak bozuk görünüyordu). Her örnek, bugünden N gün sonraya
+ * yerleştirilir; gösterilen tarih yazısı ve geri sayım hedefi buradan türetilir.
+ */
+const TR_MONTHS_UPPER = ['OCAK', 'ŞUBAT', 'MART', 'NİSAN', 'MAYIS', 'HAZİRAN', 'TEMMUZ', 'AĞUSTOS', 'EYLÜL', 'EKİM', 'KASIM', 'ARALIK'];
+const futureSample = (inDays: number, hour: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + inDays);
+  d.setHours(hour, 0, 0, 0);
+  return { date: `${d.getDate()} ${TR_MONTHS_UPPER[d.getMonth()]} ${d.getFullYear()}`, targetDate: d.toISOString() };
+};
+// Sıra SHOWCASE dizisiyle aynı: [gün sonra, saat]
+const SHOWCASE_OFFSETS: [number, number][] = [[45, 18], [72, 18], [21, 19], [120, 18], [14, 16], [38, 18], [90, 20], [58, 18], [150, 18]];
+
+const SHOWCASE_RAW: { key: string; name: string; g: string; font: string; accent: string; couple: string; date: string; targetDate: string; category: Category }[] = [
   { key: 'altin', name: 'Zarif Altın', g: 'linear-gradient(150deg,#9c7a31,#e8d6a8)', font: 'Great Vibes', accent: '#9c7a31', couple: 'Zeynep & Ahmet', date: '12 EYLÜL 2026', targetDate: '2026-09-12T18:00:00+03:00', category: 'dugun' },
   { key: 'gul', name: 'Romantik Gül', g: 'linear-gradient(150deg,#b35a72,#f6dbe2)', font: 'Parisienne', accent: '#b35a72', couple: 'Elif & Burak', date: '3 EKİM 2026', targetDate: '2026-10-03T18:00:00+03:00', category: 'dugun' },
   // Not: "kına" özel bir hazır tema kategorisi olarak yok; editördeki 'dini' teması (Zarif Besmele)
@@ -55,6 +72,11 @@ const SHOWCASE: { key: string; name: string; g: string; font: string; accent: st
   { key: 'sonbahar', name: 'Sonbahar', g: 'linear-gradient(150deg,#8a3d1c,#ecd9bf)', font: 'Petit Formal Script', accent: '#8a3d1c', couple: 'Yağmur & Berk', date: '17 EKİM 2026', targetDate: '2026-10-17T18:00:00+03:00', category: 'dugun' },
   { key: 'lavanta', name: 'Lavanta Bahçe', g: 'linear-gradient(150deg,#6f54a0,#e3d6f3)', font: 'Sacramento', accent: '#6f54a0', couple: 'İrem & Can', date: '6 HAZİRAN 2027', targetDate: '2027-06-06T18:00:00+03:00', category: 'dugun' },
 ];
+// Yukarıdaki date/targetDate yalnızca yer tutucu; gerçek değerler bugüne göre üretilir.
+const SHOWCASE = SHOWCASE_RAW.map((s, i) => {
+  const [inDays, hour] = SHOWCASE_OFFSETS[i] || [30 + i * 10, 18];
+  return { ...s, ...futureSample(inDays, hour) };
+});
 
 const Home = () => {
   // Hero telefon önizlemesi, hazır temalardan birini gösterir ve 10 saniyede bir değişir
@@ -188,7 +210,7 @@ const Home = () => {
             // Yeterli veri birikene kadar (ör. ilk haftalarda) sahte/boş görünmesin diye eşik konuldu
             publicStats && publicStats.totalInvitations >= 20
               ? { b: `${publicStats.totalInvitations}+`, s: 'Oluşturulan Davet' }
-              : { b: '21+', s: 'Hazır Tema' },
+              : { b: `${THEMES.length}+`, s: 'Hazır Tema' }, // sabit "21+" yerine gerçek tema sayısı
             { b: '%100', s: 'Mobil Uyumlu' },
             { b: '~3 dk', s: 'Hazır Olur' },
             { b: 'Ücretsiz', s: 'Tüm Özellikler' },
@@ -428,7 +450,7 @@ const DemoModal = ({ demo, onClose }: { demo: any; onClose: () => void }) => {
         <iframe
           ref={iframeRef}
           title="Demo davetiye"
-          src="/davet-preview.html?embed=1&v=20260829d"
+          src="/davet-preview.html?embed=1&v=20261003a"
           onLoad={postCfg}
         />
       </motion.div>

@@ -320,8 +320,17 @@ export class InvitationsService {
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
   async expireOldInvitations() {
     const oneYearAgo = new Date(Date.now() - 365 * 24 * 3600 * 1000);
+    // Etkinlikten sonra misafirler albüme foto yükleyebilsin/teşekkür görebilsin diye 30 gün tolerans.
+    const eventGrace = new Date(Date.now() - 30 * 24 * 3600 * 1000);
     const expired = await this.prisma.invitation.findMany({
-      where: { deletedAt: null, createdAt: { lt: oneYearAgo } },
+      // Eskiden yalnızca createdAt'e bakılıyordu: 14 ay sonraki bir düğün için bugün hazırlanan
+      // davet, DÜĞÜNDEN ÖNCE yayından kalkıyordu. Artık hem 1 yıl dolmuş olmalı hem de etkinlik
+      // (tarihi varsa) en az 30 gün önce geçmiş olmalı.
+      where: {
+        deletedAt: null,
+        createdAt: { lt: oneYearAgo },
+        OR: [{ eventDate: null }, { eventDate: { lt: eventGrace } }],
+      },
       select: { id: true, title: true, userId: true },
     });
     for (const inv of expired) {
@@ -356,8 +365,14 @@ export class InvitationsService {
   /** Her sabah 09:00 — etkinliğine 3 gün kalan davet sahiplerine hatırlatma gönderir. */
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async sendUpcomingReminders() {
-    const start = new Date(); start.setDate(start.getDate() + 3); start.setHours(0, 0, 0, 0);
-    const end = new Date(start); end.setHours(23, 59, 59, 999);
+    // "3 gün sonraki gün" TÜRKİYE takvimine göre hesaplanır. Sunucu (Railway) UTC'de çalıştığı
+    // için setHours(0..23) eskiden UTC gününü veriyordu; Türkiye'de 00:00–02:59 arasındaki
+    // etkinlikler (kına/düğün sonrası parti) bir gün kaymış hatırlatma alıyordu.
+    const TR = 3 * 3600 * 1000;
+    const trNow = new Date(Date.now() + TR); // UTC alanları artık Türkiye yerel saatini gösterir
+    const startMs = Date.UTC(trNow.getUTCFullYear(), trNow.getUTCMonth(), trNow.getUTCDate() + 3) - TR;
+    const start = new Date(startMs);
+    const end = new Date(startMs + 24 * 3600 * 1000 - 1);
 
     const upcoming = await this.prisma.invitation.findMany({
       where: { deletedAt: null, eventDate: { gte: start, lte: end } },

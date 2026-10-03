@@ -55,21 +55,44 @@ const toEventISO = (value?: string): string | undefined => {
   return new Date(ms).toISOString();
 };
 
+/**
+ * Örnek/varsayılan tarihler artık SABİT yazılmıyor, bugüne göre hesaplanıyor.
+ * Eskiden '2026-09-12' gibi sabit tarihler vardı; zaman geçince bunlar geçmişte kaldı ve:
+ *  - yeni açılan her davetin geri sayımı 00:00:00'da donuk başlıyordu,
+ *  - varsayılan RSVP son tarihi geçmişte kaldığı için "RSVP son bildirim tarihi geçmişte
+ *    olamaz" doğrulaması, tarihi elle değiştirmeyen herkesin YAYINLAMASINI engelliyordu.
+ */
+const TR_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const daysFromNow = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d; };
+/** datetime-local biçimi: "YYYY-MM-DDTHH:mm" */
+const localDateTime = (d: Date, hh: number, mm: number) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(hh)}:${pad2(mm)}`;
+/** date biçimi: "YYYY-MM-DD" */
+const localDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+/** Okunur Türkçe gün+ay: "12 Eylül" */
+const trDayMonth = (d: Date) => `${d.getDate()} ${TR_MONTHS[d.getMonth()]}`;
+
+const EVENT_IN_DAYS = 60; // örnek etkinlik ~2 ay sonra
+const RSVP_BEFORE_DAYS = 10; // son bildirim etkinlikten 10 gün önce
+const SAMPLE_EVENT = daysFromNow(EVENT_IN_DAYS);
+const SAMPLE_RSVP = daysFromNow(EVENT_IN_DAYS - RSVP_BEFORE_DAYS);
+const SAMPLE_KINA = daysFromNow(EVENT_IN_DAYS - 3);
+
 /* Dini düğün temasına geçilince (kullanıcı hâlâ varsayılanlardaysa) uygulanan içerik */
 const DINI_CONTENT: Partial<Cfg> = {
   brideName: 'Dilan', groomName: 'Emre',
-  date: '2026-08-29T19:30',
+  date: localDateTime(SAMPLE_EVENT, 19, 30),
   subtitle: "Rahman ve Rahim olan Allah'ın adıyla",
   greeting: 'Düğünümüze Davetlisiniz',
   message: 'Sonsuz mutluluğa adım atacağımız bu özel günde, sizleri de aramızda görmekten mutluluk duyarız.',
   venueName: 'Safir Elegant Düğün Sarayı', venueCity: 'Çankaya / Ankara',
   mapQuery: 'Safir Elegant Düğün Sarayı Ankara',
   reception: 'Nikah & Düğün',
-  kinaDate: '2026-08-26T19:00',
+  kinaDate: localDateTime(SAMPLE_KINA, 19, 0),
   kinaVenueName: 'Gül Konağı Davet Salonu', kinaVenueCity: 'Çankaya / Ankara',
   kinaMapQuery: 'Gül Konağı Davet Salonu Ankara',
   dua: 'Rabbimiz bu beraberliği sevgi, huzur ve ömür boyu mutlulukla bereketlendirsin.',
-  rsvpDeadline: '20 Ağustos',
+  rsvpDeadline: trDayMonth(SAMPLE_RSVP),
 };
 
 /* Doğum günü temasına geçilince (kullanıcı hâlâ düğün varsayılanlarındaysa) uygulanan içerik */
@@ -146,7 +169,7 @@ type Cfg = {
 const DEFAULT_CFG: Cfg = {
   theme: 'altin',
   brideName: 'Zeynep', groomName: 'Ahmet',
-  date: '2026-09-12T18:00',
+  date: localDateTime(SAMPLE_EVENT, 18, 0),
   subtitle: 'evleniyoruz, sizi de aramızda görmek isteriz',
   greeting: 'Mutluluğumuza ortak olun',
   message: 'Birbirimize verdiğimiz sözü, bizi sevenlerin huzurunda söylemek istiyoruz. Bu mutlu günümüzde yanımızda olmanız bizim için çok değerli.',
@@ -170,7 +193,7 @@ const DEFAULT_CFG: Cfg = {
     { when: '2022', title: 'İlk Seyahat', text: 'Birlikte çıktığımız ilk yolculukta birbirimize bağlandık.' },
     { when: '2025', title: 'Teklif', text: 'Mum ışığında bir evet ile yollarımızı birleştirdik.' },
   ],
-  rsvpDeadline: '1 Eylül', rsvpDeadlineDate: '2026-09-01', phone: '905555555555',
+  rsvpDeadline: trDayMonth(SAMPLE_RSVP), rsvpDeadlineDate: localDate(SAMPLE_RSVP), phone: '905555555555',
   kinaDate: '', kinaVenueName: '', kinaVenueCity: '', kinaMapQuery: '', dua: '',
   introStyle: 'perde', nameFont: '',
   liveStreamUrl: '', accommodation: '', dressCode: '', transport: '',
@@ -472,7 +495,7 @@ const Editor = () => {
   };
 
   const downloadHtml = async () => {
-    const res = await fetch('/davet-preview.html?v=20260829d');
+    const res = await fetch('/davet-preview.html?v=20261003a');
     let html = await res.text();
     const initialConfig = JSON.stringify(cfg)
       .replace(/</g, '\\u003c')
@@ -506,6 +529,11 @@ const Editor = () => {
     }
     if (!isCeleb && cfg.rsvpDeadlineDate && new Date(`${cfg.rsvpDeadlineDate}T23:59:59`).getTime() < Date.now()) {
       return { section: 'rsvp', message: 'RSVP son bildirim tarihi geçmişte olamaz.' };
+    }
+    // Son bildirim tarihi etkinlikten SONRA olamaz (iki değer de "YYYY-MM-DD..." biçiminde,
+    // ilk 10 karakter metin olarak karşılaştırılabilir).
+    if (!isCeleb && cfg.rsvpDeadlineDate && cfg.date && cfg.rsvpDeadlineDate > cfg.date.slice(0, 10)) {
+      return { section: 'rsvp', message: 'RSVP son bildirim tarihi, etkinlik tarihinden sonra olamaz.' };
     }
     if (!isCeleb && !/^\d{8,15}$/.test(String(cfg.phone || '').replace(/\D/g, ''))) {
       return { section: 'rsvp', message: 'Lütfen geçerli bir WhatsApp numarası girin (ülke kodu ile, + olmadan).' };
@@ -1034,7 +1062,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20260829d" onLoad={post} />
+          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20261003a" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>

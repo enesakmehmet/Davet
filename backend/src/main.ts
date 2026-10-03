@@ -4,6 +4,7 @@ import { webcrypto } from 'crypto';
 if (!(globalThis as any).crypto) (globalThis as any).crypto = webcrypto;
 
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -12,7 +13,19 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Railway (ve benzeri barındırma) istekleri bir ters proxy üzerinden iletir. Bu ayar olmadan
+  // Express her isteğin IP'sini PROXY'NİN IP'si sanar; hız sınırlayıcı (ThrottlerGuard req.ip
+  // kullanır) tüm ziyaretçileri TEK kişi gibi sayar. Sonuç: "IP başına dakikada 5 RSVP" aslında
+  // "TÜM misafirler için dakikada 5" oluyordu — davet linki bir WhatsApp grubuna atıldığında
+  // aynı anda yanıt veren misafirlerin çoğu 429 (çok fazla istek) hatası alırdı; global 30/dk
+  // limiti de bütün siteye paylaşılıyordu.
+  // `true` yerine HOP SAYISI veriyoruz: `true` X-Forwarded-For'daki en soldaki (istemcinin
+  // kendisinin yazabildiği) değere güvenir ve sahte başlıkla limit atlatılabilir. 1 hop ise
+  // yalnızca Railway proxy'sinin eklediği gerçek istemci IP'sini kullanır.
+  const trustHops = Number(process.env.TRUST_PROXY_HOPS ?? 1);
+  if (trustHops > 0) app.set('trust proxy', trustHops);
 
   // Güvenlik başlıkları (HTTP). Swagger UI ve çapraz-origin görseller için CSP kapalı.
   app.use(

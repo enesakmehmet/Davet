@@ -22,7 +22,10 @@ export class GuestsService {
 
     const deadline = (invitation.config as any)?.rsvpDeadlineDate;
     if (deadline) {
-      const deadlineEnd = new Date(`${deadline}T23:59:59.999`);
+      // Son gün TÜRKİYE saatiyle biter (davetiyedeki ve editördeki kuralla aynı). Eskiden saat
+      // dilimi verilmediği için sunucunun saati (Railway = UTC) kullanılıyordu: davetiye "süre
+      // doldu" deyip formu kapattıktan sonra API 3 saat daha yanıt kabul ediyordu.
+      const deadlineEnd = new Date(`${deadline}T23:59:59.999+03:00`);
       if (!Number.isNaN(deadlineEnd.getTime()) && deadlineEnd.getTime() < Date.now()) {
         throw new ForbiddenException('Katılım bildirim süresi sona erdi.');
       }
@@ -53,6 +56,13 @@ export class GuestsService {
           phone: createGuestDto.phone?.replace(/\D/g, '') || null,
         },
       });
+      // Misafir kararını değiştirdiyse (ör. "katılıyorum" → "katılamıyorum") davet sahibi bunu
+      // bilmeli; eskiden güncellemelerde hiç bildirim gitmiyordu, sahip eski yanıta güvenip
+      // yanlış kişi sayısıyla planlama yapabiliyordu.
+      if (existingGuest.status !== guest.status) {
+        await this.notifyOwner(invitation.userId, invitation.id,
+          `${guest.name} katılım yanıtını değiştirdi: artık ${this.statusText(guest.status)} bildirdi.`, 'LCV Yanıtı Değişti');
+      }
       return { ...guest, updated: true };
     }
 
@@ -73,17 +83,28 @@ export class GuestsService {
     });
 
     // Davetiye sahibine bildirim gönder
-    const statusText = guest.status === 'attending' ? 'katılacağını' :
-                       guest.status === 'not_attending' ? 'katılamayacağını' : 'belki katılacağını';
-
-    await this.notificationsService.create({
-      userId: invitation.userId,
-      title: 'Yeni LCV Yanıtı',
-      content: `${guest.name} davetinize ${statusText} bildirdi.`,
-      invitationId: invitation.id,
-    });
+    await this.notifyOwner(invitation.userId, invitation.id,
+      `${guest.name} davetinize ${this.statusText(guest.status)} bildirdi.`, 'Yeni LCV Yanıtı');
 
     return guest;
+  }
+
+  private statusText(status: string) {
+    return status === 'attending' ? 'katılacağını' :
+           status === 'not_attending' ? 'katılamayacağını' : 'belki katılacağını';
+  }
+
+  /**
+   * Bildirim/push gönderimi hata verirse RSVP'yi DÜŞÜRMEZ. Eskiden bildirim adımı patlarsa
+   * misafir kaydı veritabanına yazılmış olduğu hâlde misafire hata dönüyordu; misafir tekrar
+   * deneyip aynı yanıtı ikinci kez gönderiyor ya da "olmadı" sanıp vazgeçiyordu.
+   */
+  private async notifyOwner(userId: string, invitationId: string, content: string, title: string) {
+    try {
+      await this.notificationsService.create({ userId, title, content, invitationId });
+    } catch {
+      /* bildirim hatası, kaydedilmiş RSVP'yi başarısız göstermemeli */
+    }
   }
 
   async findAllByInvitation(invitationId: string, userId: string) {

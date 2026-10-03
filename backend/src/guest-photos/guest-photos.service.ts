@@ -43,7 +43,7 @@ export class GuestPhotosService {
     if (!invitation) throw new NotFoundException('Davetiye bulunamadı.');
 
     if ((invitation.config as Record<string, unknown> | null)?.guestAlbumEnabled !== true) {
-      throw new ForbiddenException('Guest album is disabled for this invitation.');
+      throw new ForbiddenException('Bu davette misafir fotoğraf albümü kapalı.');
     }
 
     const count = await this.prisma.guestPhoto.count({ where: { invitationId } });

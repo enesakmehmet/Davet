@@ -602,9 +602,22 @@ var THEMES = {
 };
 
 /* ============ VARSAYILAN CONFIG ============ */
+/* Örnek tarih SABİT yazılmıyor, bugüne göre hesaplanıyor. Eskiden '2026-09-12' sabitti; zaman
+   geçince şablon galerisindeki TÜM tema önizlemeleri (yalnızca {theme} gönderip gerisini buradan
+   alıyorlar) ve "Örnek Daveti Aç" sayfası geri sayımı 00:00:00'da donuk gösteriyordu. */
+var SAMPLE_DATES = (function(){
+  var M=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  function p(n){return (n<10?'0':'')+n;}
+  var ev=new Date(); ev.setDate(ev.getDate()+60);
+  var rs=new Date(); rs.setDate(rs.getDate()+50);
+  return {
+    event: ev.getFullYear()+'-'+p(ev.getMonth()+1)+'-'+p(ev.getDate())+'T18:00',
+    rsvpText: rs.getDate()+' '+M[rs.getMonth()]
+  };
+})();
 var DEFAULT = {
   theme:'altin', brideName:'Zeynep', groomName:'Ahmet',
-  date:'2026-09-12T18:00', subtitle:'evleniyoruz, sizi de aramızda görmek isteriz',
+  date:SAMPLE_DATES.event, subtitle:'evleniyoruz, sizi de aramızda görmek isteriz',
   venueName:'Çırağan Sarayı Kempinski', venueCity:'Beşiktaş, İstanbul',
   mapQuery:'Çırağan Sarayı Kempinski İstanbul',
   message:'Birbirimize verdiğimiz sözü, bizi sevenlerin huzurunda söylemek istiyoruz. Bu mutlu günümüzde yanımızda olmanız bizim için çok değerli.',
@@ -622,7 +635,7 @@ var DEFAULT = {
     {when:'2022',title:'İlk Seyahat',text:'Birlikte çıktığımız ilk yolculukta birbirimize bağlandık.'},
     {when:'2025',title:'Teklif',text:'Mum ışığında bir evet ile yollarımızı birleştirdik.'}
   ],
-  rsvpDeadline:'1 Eylül', phone:'905555555555',
+  rsvpDeadline:SAMPLE_DATES.rsvpText, phone:'905555555555',
   /* dini düğün alanları */
   kinaDate:'', kinaVenueName:'', kinaVenueCity:'', kinaMapQuery:'', dua:'',
   /* kutlama modu alanları */
