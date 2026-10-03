@@ -495,7 +495,7 @@ const Editor = () => {
   };
 
   const downloadHtml = async () => {
-    const res = await fetch('/davet-preview.html?v=20261003a');
+    const res = await fetch('/davet-preview.html?v=20261003b');
     let html = await res.text();
     const initialConfig = JSON.stringify(cfg)
       .replace(/</g, '\\u003c')
@@ -1062,7 +1062,7 @@ const Editor = () => {
           </button>
           <div className="phone">
             <div className="phone-top" />
-          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20261003a" onLoad={post} />
+          <iframe ref={iframeRef} title="Önizleme" src="/davet-preview.html?embed=1&v=20261003b" onLoad={post} />
           </div>
           <p className="preview-hint">Canlı önizleme — değişiklikler anında yansır</p>
         </section>

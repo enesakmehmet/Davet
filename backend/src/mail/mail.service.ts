@@ -1,5 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+/** Kullanıcıdan gelen metni HTML e-postaya güvenle koymak için (etiket/link enjeksiyonunu önler). */
+export const escapeHtml = (v: unknown) =>
+  String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 /**
  * E-posta gönderimi Resend (https://resend.com) üzerinden yapılır.
  * Ekstra bir SDK'ya gerek yok — Resend'in REST API'sine doğrudan istek atıyoruz.
@@ -136,7 +145,8 @@ export class MailService {
       to,
       subject: 'Yeni Misafir Yanıtı',
       text: `${guestName} davetinize yanıt verdi: ${invitationTitle}`,
-      html: `<p><strong>${guestName}</strong> davetinize yanıt verdi:</p><p>${invitationTitle}</p>`,
+      // Misafir adı herkese açık RSVP formundan gelir — HTML'e kaçışsız girmemeli.
+      html: `<p><strong>${escapeHtml(guestName)}</strong> davetinize yanıt verdi:</p><p>${escapeHtml(invitationTitle)}</p>`,
     });
   }
 
@@ -146,9 +156,14 @@ export class MailService {
     const to = process.env.CONTACT_TO || this.from.match(/<([^>]+)>/)?.[1] || this.from;
     await this.sendMail({
       to,
-      subject: `İletişim formu: ${name}`,
+      // Konu satırına satır sonu enjekte edilemesin
+      subject: `İletişim formu: ${name.replace(/[\r\n]+/g, ' ')}`,
       text: `Gönderen: ${name} <${email}>\n\n${message}`,
-      html: `<p><strong>Gönderen:</strong> ${name} &lt;${email}&gt;</p><p>${String(message).replace(/\n/g, '<br>')}</p>`,
+      // Eskiden ad ve mesaj HTML'e KAÇIŞSIZ giriyordu: herkese açık formdan sahte buton/link
+      // (oltalama) içeren bir e-posta, site sahibine kendi alan adından güvenilir görünerek
+      // ulaştırılabiliyordu. Artık tüm kullanıcı girdisi düz metin olarak gösterilir.
+      html: `<p><strong>Gönderen:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`,
+      replyTo: email,
     });
     return { success: true };
   }
@@ -158,6 +173,7 @@ export class MailService {
     subject: string;
     text: string;
     html?: string;
+    replyTo?: string;
   }) {
     if (!this.apiKey) {
       // Lokal geliştirmede RESEND_API_KEY tanımlı değilse gerçekten göndermek yerine
@@ -182,6 +198,7 @@ export class MailService {
           subject: options.subject,
           text: options.text,
           html: options.html,
+          ...(options.replyTo ? { reply_to: options.replyTo } : {}),
         }),
       });
 

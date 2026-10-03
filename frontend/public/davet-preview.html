@@ -642,6 +642,39 @@ var DEFAULT = {
   videoUrl:'', fromName:'Sevgiyle, Annen', wish:'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂'
 };
 
+/* Doğum günü temaları için örnek içerik (Editor.tsx'teki BDAY_CONTENT ile aynı) */
+var BDAY_PHOTOS = [
+  'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=900&q=80'
+];
+var BDAY_DEFAULT = {
+  brideName:'Defne', groomName:'7',
+  subtitle:'doğum günü partime hepinizi bekliyorum!',
+  greeting:'Kutlamaya davetlisin',
+  message:'En sevdiğim insanlarla doğum günümü kutlamak istiyorum. Gelip eğlenceye, pasta ve sürprizlere ortak olursan çok mutlu olurum!',
+  venueName:'Happy Land Eğlence Merkezi', venueCity:'Kadıköy, İstanbul',
+  mapQuery:'Happy Land Eğlence Merkezi İstanbul',
+  reception:'Kapı açılışı 13:30',
+  photos: BDAY_PHOTOS,
+  families:[{side:'Annem',names:'Elif Yılmaz'},{side:'Babam',names:'Mert Yılmaz'}],
+  story:[
+    {when:'Doğdum',title:'Dünyaya merhaba',text:'Ailemizin en mutlu günüydü.'},
+    {when:'İlk adım',title:'Yürümeye başladım',text:'Artık durdurmak imkânsızdı!'},
+    {when:'Bugün',title:'Yaş günü zamanı',text:'Hep birlikte kutlayalım istiyorum.'}
+  ]
+};
+/* Kutlama (kişiye gönderilen) temaları için örnek içerik (Editor.tsx'teki CELEB_CONTENT ile aynı) */
+var CELEB_DEFAULT = {
+  brideName:'Defne', groomName:'7',
+  subtitle:'bugün senin günün — iyi ki doğdun!',
+  greeting:'Mutlu Yıllar Sana',
+  message:'Bu özel günü seninle kutlamak, gülüşünü görmek ve mutluluğuna ortak olmak en güzel hediye. Hayatımıza neşe kattığın için teşekkürler!',
+  photos: BDAY_PHOTOS,
+  fromName:'Sevgiyle, Annen',
+  wish:'Nice mutlu, sağlıklı ve kahkaha dolu senelere! İyi ki doğdun, iyi ki varsın. 🎂🎈'
+};
+
 var cdTimer=null, galTimer=null, musicState={actx:null,playing:false,loop:null,master:null,step:0};
 var introPlayed=false, introPreviewDismissed=false;
 
@@ -876,7 +909,17 @@ function fmtDay(d, lang){var p=evParts(d);if(!p)return '';return days(lang)[new 
 /* ============ RENDER ============ */
 function render(cfg){
   var isThumb = location.search.indexOf('thumb=1') !== -1 || location.hash.indexOf('thumb=1') !== -1;
-  cfg = Object.assign({}, DEFAULT, cfg||{});
+  /* Varsayılan içerik temanın TÜRÜNE göre seçilir. Şablon galerisi önizlemeye yalnızca {theme}
+     gönderir, geri kalan her şey DEFAULT'tan gelir — DEFAULT ise düğün metniydi. Bu yüzden
+     galerideki ~35 doğum günü/kutlama temasının hepsinde "Zeynep · AHMET YAŞINDA · evleniyoruz"
+     gibi saçma bir örnek görünüyordu. Editörden gelen gerçek davetlerde tüm alanlar dolu
+     olduğundan bu varsayılanlar onları etkilemez; yalnızca eksik alanları doldurur. */
+  var rawThemeKey = String((cfg && cfg.theme) || DEFAULT.theme);
+  var preT = THEMES[rawThemeKey];
+  var kindDefaults = {};
+  if (/^kutlama/.test(rawThemeKey) || (preT && preT.mode === 'celebration')) kindDefaults = CELEB_DEFAULT;
+  else if (preT && preT.kind === 'birthday') kindDefaults = BDAY_DEFAULT;
+  cfg = Object.assign({}, DEFAULT, kindDefaults, cfg||{});
   var isCelebKey = /^kutlama/.test(String(cfg.theme||''));
   var T = THEMES[cfg.theme] || (isCelebKey ? THEMES.kutlamaPop : THEMES.altin);
   // Kullanıcı isim yazı tipini seçtiyse tema varsayılanını ez (tüm türlerde geçerli)

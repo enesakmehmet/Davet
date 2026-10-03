@@ -3,7 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { UpdateInvitationDto } from './dto/update-invitation.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { MailService } from '../mail/mail.service';
+import { MailService, escapeHtml } from '../mail/mail.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -395,7 +395,7 @@ export class InvitationsService {
           to: inv.user.email,
           subject: `${inv.title} — 3 gün kaldı! 🎉`,
           text: `Merhaba ${inv.user.name || ''},\n\n"${inv.title}" etkinliğine 3 gün kaldı. Şu ana kadar ${rsvp} RSVP yanıtı aldınız.\n\nMisafir listenizi panelden kontrol edebilirsiniz.\n\nDavetim`,
-          html: `<p>Merhaba <strong>${inv.user.name || ''}</strong>,</p><p>"<strong>${inv.title}</strong>" etkinliğine <strong>3 gün</strong> kaldı. Şu ana kadar <strong>${rsvp}</strong> RSVP yanıtı aldınız.</p><p>Misafir listenizi panelden kontrol edebilirsiniz.</p><p>Davetim 💛</p>`,
+          html: `<p>Merhaba <strong>${escapeHtml(inv.user.name || '')}</strong>,</p><p>"<strong>${escapeHtml(inv.title)}</strong>" etkinliğine <strong>3 gün</strong> kaldı. Şu ana kadar <strong>${rsvp}</strong> RSVP yanıtı aldınız.</p><p>Misafir listenizi panelden kontrol edebilirsiniz.</p><p>Davetim 💛</p>`,
         }).catch((e) => this.logger.warn(`Hatırlatma e-postası gönderilemedi: ${e.message}`));
       }
     }
