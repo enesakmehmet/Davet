@@ -121,8 +121,16 @@ export class AuthService {
     if (!user.emailVerified) {
       throw new UnauthorizedException('Giriş yapmadan önce e-posta adresinizi doğrulamanız gerekiyor.');
     }
+    this.assertNotSuspended(user);
 
     return this.generateTokens(user, platform);
+  }
+
+  /** Admin panelinden askıya alınan hesaplar giriş yapamaz / oturum yenileyemez. */
+  private assertNotSuspended(user: any) {
+    if (user?.status === 'suspended') {
+      throw new UnauthorizedException('Hesabın askıya alınmış. Destek için bizimle iletişime geç.');
+    }
   }
 
   async refresh(refreshDto: RefreshDto, platform?: string) {
@@ -140,6 +148,7 @@ export class AuthService {
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException('Giriş yapılmamış veya token geçersiz.');
     }
+    this.assertNotSuspended(user);
 
     const isRefreshTokenValid = await bcrypt.compare(refreshDto.refreshToken, user.refreshToken);
     if (!isRefreshTokenValid) {
@@ -185,6 +194,11 @@ export class AuthService {
       resetToken: null,
       resetTokenExpires: null,
       refreshToken: null, // güvenlik: mevcut oturumları geçersiz kıl
+      // E-postaya gelen kodu girmek adresin sahibi olunduğunu kanıtlar. Eskiden doğrulanmamış
+      // bir hesap şifresini sıfırlasa bile girişte "önce e-postanı doğrula" hatasına takılıyordu.
+      emailVerified: true,
+      verifyToken: null,
+      verifyTokenExpires: null,
     });
 
     return { message: 'Şifreniz başarıyla değiştirildi. Şimdi giriş yapabilirsiniz.' };

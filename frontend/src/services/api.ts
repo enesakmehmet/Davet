@@ -50,7 +50,12 @@ api.interceptors.response.use(
   async (error) => {
     const original: any = error?.config;
     const status = error?.response?.status;
-    const isAuthCall = String(original?.url || '').includes('/auth/');
+    // Yalnızca oturum GEREKTİRMEYEN auth uçlarında yenileme denenmez (giriş, kayıt, yenilemenin
+    // kendisi vb.). Eskiden '/auth/' içeren HER istek hariç tutuluyordu; bu yüzden /auth/me ve
+    // "doğrulama e-postasını tekrar gönder" gibi oturumlu istekler, access token'ın süresi
+    // dolunca yenilenmek yerine sessizce başarısız oluyordu.
+    const url = String(original?.url || '');
+    const isAuthCall = /\/auth\/(login|refresh|register|verify-registration|resend-registration-code|forgot-password|reset-password|verify-email)\b/.test(url);
     if (status === 401 && original && !original._retry && !isAuthCall && localStorage.getItem('refreshToken')) {
       original._retry = true;
       const newToken = await doRefresh();
@@ -299,8 +304,8 @@ export const settingsService = {
     const { data } = await api.patch('/settings/password', { currentPassword, newPassword });
     return data;
   },
-  deleteAccount: async () => {
-    const { data } = await api.delete('/settings/account');
+  deleteAccount: async (password: string) => {
+    const { data } = await api.delete('/settings/account', { data: { password } });
     return data;
   },
   // KVKK: kullanıcının tüm verilerini JSON olarak indirir

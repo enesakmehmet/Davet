@@ -43,8 +43,8 @@ export class SettingsController {
 
   @Delete('account')
   @HttpCode(HttpStatus.OK)
-  async deleteAccount(@GetUser('id') userId: string) {
-    return this.settingsService.deleteAccount(userId);
+  async deleteAccount(@GetUser('id') userId: string, @Body('password') password?: string) {
+    return this.settingsService.deleteAccount(userId, password);
   }
 
   @Get('export')

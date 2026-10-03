@@ -930,7 +930,7 @@ const SettingsView = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const email = user?.email || ''; // salt okunur
   const [profileMsg, setProfileMsg] = useState('');
   const [profileErr, setProfileErr] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
@@ -972,14 +972,15 @@ const SettingsView = () => {
   const [deleting, setDeleting] = useState(false);
   const deleteAccount = async () => {
     if (!window.confirm('Hesabını ve tüm davetiyelerini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
-    if (!window.confirm('Son kez soruyoruz: hesabı tamamen sil?')) return;
+    const pw = window.prompt('Güvenlik için mevcut şifreni gir:');
+    if (!pw) return;
     setDeleting(true);
     try {
-      await settingsService.deleteAccount();
+      await settingsService.deleteAccount(pw);
       logout();
       navigate('/');
-    } catch {
-      showToast('Hesap silinemedi. Lütfen tekrar deneyin.');
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || 'Hesap silinemedi. Lütfen tekrar deneyin.');
       setDeleting(false);
     }
   };
@@ -995,7 +996,9 @@ const SettingsView = () => {
           </div>
           <div className="settings-row">
             <label>E-posta</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            {/* E-posta doğrulamasız değiştirilemez (bkz. backend settings.service) — salt okunur */}
+            <input type="email" value={email} readOnly disabled style={{ opacity: 0.7 }} />
+            <small style={{ fontSize: 12, color: '#8a8f9c' }}>E-posta değişikliği için iletişim sayfasından bize yazabilirsin.</small>
           </div>
           {profileErr && <div className="db-tag red" style={{ marginBottom: 10 }}>{profileErr}</div>}
           {profileMsg && <div className="db-tag green" style={{ marginBottom: 10 }}>{profileMsg}</div>}

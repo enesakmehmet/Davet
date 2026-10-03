@@ -34,6 +34,23 @@ describe('AdminService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('kendi hesabını koruma', () => {
+    it('admin kendini askıya alamaz, yetkisini düşüremez, silemez', async () => {
+      await expect(service.updateUserStatus('me', 'suspended', 'me')).rejects.toThrow('Kendi hesabında');
+      await expect(service.updateUserRole('me', 'user', 'me')).rejects.toThrow('Kendi hesabında');
+      await expect(service.deleteUser('me', 'me')).rejects.toThrow('Kendi hesabında');
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('başka bir kullanıcı askıya alınınca kayıtlı oturum anahtarı da silinir', async () => {
+      prisma.user.update.mockResolvedValue({ id: 'u2', email: 'x@y.com', status: 'suspended' });
+      await service.updateUserStatus('u2', 'suspended', 'me');
+      expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+        data: { status: 'suspended', refreshToken: null },
+      }));
+    });
+  });
+
   describe('updateUserRole', () => {
     it('geçersiz bir rol verilirse güvenli şekilde "user" yapar', async () => {
       prisma.user.update.mockResolvedValue({ id: 'u1', email: 'a@b.com', role: 'user' });

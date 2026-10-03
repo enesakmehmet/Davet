@@ -43,22 +43,23 @@ export class SettingsService {
   async updateSettings(userId: string, updateSettingsDto: UpdateSettingsDto) {
     const { email, name, ...preferences } = updateSettingsDto;
 
-    // Email değişikliği varsa unique kontrolü yap
+    // E-posta buradan DEĞİŞTİRİLEMEZ. Eskiden bu uç noktadan hesap e-postası herhangi bir adrese
+    // doğrulamasız geçirilebiliyordu: kayıttaki 6 haneli kod doğrulaması ve geçici/sahte e-posta
+    // kontrolü tamamen atlanıyordu; başkasına ait bir adres alınıp o kişinin kayıt olması
+    // engellenebiliyordu. Doğrulamalı e-posta değişikliği akışı eklenene kadar yalnızca
+    // aynı adresin gönderilmesine (ör. formun tamamının kaydedilmesi) izin veriliyor.
     if (email) {
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser && existingUser.id !== userId) {
-        throw new BadRequestException('Bu e-posta adresi zaten kullanılıyor');
+      const current = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+      if (!current) throw new NotFoundException('Kullanıcı bulunamadı');
+      if (email.trim().toLowerCase() !== current.email.trim().toLowerCase()) {
+        throw new BadRequestException('E-posta adresi şu an panelden değiştirilemiyor. Değişiklik için iletişim sayfasından bize yazabilirsin.');
       }
     }
 
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
-        email: email || undefined,
-        name: name || undefined,
+        name: name?.trim() || undefined,
       },
       select: {
         id: true,
@@ -115,7 +116,15 @@ export class SettingsService {
     };
   }
 
-  async deleteAccount(userId: string) {
+  async deleteAccount(userId: string, password?: string) {
+    // Geri dönüşü olmayan işlem: mevcut şifre ŞART. Eskiden sadece geçerli bir oturum yetiyordu;
+    // açık kalmış bir oturumla (ortak bilgisayar, çalınmış token) hesap ve tüm davetler silinebilirdi.
+    const owner = await this.prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
+    if (!owner) throw new NotFoundException('Kullanıcı bulunamadı');
+    if (!password || !(await bcrypt.compare(password, owner.passwordHash))) {
+      throw new UnauthorizedException('Hesabı silmek için mevcut şifreni doğru girmelisin.');
+    }
+
     // Kullanıcı ve ilişkili tüm verileri sil (cascade delete ayarlanmış)
     await this.prisma.user.delete({
       where: { id: userId },
@@ -144,7 +153,9 @@ export class SettingsService {
     }
 
     // Hassas bilgileri çıkar
-    const { passwordHash, refreshToken, ...userData } = user;
+    // Kimlik bilgisi niteliğindeki alanlar indirilen dosyaya girmesin (dosya e-postayla
+    // paylaşılabilir/bulutta kalabilir; içindeki geçerli bir sıfırlama kodu hesabı açar).
+    const { passwordHash, refreshToken, resetToken, resetTokenExpires, verifyToken, verifyTokenExpires, ...userData } = user as any;
 
     return {
       message: 'Kullanıcı verileri dışa aktarıldı',

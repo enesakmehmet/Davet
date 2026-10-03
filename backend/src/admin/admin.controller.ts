@@ -10,6 +10,7 @@ import {
   Patch,
   Body,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AdminAccessGuard } from '../auth/guards/admin-access.guard';
@@ -82,8 +83,9 @@ export class AdminController {
   async updateUserStatus(
     @Param('id') id: string,
     @Body('status') status: string,
+    @Req() req: any,
   ) {
-    return this.adminService.updateUserStatus(id, status);
+    return this.adminService.updateUserStatus(id, status, req.user?.id);
   }
 
   @Patch('users/:id/role')
@@ -91,8 +93,9 @@ export class AdminController {
   async updateUserRole(
     @Param('id') id: string,
     @Body('role') role: string,
+    @Req() req: any,
   ) {
-    return this.adminService.updateUserRole(id, role);
+    return this.adminService.updateUserRole(id, role, req.user?.id);
   }
 
   @Get('trends')
@@ -142,8 +145,8 @@ export class AdminController {
 
   @Delete('users/:id')
   @AdminOnly() @Roles('admin')
-  async deleteUser(@Param('id') id: string) {
-    return this.adminService.deleteUser(id);
+  async deleteUser(@Param('id') id: string, @Req() req: any) {
+    return this.adminService.deleteUser(id, req.user?.id);
   }
 
   @Get('invitations')

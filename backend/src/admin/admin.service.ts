@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
@@ -164,17 +164,31 @@ export class AdminService {
     return user;
   }
 
-  async updateUserStatus(id: string, status: string) {
+  /**
+   * Yöneticinin kendi hesabını askıya alması / yetkisini düşürmesi / silmesi engellenir.
+   * Askıya alma artık gerçekten oturumu kapattığı için (bkz. jwt.strategy), tek admin kendi
+   * satırında yanlış butona basarsa panele bir daha giremez ve ancak veritabanından düzeltilebilirdi.
+   */
+  private assertNotSelf(targetId: string, actorId?: string) {
+    if (actorId && targetId === actorId) {
+      throw new BadRequestException('Kendi hesabında bu işlemi yapamazsın.');
+    }
+  }
+
+  async updateUserStatus(id: string, status: string, actorId?: string) {
+    this.assertNotSelf(id, actorId);
     const safe = status === 'suspended' ? 'suspended' : 'active';
     const user = await this.prisma.user.update({
       where: { id },
-      data: { status: safe },
+      // Askıya alınınca kayıtlı oturum anahtarı da silinir; kullanıcı yenileme ile geri giremez.
+      data: safe === 'suspended' ? { status: safe, refreshToken: null } : { status: safe },
       select: { id: true, email: true, status: true },
     });
     return { message: 'Kullanıcı durumu güncellendi', user };
   }
 
-  async updateUserRole(id: string, role: string) {
+  async updateUserRole(id: string, role: string, actorId?: string) {
+    this.assertNotSelf(id, actorId);
     const safe = ['admin', 'moderator'].includes(role) ? role : 'user';
     const user = await this.prisma.user.update({
       where: { id },
@@ -324,7 +338,8 @@ export class AdminService {
     };
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: string, actorId?: string) {
+    this.assertNotSelf(id, actorId);
     // Cascade delete yapılandırılmış, Prisma otomatik siler
     await this.prisma.user.delete({
       where: { id },
