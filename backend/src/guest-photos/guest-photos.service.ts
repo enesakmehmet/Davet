@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { getImageProcessor } from '../common/image-processing';
 
 const MAX_PHOTOS_PER_INVITATION = Number(process.env.GUEST_ALBUM_LIMIT || 30);
 
@@ -16,7 +17,7 @@ export class GuestPhotosService {
   private async optimize(file: Express.Multer.File): Promise<{ buffer: Buffer; mime: string }> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const sharp = require('sharp');
+      const sharp = getImageProcessor();
       const out: Buffer = await sharp(file.buffer)
         .rotate()
         .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
@@ -106,11 +107,11 @@ export class GuestPhotosService {
   async remove(id: string, userId: string) {
     const photo = await this.prisma.guestPhoto.findUnique({
       where: { id },
-      include: { invitation: { select: { userId: true } } },
+      select: { invitation: { select: { userId: true } } },
     });
     if (!photo) throw new NotFoundException('Fotoğraf bulunamadı.');
     if (photo.invitation.userId !== userId) throw new ForbiddenException('Bu fotoğrafı silme yetkiniz yok.');
-    await this.prisma.guestPhoto.delete({ where: { id } });
+    await this.prisma.guestPhoto.delete({ where: { id }, select: { id: true } });
     return { success: true };
   }
 }

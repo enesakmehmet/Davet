@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from './storage.service';
+import { getImageProcessor } from '../common/image-processing';
 
 @Injectable()
 export class AssetsService {
@@ -19,7 +20,7 @@ export class AssetsService {
     if (!/^image\/(jpe?g|png|webp)$/i.test(file.mimetype)) return original;
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const sharp = require('sharp');
+      const sharp = getImageProcessor();
       const out: Buffer = await sharp(file.buffer)
         .rotate() // EXIF yönünü düzelt
         .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
@@ -48,11 +49,12 @@ export class AssetsService {
         data: processed.buffer,
         userId,
       },
+      select: { id: true },
     });
     const base = (process.env.PUBLIC_BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`).trim();
     // Global prefix 'api' ile birlikte gerçek route /api/assets/file/:id'dir.
     const url = `${base.replace(/\/+$/, '')}/api/assets/file/${asset.id}`;
-    await this.prisma.asset.update({ where: { id: asset.id }, data: { url } });
+    await this.prisma.asset.update({ where: { id: asset.id }, data: { url }, select: { id: true } });
     return { id: asset.id, url, type, filename: processed.filename, size: processed.size };
   }
 
@@ -68,19 +70,25 @@ export class AssetsService {
   async findAllByUser(userId: string) {
     return this.prisma.asset.findMany({
       where: { userId, deletedAt: null },
+      // Binary contents belong only in the file endpoint, never in a JSON list.
+      select: {
+        id: true, url: true, type: true, filename: true, size: true,
+        mime: true, createdAt: true, deletedAt: true, userId: true,
+      },
       orderBy: { createdAt: 'desc' }
     });
   }
 
   async remove(id: string, userId: string) {
-    const asset = await this.prisma.asset.findUnique({ where: { id } });
+    const asset = await this.prisma.asset.findUnique({ where: { id }, select: { userId: true } });
     if (!asset) throw new NotFoundException('Dosya bulunamadı');
     if (asset.userId !== userId) throw new ForbiddenException('Bu dosyayı silemezsiniz');
 
     // Soft delete
     await this.prisma.asset.update({
       where: { id },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
+      select: { id: true },
     });
 
     // Storage üzerinden silmek isterseniz:

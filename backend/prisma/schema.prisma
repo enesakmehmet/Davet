@@ -154,6 +154,7 @@ model Asset {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, deletedAt])
 }
 
 // Misafir albümü: davete gelen misafirlerin yüklediği fotoğraflar
@@ -225,6 +226,7 @@ model Analytics {
 
   invitationId String
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  @@index([invitationId])
 }
 
 model AnalyticsEvent {
@@ -239,6 +241,7 @@ model AnalyticsEvent {
 
   invitationId String
   invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  @@index([invitationId, viewedAt])
 }
 
 model Notification {

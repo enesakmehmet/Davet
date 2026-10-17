@@ -15,6 +15,7 @@ describe('AdminService', () => {
       user: { update: jest.fn(), findMany: jest.fn() },
       invitation: { findFirst: jest.fn(), update: jest.fn(), findMany: jest.fn() },
       payment: { findMany: jest.fn() },
+      $queryRaw: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -94,8 +95,8 @@ describe('AdminService', () => {
   describe('getTrends', () => {
     it('30 günlük gün listesi + günlük kullanıcı/gelir toplamlarını döner', async () => {
       const today = new Date().toISOString().slice(0, 10);
-      prisma.user.findMany.mockResolvedValue([{ createdAt: new Date() }, { createdAt: new Date() }]);
-      prisma.payment.findMany.mockResolvedValue([{ createdAt: new Date(), amount: 150 }]);
+      prisma.$queryRaw.mockResolvedValueOnce([{ date: today, count: 2n }])
+        .mockResolvedValueOnce([{ date: today, amount: 150 }]);
 
       const result = await service.getTrends();
 

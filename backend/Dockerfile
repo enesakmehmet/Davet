@@ -36,5 +36,6 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 
 EXPOSE 3001
 
-# Command to run the application
-CMD [ "npm", "run", "start:prod" ]
+# Migrate once, then replace the shell with Node (no persistent npm parent).
+ENV NODE_ENV=production
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && exec node dist/main"]

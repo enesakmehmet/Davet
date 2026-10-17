@@ -88,9 +88,13 @@ export class AnalyticsService {
 
   // Admin için sayfa görüntüleme özeti
   async getPageViewStats() {
-    const total = await this.prisma.pageView.count();
-    const sessions = await this.prisma.pageView.findMany({ select: { sessionId: true }, distinct: ['sessionId'] });
-    const uniqueVisitors = sessions.filter((s) => s.sessionId).length;
+    const [totals] = await this.prisma.$queryRaw<{ total: bigint; uniqueVisitors: bigint }[]>`
+      SELECT COUNT(*) AS total,
+             COUNT(DISTINCT NULLIF("sessionId", '')) AS "uniqueVisitors"
+      FROM "PageView"
+    `;
+    const total = Number(totals.total);
+    const uniqueVisitors = Number(totals.uniqueVisitors);
 
     const grouped = await this.prisma.pageView.groupBy({
       by: ['path'],
@@ -102,18 +106,18 @@ export class AnalyticsService {
 
     // Son 14 gün günlük dağılım
     const since = new Date(Date.now() - 14 * 86400000);
-    const recent = await this.prisma.pageView.findMany({
-      where: { createdAt: { gte: since } },
-      select: { createdAt: true },
-    });
+    const recent = await this.prisma.$queryRaw<{ date: string; views: bigint }[]>`
+      SELECT to_char("createdAt", 'YYYY-MM-DD') AS date, COUNT(*) AS views
+      FROM "PageView" WHERE "createdAt" >= ${since}
+      GROUP BY 1
+    `;
     const daily: Record<string, number> = {};
     for (let i = 13; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
       daily[d] = 0;
     }
     recent.forEach((r) => {
-      const d = r.createdAt.toISOString().slice(0, 10);
-      if (daily[d] !== undefined) daily[d]++;
+      if (daily[r.date] !== undefined) daily[r.date] = Number(r.views);
     });
 
     return { total, uniqueVisitors, byPath, daily };
@@ -122,7 +126,8 @@ export class AnalyticsService {
   async getStatsByInvitation(invitationId: string, userId: string) {
     const invitation = await this.prisma.invitation.findFirst({
       where: { id: invitationId, deletedAt: null },
-      include: { 
+      select: {
+        userId: true,
         analytics: true,
         analyticsEvents: {
           orderBy: { viewedAt: 'desc' },
@@ -137,22 +142,25 @@ export class AnalyticsService {
 
     // Son 14 günün günlük görüntülenme serisi (çizgi grafik için)
     const since = new Date();
-    since.setDate(since.getDate() - 13);
-    since.setHours(0, 0, 0, 0);
-    const recentEvents = await this.prisma.analyticsEvent.findMany({
-      where: { invitationId, viewedAt: { gte: since } },
-      select: { viewedAt: true },
-    });
+    // SQL groups timestamps by their stored UTC calendar date.
+    since.setUTCDate(since.getUTCDate() - 13);
+    since.setUTCHours(0, 0, 0, 0);
+    const recentEvents = await this.prisma.$queryRaw<{ date: string; views: bigint }[]>`
+      SELECT to_char("viewedAt", 'YYYY-MM-DD') AS date, COUNT(*) AS views
+      FROM "AnalyticsEvent"
+      WHERE "invitationId" = ${invitationId} AND "viewedAt" >= ${since}
+      GROUP BY 1
+    `;
     const daily: { date: string; views: number }[] = [];
     for (let i = 0; i < 14; i++) {
       const d = new Date(since);
-      d.setDate(since.getDate() + i);
+      d.setUTCDate(since.getUTCDate() + i);
       daily.push({ date: d.toISOString().slice(0, 10), views: 0 });
     }
     const byDate = new Map(daily.map((row) => [row.date, row]));
     recentEvents.forEach((e) => {
-      const row = byDate.get(e.viewedAt.toISOString().slice(0, 10));
-      if (row) row.views++;
+      const row = byDate.get(e.date);
+      if (row) row.views = Number(e.views);
     });
 
     return {

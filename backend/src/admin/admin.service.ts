@@ -510,14 +510,16 @@ export class AdminService {
     const since = new Date(Date.now() - 30 * 86400000);
 
     const [users, payments] = await Promise.all([
-      this.prisma.user.findMany({
-        where: { createdAt: { gte: since } },
-        select: { createdAt: true },
-      }),
-      this.prisma.payment.findMany({
-        where: { createdAt: { gte: since }, status: 'completed' },
-        select: { createdAt: true, amount: true },
-      }),
+      this.prisma.$queryRaw<{ date: string; count: bigint }[]>`
+        SELECT to_char("createdAt", 'YYYY-MM-DD') AS date, COUNT(*) AS count
+        FROM "User" WHERE "createdAt" >= ${since}
+        GROUP BY 1
+      `,
+      this.prisma.$queryRaw<{ date: string; amount: number }[]>`
+        SELECT to_char("createdAt", 'YYYY-MM-DD') AS date, SUM(amount) AS amount
+        FROM "Payment" WHERE "createdAt" >= ${since} AND status = 'completed'
+        GROUP BY 1
+      `,
     ]);
 
     const days: string[] = [];
@@ -530,11 +532,11 @@ export class AdminService {
     days.forEach((d) => { dailyUsers[d] = 0; dailyRevenue[d] = 0; });
 
     users.forEach((u) => {
-      const d = u.createdAt.toISOString().slice(0, 10);
-      if (dailyUsers[d] !== undefined) dailyUsers[d]++;
+      const d = u.date;
+      if (dailyUsers[d] !== undefined) dailyUsers[d] = Number(u.count);
     });
     payments.forEach((p) => {
-      const d = p.createdAt.toISOString().slice(0, 10);
+      const d = p.date;
       if (dailyRevenue[d] !== undefined) dailyRevenue[d] += Number(p.amount || 0);
     });
 

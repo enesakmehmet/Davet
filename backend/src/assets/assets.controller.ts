@@ -45,7 +45,7 @@ export class AssetsController {
   async serveFile(@Param('id') id: string, @Res() res: Response) {
     const a = await this.assetsService.getFile(id);
     if (!a || !a.data) throw new NotFoundException('Dosya bulunamadı.');
-    const buf = Buffer.from(a.data as any);
+    const buf = Buffer.isBuffer(a.data) ? a.data : Buffer.from(a.data);
     res.setHeader('Content-Type', a.mime || 'application/octet-stream');
     res.setHeader('Content-Length', buf.length.toString());
     res.setHeader('Accept-Ranges', 'bytes');
